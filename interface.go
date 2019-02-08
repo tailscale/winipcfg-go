@@ -67,8 +67,22 @@ func InterfaceFromIndex(index uint32) (*InterfaceEx, error) {
 	return nil, nil
 }
 
-//func InterfaceFromName(name string) (*Interface, error)
-//
+func InterfaceFromName(name string) (*InterfaceEx, error) {
+	aa, err := adapterAddresses()
+	if err != nil {
+		return nil, err
+	}
+	if aa == nil {
+		return nil, nil
+	}
+	for _, a := range aa {
+		if a.name() == name {
+			return a.toInterfaceEx(), nil
+		}
+	}
+	return nil, nil
+}
+
 //// Sets up the interface to be totally blank, with no settings. If the user has
 //// subsequently edited the interface particulars or added/removed parts using
 //// the "Properties" view, this wipes out those changes.

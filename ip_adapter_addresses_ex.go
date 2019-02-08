@@ -55,6 +55,10 @@ func (aa *IpAdapterAddressesEx) next() *IpAdapterAddressesEx {
 	return (*IpAdapterAddressesEx) (unsafe.Pointer(aa.IpAdapterAddresses.Next))
 }
 
+func (aa *IpAdapterAddressesEx) name() string {
+	return windows.UTF16ToString((*(*[10000]uint16)(unsafe.Pointer(aa.IpAdapterAddresses.FriendlyName)))[:])
+}
+
 // Created based on interfaceTable method from 'net' module, interface_windows.go file.
 func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 	if aa == nil {
@@ -67,7 +71,7 @@ func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 	ifi := InterfaceEx{
 		Interface: net.Interface{
 			Index: int(index),
-			Name: syscall.UTF16ToString((*(*[10000]uint16)(unsafe.Pointer(aa.IpAdapterAddresses.FriendlyName)))[:]),
+			Name: aa.name(),
 		},
 		Luid: aa.Luid,
 	}

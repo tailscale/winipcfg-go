@@ -66,7 +66,7 @@ func Test_InterfaceFromIndex_Existing(t *testing.T) {
 	if err != nil {
 		t.Errorf("InterfaceFromIndex() returned error: %v", err)
 	} else if ifc == nil {
-		t.Errorf("InterfaceFromIndex() returned nil for index=%d. Have you set existingLuid constant?",
+		t.Errorf("InterfaceFromIndex() returned nil for index=%d. Have you set existingIndex constant?",
 			existingIndex)
 	} else if uint32(ifc.Interface.Index) != existingIndex {
 		t.Errorf("InterfaceFromIndex() returned interface with a wrong index. Requested: %d; returned: %d.",
@@ -86,5 +86,37 @@ func Test_InterfaceFromIndex_NonExisting(t *testing.T) {
 	} else if ifc != nil {
 		t.Errorf("InterfaceFromIndex() returned an interface with index=%d, although requested index was %d.",
 			ifc.Interface.Index, nonExistingIndex)
+	}
+}
+
+// TODO: Set an existing interface name here:
+const existingName string = "LAN"
+
+func Test_InterfaceFromName_Existing(t *testing.T) {
+	ifc, err := InterfaceFromName(existingName)
+
+	if err != nil {
+		t.Errorf("InterfaceFromName() returned error: %v", err)
+	} else if ifc == nil {
+		t.Errorf("InterfaceFromName() returned nil for name=%s. Have you set existingName constant?",
+			existingName)
+	} else if ifc.Interface.Name != existingName {
+		t.Errorf("InterfaceFromName() returned interface with a wrong name. Requested: %s; returned: %s.",
+			existingName, ifc.Interface.Name)
+	} else {
+		fmt.Printf("InterfaceFromName() returned corresponding interface:\n%s\n", ifc)
+	}
+}
+
+const nonExistingName string = "NON-EXISTING-NAME"
+
+func Test_InterfaceFromName_NonExisting(t *testing.T) {
+	ifc, err := InterfaceFromName(nonExistingName)
+
+	if err != nil {
+		t.Errorf("InterfaceFromName() returned error: %v", err)
+	} else if ifc != nil {
+		t.Errorf("InterfaceFromName() returned an interface with name=%s, although requested name was %s.",
+			ifc.Interface.Name, nonExistingName)
 	}
 }

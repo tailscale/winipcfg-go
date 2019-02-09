@@ -15,7 +15,7 @@ import (
 
 // I've had to extend the original windows.IpAdapterAddresses because it doesn't contain Luid field.
 type IpAdapterAddressesEx struct {
-	IpAdapterAddresses windows.IpAdapterAddresses
+	windows.IpAdapterAddresses
 	offset1 [ipAdapterAddressesExOffset1Size]byte
 	Luid uint64
 	offset2 [ipAdapterAddressesExOffset2Size]byte
@@ -51,11 +51,11 @@ func adapterAddresses() ([]*IpAdapterAddressesEx, error) {
 }
 
 func (aa *IpAdapterAddressesEx) next() *IpAdapterAddressesEx {
-	return (*IpAdapterAddressesEx) (unsafe.Pointer(aa.IpAdapterAddresses.Next))
+	return (*IpAdapterAddressesEx) (unsafe.Pointer(aa.Next))
 }
 
 func (aa *IpAdapterAddressesEx) name() string {
-	return windows.UTF16ToString((*(*[10000]uint16)(unsafe.Pointer(aa.IpAdapterAddresses.FriendlyName)))[:])
+	return windows.UTF16ToString((*(*[10000]uint16)(unsafe.Pointer(aa.FriendlyName)))[:])
 }
 
 // Created based on interfaceTable method from 'net' module, interface_windows.go file.
@@ -63,9 +63,9 @@ func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 	if aa == nil {
 		return nil
 	}
-	index := aa.IpAdapterAddresses.IfIndex
+	index := aa.IfIndex
 	if index == 0 { // ipv6IfIndex is a substitute for ifIndex
-		index = aa.IpAdapterAddresses.Ipv6IfIndex
+		index = aa.Ipv6IfIndex
 	}
 	ifi := InterfaceEx{
 		Interface: net.Interface{
@@ -74,14 +74,14 @@ func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 		},
 		Luid: aa.Luid,
 	}
-	if aa.IpAdapterAddresses.OperStatus == windows.IfOperStatusUp {
+	if aa.OperStatus == windows.IfOperStatusUp {
 		ifi.Flags |= net.FlagUp
 	}
 	// For now we need to infer link-layer service
 	// capabilities from media types.
 	// TODO: use MIB_IF_ROW2.AccessType now that we no longer support
 	// Windows XP.
-	switch aa.IpAdapterAddresses.IfType {
+	switch aa.IfType {
 	case windows.IF_TYPE_ETHERNET_CSMACD, windows.IF_TYPE_ISO88025_TOKENRING, windows.IF_TYPE_IEEE80211, windows.IF_TYPE_IEEE1394:
 		ifi.Flags |= net.FlagBroadcast | net.FlagMulticast
 	case windows.IF_TYPE_PPP, windows.IF_TYPE_TUNNEL:
@@ -91,14 +91,14 @@ func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 	case windows.IF_TYPE_ATM:
 		ifi.Flags |= net.FlagBroadcast | net.FlagPointToPoint | net.FlagMulticast // assume all services available; LANE, point-to-point and point-to-multipoint
 	}
-	if aa.IpAdapterAddresses.Mtu == 0xffffffff {
+	if aa.Mtu == 0xffffffff {
 		ifi.MTU = -1
 	} else {
-		ifi.MTU = int(aa.IpAdapterAddresses.Mtu)
+		ifi.MTU = int(aa.Mtu)
 	}
-	if aa.IpAdapterAddresses.PhysicalAddressLength > 0 {
-		ifi.HardwareAddr = make(net.HardwareAddr, aa.IpAdapterAddresses.PhysicalAddressLength)
-		copy(ifi.HardwareAddr, aa.IpAdapterAddresses.PhysicalAddress[:])
+	if aa.PhysicalAddressLength > 0 {
+		ifi.HardwareAddr = make(net.HardwareAddr, aa.PhysicalAddressLength)
+		copy(ifi.HardwareAddr, aa.PhysicalAddress[:])
 	}
 	return &ifi
 }

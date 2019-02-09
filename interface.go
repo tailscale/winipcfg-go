@@ -56,9 +56,9 @@ func InterfaceFromIndex(index uint32) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		idx := a.IpAdapterAddresses.IfIndex
+		idx := a.IfIndex
 		if idx == 0 {
-			idx = a.IpAdapterAddresses.Ipv6IfIndex
+			idx = a.Ipv6IfIndex
 		}
 		if idx == index {
 			return a.toInterfaceEx(), nil

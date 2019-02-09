@@ -21,12 +21,10 @@ type IpAdapterAddressesEx struct {
 	offset2 [ipAdapterAddressesExOffset2Size]byte
 }
 
-const expectedNumberOfInterfaces uint32 = 50
-
 // Based on function with the same name in 'net' module, in file interface_windows.go
 func adapterAddresses() ([]*IpAdapterAddressesEx, error) {
 	var b []byte
-	size := expectedNumberOfInterfaces * ipAdapterAddressesExSize //uint32(15000) // recommended initial size
+	size := uint32(15000) // recommended initial size
 	for {
 		b = make([]byte, size)
 		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
@@ -44,6 +42,7 @@ func adapterAddresses() ([]*IpAdapterAddressesEx, error) {
 			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
 		}
 	}
+
 	var aas []*IpAdapterAddressesEx
 	for aa := (*IpAdapterAddressesEx)(unsafe.Pointer(&b[0])); aa != nil; aa = aa.next() {
 		aas = append(aas, aa)
@@ -76,7 +75,7 @@ func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 		Luid: aa.Luid,
 	}
 	if aa.IpAdapterAddresses.OperStatus == windows.IfOperStatusUp {
-		ifi.Interface.Flags |= net.FlagUp
+		ifi.Flags |= net.FlagUp
 	}
 	// For now we need to infer link-layer service
 	// capabilities from media types.
@@ -84,22 +83,22 @@ func (aa *IpAdapterAddressesEx) toInterfaceEx() *InterfaceEx {
 	// Windows XP.
 	switch aa.IpAdapterAddresses.IfType {
 	case windows.IF_TYPE_ETHERNET_CSMACD, windows.IF_TYPE_ISO88025_TOKENRING, windows.IF_TYPE_IEEE80211, windows.IF_TYPE_IEEE1394:
-		ifi.Interface.Flags |= net.FlagBroadcast | net.FlagMulticast
+		ifi.Flags |= net.FlagBroadcast | net.FlagMulticast
 	case windows.IF_TYPE_PPP, windows.IF_TYPE_TUNNEL:
-		ifi.Interface.Flags |= net.FlagPointToPoint | net.FlagMulticast
+		ifi.Flags |= net.FlagPointToPoint | net.FlagMulticast
 	case windows.IF_TYPE_SOFTWARE_LOOPBACK:
-		ifi.Interface.Flags |= net.FlagLoopback | net.FlagMulticast
+		ifi.Flags |= net.FlagLoopback | net.FlagMulticast
 	case windows.IF_TYPE_ATM:
-		ifi.Interface.Flags |= net.FlagBroadcast | net.FlagPointToPoint | net.FlagMulticast // assume all services available; LANE, point-to-point and point-to-multipoint
+		ifi.Flags |= net.FlagBroadcast | net.FlagPointToPoint | net.FlagMulticast // assume all services available; LANE, point-to-point and point-to-multipoint
 	}
 	if aa.IpAdapterAddresses.Mtu == 0xffffffff {
-		ifi.Interface.MTU = -1
+		ifi.MTU = -1
 	} else {
-		ifi.Interface.MTU = int(aa.IpAdapterAddresses.Mtu)
+		ifi.MTU = int(aa.IpAdapterAddresses.Mtu)
 	}
 	if aa.IpAdapterAddresses.PhysicalAddressLength > 0 {
-		ifi.Interface.HardwareAddr = make(net.HardwareAddr, aa.IpAdapterAddresses.PhysicalAddressLength)
-		copy(ifi.Interface.HardwareAddr, aa.IpAdapterAddresses.PhysicalAddress[:])
+		ifi.HardwareAddr = make(net.HardwareAddr, aa.IpAdapterAddresses.PhysicalAddressLength)
+		copy(ifi.HardwareAddr, aa.IpAdapterAddresses.PhysicalAddress[:])
 	}
 	return &ifi
 }

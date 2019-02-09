@@ -68,9 +68,9 @@ func Test_InterfaceFromIndex_Existing(t *testing.T) {
 	} else if ifc == nil {
 		t.Errorf("InterfaceFromIndex() returned nil for index=%d. Have you set existingIndex constant?",
 			existingIndex)
-	} else if uint32(ifc.Interface.Index) != existingIndex {
+	} else if uint32(ifc.Index) != existingIndex {
 		t.Errorf("InterfaceFromIndex() returned interface with a wrong index. Requested: %d; returned: %d.",
-			existingIndex, ifc.Interface.Index)
+			existingIndex, ifc.Index)
 	} else {
 		fmt.Printf("InterfaceFromIndex() returned corresponding interface:\n%s\n", ifc)
 	}
@@ -85,7 +85,7 @@ func Test_InterfaceFromIndex_NonExisting(t *testing.T) {
 		t.Errorf("InterfaceFromIndex() returned error: %v", err)
 	} else if ifc != nil {
 		t.Errorf("InterfaceFromIndex() returned an interface with index=%d, although requested index was %d.",
-			ifc.Interface.Index, nonExistingIndex)
+			ifc.Index, nonExistingIndex)
 	}
 }
 
@@ -100,9 +100,9 @@ func Test_InterfaceFromName_Existing(t *testing.T) {
 	} else if ifc == nil {
 		t.Errorf("InterfaceFromName() returned nil for name=%s. Have you set existingName constant?",
 			existingName)
-	} else if ifc.Interface.Name != existingName {
+	} else if ifc.Name != existingName {
 		t.Errorf("InterfaceFromName() returned interface with a wrong name. Requested: %s; returned: %s.",
-			existingName, ifc.Interface.Name)
+			existingName, ifc.Name)
 	} else {
 		fmt.Printf("InterfaceFromName() returned corresponding interface:\n%s\n", ifc)
 	}
@@ -117,6 +117,6 @@ func Test_InterfaceFromName_NonExisting(t *testing.T) {
 		t.Errorf("InterfaceFromName() returned error: %v", err)
 	} else if ifc != nil {
 		t.Errorf("InterfaceFromName() returned an interface with name=%s, although requested name was %s.",
-			ifc.Interface.Name, nonExistingName)
+			ifc.Name, nonExistingName)
 	}
 }

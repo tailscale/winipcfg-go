@@ -11,7 +11,7 @@ import (
 )
 
 type InterfaceEx struct {
-	Interface net.Interface
+	net.Interface
 	Luid uint64
 	// Plus private members if required
 }
@@ -122,6 +122,6 @@ func InterfaceFromName(name string) (*InterfaceEx, error) {
 //func DefaultInterface() (*Interface, error)
 
 func (ifc *InterfaceEx) String() string {
-	return fmt.Sprintf("Luid: %d; Index: %d; MTU: %d; Name: %s; HardwareAddr: %s", ifc.Luid, ifc.Interface.Index,
-		ifc.Interface.MTU, ifc.Interface.Name, ifc.Interface.HardwareAddr)
+	return fmt.Sprintf("Luid: %d; Index: %d; MTU: %d; Name: %s; HardwareAddr: %s", ifc.Luid, ifc.Index, ifc.MTU,
+		ifc.Name, ifc.HardwareAddr)
 }

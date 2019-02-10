@@ -49,7 +49,7 @@ func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
 	return
 }
 
-func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *IpAdapterAddressesEx, SizePointer *uint32) (result uint32) {
+func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *byte, SizePointer *uint32) (result uint32) {
 	r0, _, _ := syscall.Syscall6(procGetAdaptersAddresses.Addr(), 5, uintptr(Family), uintptr(Flags), uintptr(Reserved), uintptr(unsafe.Pointer(AdapterAddresses)), uintptr(unsafe.Pointer(SizePointer)), 0)
 	result = uint32(r0)
 	return

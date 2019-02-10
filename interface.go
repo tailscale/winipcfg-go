@@ -7,13 +7,95 @@ package winipcfg
 
 import (
 	"fmt"
+	"golang.org/x/sys/windows"
 	"net"
+	"os"
+	"syscall"
+	"unsafe"
+
+	. "./wintypes"
 )
 
 type InterfaceEx struct {
 	net.Interface
 	Luid uint64
 	// Plus private members if required
+}
+
+// Created based on interfaceTable method from 'net' module, interface_windows.go file.
+func toInterfaceEx(aa *IP_ADAPTER_ADDRESSES) *InterfaceEx {
+	if aa == nil {
+		return nil
+	}
+	index := aa.IfIndex
+	if index == 0 { // ipv6IfIndex is a substitute for ifIndex
+		index = aa.Ipv6IfIndex
+	}
+	ifi := InterfaceEx{
+		Interface: net.Interface{
+			Index: int(index),
+			Name: aa.Name(),
+		},
+		Luid: uint64(aa.Luid.Value),
+	}
+	if aa.OperStatus == windows.IfOperStatusUp {
+		ifi.Flags |= net.FlagUp
+	}
+	// For now we need to infer link-layer service
+	// capabilities from media types.
+	// TODO: use MIB_IF_ROW2.AccessType now that we no longer support
+	// Windows XP.
+	switch aa.IfType {
+	case windows.IF_TYPE_ETHERNET_CSMACD, windows.IF_TYPE_ISO88025_TOKENRING, windows.IF_TYPE_IEEE80211, windows.IF_TYPE_IEEE1394:
+		ifi.Flags |= net.FlagBroadcast | net.FlagMulticast
+	case windows.IF_TYPE_PPP, windows.IF_TYPE_TUNNEL:
+		ifi.Flags |= net.FlagPointToPoint | net.FlagMulticast
+	case windows.IF_TYPE_SOFTWARE_LOOPBACK:
+		ifi.Flags |= net.FlagLoopback | net.FlagMulticast
+	case windows.IF_TYPE_ATM:
+		ifi.Flags |= net.FlagBroadcast | net.FlagPointToPoint | net.FlagMulticast // assume all services available; LANE, point-to-point and point-to-multipoint
+	}
+	if aa.Mtu == 0xffffffff {
+		ifi.MTU = -1
+	} else {
+		ifi.MTU = int(aa.Mtu)
+	}
+	if aa.PhysicalAddressLength > 0 {
+		ifi.HardwareAddr = make(net.HardwareAddr, aa.PhysicalAddressLength)
+		for i := uint32(0); i < uint32(aa.PhysicalAddressLength); i++ {
+			ifi.HardwareAddr[i] = byte(aa.PhysicalAddress[i])
+		}
+	}
+	return &ifi
+}
+
+// Based on function with the same name in 'net' module, in file interface_windows.go
+func adapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
+	var b []byte
+	size := uint32(15000) // recommended initial size
+	for {
+		b = make([]byte, size)
+		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
+			(*byte)(unsafe.Pointer(&b[0])), &size)
+		if result == 0 {
+			if size == 0 {
+				return nil, nil
+			}
+			break
+		}
+		if result != uint32(syscall.ERROR_BUFFER_OVERFLOW) {
+			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
+		}
+		if size <= uint32(len(b)) {
+			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
+		}
+	}
+
+	var aas []*IP_ADAPTER_ADDRESSES
+	for aa := (*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])); aa != nil; aa = aa.NextCasted() {
+		aas = append(aas, aa)
+	}
+	return aas, nil
 }
 
 func GetInterfaces() ([]*InterfaceEx, error) {
@@ -26,7 +108,7 @@ func GetInterfaces() ([]*InterfaceEx, error) {
 	}
 	ifcs := make([]*InterfaceEx, len(aa), len(aa))
 	for i, ifc := range aa {
-		ifcs[i] = ifc.toInterfaceEx()
+		ifcs[i] = toInterfaceEx(ifc)
 	}
 	return ifcs, nil
 }
@@ -40,8 +122,8 @@ func InterfaceFromLUID(luid uint64) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		if a.Luid == luid {
-			return a.toInterfaceEx(), nil
+		if uint64(a.Luid.Value) == luid {
+			return toInterfaceEx(a), nil
 		}
 	}
 	return nil, nil
@@ -56,12 +138,12 @@ func InterfaceFromIndex(index uint32) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		idx := a.IfIndex
+		idx := uint32(a.IfIndex)
 		if idx == 0 {
-			idx = a.Ipv6IfIndex
+			idx = uint32(a.Ipv6IfIndex)
 		}
 		if idx == index {
-			return a.toInterfaceEx(), nil
+			return toInterfaceEx(a), nil
 		}
 	}
 	return nil, nil
@@ -76,8 +158,8 @@ func InterfaceFromName(name string) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		if a.name() == name {
-			return a.toInterfaceEx(), nil
+		if a.Name() == name {
+			return toInterfaceEx(a), nil
 		}
 	}
 	return nil, nil

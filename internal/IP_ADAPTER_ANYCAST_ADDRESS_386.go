@@ -14,6 +14,3 @@ type IP_ADAPTER_ANYCAST_ADDRESS_XP struct {
 	Address SOCKET_ADDRESS
 	correction [4]uint8
 }
-
-// Defined in iptypes.h
-type IP_ADAPTER_ANYCAST_ADDRESS IP_ADAPTER_ANYCAST_ADDRESS_XP

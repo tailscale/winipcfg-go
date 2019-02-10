@@ -19,11 +19,29 @@ func Test_GUID_Size(t *testing.T) {
 	}
 }
 
-func Test_NET_IF_NETWORK_GUID_Size(t *testing.T) {
+func Test_GUID_Offsets(t *testing.T) {
 
-	const Actual_NET_IF_NETWORK_GUID_Size = unsafe.Sizeof(NET_IF_NETWORK_GUID{})
+	s := GUID{}
+	sp := uintptr(unsafe.Pointer(&s))
 
-	if Actual_NET_IF_NETWORK_GUID_Size != NET_IF_NETWORK_GUID_Size {
-		t.Errorf("Size of NET_IF_NETWORK_GUID is %d, although %d is expected.", Actual_NET_IF_NETWORK_GUID_Size, NET_IF_NETWORK_GUID_Size)
+	offset := uintptr(unsafe.Pointer(&s.Data2)) - sp
+
+	if offset != GUID_Data2_Offset {
+		t.Errorf("GUID.Data2 offset is %d although %d is expected", offset, GUID_Data2_Offset)
+		return
+	}
+
+	offset = uintptr(unsafe.Pointer(&s.Data3)) - sp
+
+	if offset != GUID_Data3_Offset {
+		t.Errorf("GUID.Data3 offset is %d although %d is expected", offset, GUID_Data3_Offset)
+		return
+	}
+
+	offset = uintptr(unsafe.Pointer(&s.Data4)) - sp
+
+	if offset != GUID_Data4_Offset {
+		t.Errorf("GUID.Data4 offset is %d although %d is expected", offset, GUID_Data4_Offset)
+		return
 	}
 }

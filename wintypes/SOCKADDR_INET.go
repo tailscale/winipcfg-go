@@ -12,6 +12,7 @@ import (
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-sockaddr_in
+// Defined in ws2def.h
 type SOCKADDR_IN struct {
 	sin_family ADDRESS_FAMILY
 	sin_port USHORT
@@ -24,6 +25,7 @@ func (addr *SOCKADDR_IN) String() string {
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-sockaddr_in6
+// Defined in ws2ipdef.h
 type SOCKADDR_IN6_LH struct {
 	sin6_family ADDRESS_FAMILY // AF_INET6.
 	sin6_port USHORT           // Transport level port number.

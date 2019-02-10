@@ -29,6 +29,6 @@ type MIB_UNICASTIPADDRESS_ROW struct {
 	// Read-Only Fields.
 	//
 	DadState NL_DAD_STATE
-	ScopeId SCOPE_ID
+	ScopeId ULONG
 	CreationTimeStamp LARGE_INTEGER
 }

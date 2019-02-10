@@ -31,6 +31,7 @@ func Test_SOCKET_ADDRESS_Offsets(t *testing.T) {
 		return
 	}
 }
+
 func Test_SOCKADDR_Size(t *testing.T) {
 
 	const Actual_SOCKADDR_Size = unsafe.Sizeof(SOCKADDR{})

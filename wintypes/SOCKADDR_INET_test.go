@@ -11,6 +11,7 @@ import (
 )
 
 func Test_SOCKADDR_IN_Size(t *testing.T) {
+
 	const Actual_SOCKADDR_IN_Size = unsafe.Sizeof(SOCKADDR_IN{})
 
 	if Actual_SOCKADDR_IN_Size != SOCKADDR_IN_Size {
@@ -18,29 +19,72 @@ func Test_SOCKADDR_IN_Size(t *testing.T) {
 	}
 }
 
+func Test_SOCKADDR_IN_Offsets(t *testing.T) {
+
+	s := SOCKADDR_IN{}
+	sp := uintptr(unsafe.Pointer(&s))
+
+	offset := uintptr(unsafe.Pointer(&s.sin_port)) - sp
+
+	if offset != SOCKADDR_IN_sin_port_Offset {
+		t.Errorf("SOCKADDR_IN.sin_port offset is %d although %d is expected", offset, SOCKADDR_IN_sin_port_Offset)
+		return
+	}
+
+	offset = uintptr(unsafe.Pointer(&s.sin_addr)) - sp
+
+	if offset != SOCKADDR_IN_sin_addr_Offset {
+		t.Errorf("SOCKADDR_IN.sin_addr offset is %d although %d is expected", offset, SOCKADDR_IN_sin_addr_Offset)
+		return
+	}
+
+	offset = uintptr(unsafe.Pointer(&s.sin_zero)) - sp
+
+	if offset != SOCKADDR_IN_sin_zero_Offset {
+		t.Errorf("SOCKADDR_IN.sin_zero offset is %d although %d is expected", offset, SOCKADDR_IN_sin_zero_Offset)
+		return
+	}
+}
+
 func Test_SOCKADDR_IN6_LH_Size(t *testing.T) {
+
 	const Actual_SOCKADDR_IN6_LH_Size = unsafe.Sizeof(SOCKADDR_IN6_LH{})
 
 	if Actual_SOCKADDR_IN6_LH_Size != SOCKADDR_IN6_LH_Size {
-		t.Errorf("Size of SOCKADDR_IN6_LH is %d, although %d is expected.", Actual_SOCKADDR_IN6_LH_Size,
-			SOCKADDR_IN6_LH_Size)
+		t.Errorf("Size of SOCKADDR_IN6_LH is %d, although %d is expected.", Actual_SOCKADDR_IN6_LH_Size, SOCKADDR_IN6_LH_Size)
 	}
 }
 
-func Test_SOCKADDR_IN6_Size(t *testing.T) {
-	const Actual_SOCKADDR_IN6_Size = unsafe.Sizeof(SOCKADDR_IN6{})
+func Test_SOCKADDR_IN6_LH_Offsets(t *testing.T) {
 
-	if Actual_SOCKADDR_IN6_Size != SOCKADDR_IN6_Size {
-		t.Errorf("Size of SOCKADDR_IN6 is %d, although %d is expected.", Actual_SOCKADDR_IN6_Size,
-			SOCKADDR_IN6_Size)
+	s := SOCKADDR_IN6_LH{}
+	sp := uintptr(unsafe.Pointer(&s))
+
+	offset := uintptr(unsafe.Pointer(&s.sin6_port)) - sp
+
+	if offset != SOCKADDR_IN6_LH_sin6_port_Offset {
+		t.Errorf("SOCKADDR_IN6_LH.sin6_port offset is %d although %d is expected", offset, SOCKADDR_IN6_LH_sin6_port_Offset)
+		return
 	}
-}
 
-func Test_SOCKADDR_INET_Size(t *testing.T) {
-	const Actual_SOCKADDR_INET_Size = unsafe.Sizeof(SOCKADDR_INET{})
+	offset = uintptr(unsafe.Pointer(&s.sin6_flowinfo)) - sp
 
-	if Actual_SOCKADDR_INET_Size != SOCKADDR_INET_Size {
-		t.Errorf("Size of SOCKADDR_INET is %d, although %d is expected.", Actual_SOCKADDR_INET_Size,
-			SOCKADDR_INET_Size)
+	if offset != SOCKADDR_IN6_LH_sin6_flowinfo_Offset {
+		t.Errorf("SOCKADDR_IN6_LH.sin6_flowinfo offset is %d although %d is expected", offset, SOCKADDR_IN6_LH_sin6_flowinfo_Offset)
+		return
+	}
+
+	offset = uintptr(unsafe.Pointer(&s.sin6_addr)) - sp
+
+	if offset != SOCKADDR_IN6_LH_sin6_addr_Offset {
+		t.Errorf("SOCKADDR_IN6_LH.sin6_addr offset is %d although %d is expected", offset, SOCKADDR_IN6_LH_sin6_addr_Offset)
+		return
+	}
+
+	offset = uintptr(unsafe.Pointer(&s.sin6_scope_id)) - sp
+
+	if offset != SOCKADDR_IN6_LH_sin6_scope_id_Offset {
+		t.Errorf("SOCKADDR_IN6_LH.sin6_scope_id offset is %d although %d is expected", offset, SOCKADDR_IN6_LH_sin6_scope_id_Offset)
+		return
 	}
 }

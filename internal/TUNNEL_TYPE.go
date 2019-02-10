@@ -9,7 +9,7 @@ import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ne-ifdef-tunnel_type
 // Defined in ifdef.h
-type TUNNEL_TYPE int
+type TUNNEL_TYPE uint32
 
 const (
 	TUNNEL_TYPE_NONE    TUNNEL_TYPE = 0

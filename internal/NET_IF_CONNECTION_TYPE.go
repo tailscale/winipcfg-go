@@ -9,7 +9,7 @@ import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ne-ifdef-_net_if_connection_type
 // Defined in ifdef.h
-type NET_IF_CONNECTION_TYPE int
+type NET_IF_CONNECTION_TYPE uint32
 
 const (
 	NET_IF_CONNECTION_DEDICATED NET_IF_CONNECTION_TYPE = 1

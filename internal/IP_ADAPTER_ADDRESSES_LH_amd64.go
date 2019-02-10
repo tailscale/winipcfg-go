@@ -38,10 +38,8 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	Luid IF_LUID
 	Dhcpv4Server SOCKET_ADDRESS
 	CompartmentId NET_IF_COMPARTMENT_ID
-	// FD: I've had to combine two fields into byte array to solve layout issues.
-	NetworkGuid_ConnectionType [20]uint8
-	//NetworkGuid NET_IF_NETWORK_GUID
-	//ConnectionType NET_IF_CONNECTION_TYPE
+	NetworkGuid NET_IF_NETWORK_GUID
+	ConnectionType NET_IF_CONNECTION_TYPE
 	TunnelType TUNNEL_TYPE
 	//
 	// DHCP v6 Info.

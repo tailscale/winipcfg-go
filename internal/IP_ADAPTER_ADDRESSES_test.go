@@ -220,22 +220,19 @@ func Test_IP_ADAPTER_ADDRESSES_LH_Offsets(t *testing.T) {
 		return
 	}
 
-	// Because two fields are combined...
-	//offset = uintptr(unsafe.Pointer(&s.NetworkGuid)) - sp
-	offset = uintptr(unsafe.Pointer(&s.NetworkGuid_ConnectionType)) - sp
+	offset = uintptr(unsafe.Pointer(&s.NetworkGuid)) - sp
 
 	if offset != IP_ADAPTER_ADDRESSES_LH_NetworkGuid_Offset {
 		t.Errorf("IP_ADAPTER_ADDRESSES_LH.NetworkGuid offset is %d although %d is expected", offset, IP_ADAPTER_ADDRESSES_LH_NetworkGuid_Offset)
 		return
 	}
 
-	// Commenting out this test because two fields are combined...
-	//offset = uintptr(unsafe.Pointer(&s.ConnectionType)) - sp
-	//
-	//if offset != IP_ADAPTER_ADDRESSES_LH_ConnectionType_Offset {
-	//	t.Errorf("IP_ADAPTER_ADDRESSES_LH.ConnectionType offset is %d although %d is expected", offset, IP_ADAPTER_ADDRESSES_LH_ConnectionType_Offset)
-	//	return
-	//}
+	offset = uintptr(unsafe.Pointer(&s.ConnectionType)) - sp
+
+	if offset != IP_ADAPTER_ADDRESSES_LH_ConnectionType_Offset {
+		t.Errorf("IP_ADAPTER_ADDRESSES_LH.ConnectionType offset is %d although %d is expected", offset, IP_ADAPTER_ADDRESSES_LH_ConnectionType_Offset)
+		return
+	}
 
 	offset = uintptr(unsafe.Pointer(&s.TunnelType)) - sp
 

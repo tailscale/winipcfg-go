@@ -6,6 +6,7 @@
 package internal
 
 const (
+	GUID_Size = 16
 	IN_ADDR_Size = 4
 	IN6_ADDR_Size = 16
 	IP_ADDRESS_PREFIX_Size = 32

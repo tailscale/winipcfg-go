@@ -5,15 +5,13 @@
 
 package wintypes
 
-import "golang.org/x/sys/windows"
-
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_prefix_xp
 // Defined in iptypes.h
 type IP_ADAPTER_PREFIX_XP struct {
 	Length ULONG
 	Flags DWORD
 	Next *IP_ADAPTER_PREFIX_XP
-	Address windows.SocketAddress
+	Address SOCKET_ADDRESS
 	PrefixLength ULONG
 }
 

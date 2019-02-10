@@ -5,13 +5,11 @@
 
 package wintypes
 
-import "golang.org/x/sys/windows"
-
 type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
 	Length ULONG
 	Flags DWORD
 	Next *IP_ADAPTER_UNICAST_ADDRESS_LH
-	Address windows.SocketAddress
+	Address SOCKET_ADDRESS
 
 	PrefixOrigin IP_PREFIX_ORIGIN
 	SuffixOrigin IP_SUFFIX_ORIGIN

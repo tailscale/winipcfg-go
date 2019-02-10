@@ -13,6 +13,7 @@ const (
 	MIB_IPFORWARD_ROW2_Size = 104
 	MIB_IPFORWARD_TABLE2_Size = 112
 	MIB_UNICASTIPADDRESS_ROW_Size = 80
+	NET_IF_NETWORK_GUID_Size = 16
 	SCOPE_ID_Size = 4
 	SOCKADDR_INET_Size = 28
 	SOCKADDR_IN_Size = 16
@@ -47,4 +48,8 @@ const (
 	MIB_IPFORWARD_ROW2_Origin_Offset = 100
 
 	MIB_IPFORWARD_TABLE2_Table_Offset = 8
+
+	SOCKADDR_Size = 16
+
+	SOCKADDR_sa_data_Offset = 2
 )

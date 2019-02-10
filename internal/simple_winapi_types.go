@@ -22,6 +22,7 @@ type PHANDLE *HANDLE
 type PVOID uintptr
 type LONGLONG int64
 type WCHAR uint16
+type INT int32
 
 // Defined in winnt.h, it's a union...
 type LARGE_INTEGER LONGLONG

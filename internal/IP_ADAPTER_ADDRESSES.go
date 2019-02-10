@@ -57,6 +57,7 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	Dhcpv6ClientDuidLength ULONG
 	Dhcpv6Iaid ULONG
 	FirstDnsSuffix *IP_ADAPTER_DNS_SUFFIX
+	correction [4]uint8
 }
 
 // Defined in iptypes.h

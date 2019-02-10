@@ -35,3 +35,10 @@ func (s NL_DAD_STATE) String() string {
 		return fmt.Sprintf("NL_DAD_STATE_UNKNOWN(%d)", s)
 	}
 }
+
+// Defined in iptypes.h
+type IP_DAD_STATE NL_DAD_STATE
+
+func (s IP_DAD_STATE) String() string {
+	return NL_DAD_STATE(s).String()
+}

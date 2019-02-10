@@ -38,3 +38,10 @@ func (o NL_PREFIX_ORIGIN) String() string {
 		return fmt.Sprintf("NL_PREFIX_ORIGIN_UNKNOWN(%d)", o)
 	}
 }
+
+// Defined in iptypes.h
+type IP_PREFIX_ORIGIN NL_PREFIX_ORIGIN
+
+func (o IP_PREFIX_ORIGIN) String() string {
+	return NL_PREFIX_ORIGIN(o).String()
+}

@@ -41,3 +41,10 @@ func (o NL_SUFFIX_ORIGIN) String() string {
 		return fmt.Sprintf("NL_SUFFIX_ORIGIN_UNKNOWN(%d)", o)
 	}
 }
+
+// Defined in iptypes.h
+type IP_SUFFIX_ORIGIN NL_SUFFIX_ORIGIN
+
+func (o IP_SUFFIX_ORIGIN) String() string {
+	return NL_SUFFIX_ORIGIN(o).String()
+}

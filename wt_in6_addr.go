@@ -16,6 +16,11 @@ type IN6_ADDR struct {
 }
 
 func (addr *IN6_ADDR) ToIp() net.IP {
+
+	if addr == nil {
+		return nil
+	}
+
 	return net.IP{
 		byte(addr.Byte[0]),
 		byte(addr.Byte[1]),

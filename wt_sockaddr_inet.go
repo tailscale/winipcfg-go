@@ -71,6 +71,11 @@ func (addr *SOCKADDR_INET) IsIPv6() bool {
 }
 
 func (addr *SOCKADDR_INET) ToIPv4() (*SOCKADDR_IN, error) {
+
+	if addr == nil {
+		return nil, nil
+	}
+
 	if addr.IsIPv4() {
 		return (*SOCKADDR_IN)(unsafe.Pointer(addr)), nil
 	} else {
@@ -81,7 +86,12 @@ func (addr *SOCKADDR_INET) ToIPv4() (*SOCKADDR_IN, error) {
 }
 
 func (addr *SOCKADDR_INET) ToIPv6() (*SOCKADDR_IN6, error) {
-	if addr.IsIPv4() {
+
+	if addr == nil {
+		return nil, nil
+	}
+
+	if addr.IsIPv6() {
 		return (*SOCKADDR_IN6)(unsafe.Pointer(addr)), nil
 	} else {
 		return nil,

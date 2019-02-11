@@ -8,8 +8,8 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_unicast_address_lh
 // Defined in iptypes.h
 type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
-	Length ULONG
-	Flags DWORD
+	Length uint32 // Windows type: ULONG
+	Flags uint32 // Windows type: DWORD
 	Next *IP_ADAPTER_UNICAST_ADDRESS_LH
 	Address SOCKET_ADDRESS
 
@@ -17,8 +17,8 @@ type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
 	SuffixOrigin IP_SUFFIX_ORIGIN
 	DadState IP_DAD_STATE
 
-	ValidLifetime ULONG
-	PreferredLifetime ULONG
-	LeaseLifetime ULONG
-	OnLinkPrefixLength UINT8
+	ValidLifetime uint32 // Windows type: ULONG
+	PreferredLifetime uint32 // Windows type: ULONG
+	LeaseLifetime uint32 // Windows type: ULONG
+	OnLinkPrefixLength uint8 // Windows type: UINT8
 }

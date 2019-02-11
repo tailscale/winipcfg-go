@@ -70,3 +70,18 @@ func (sa *SOCKADDR_INET) toSockAddrInet() (*SockaddrInet, error) {
 	return nil, fmt.Errorf("Family of the input argument is %s. It has to be either %s or %s",
 		sa.sin6_family.String(), AF_INET.String(), AF_INET6.String())
 }
+
+func (sainet *SockaddrInet) String() string {
+
+	if sainet == nil {
+		return ""
+	}
+
+	result := fmt.Sprintf("%s:%d", sainet.Address.String(), sainet.Port)
+
+	if sainet.Family == AF_INET6 {
+		result += fmt.Sprintf("; IPv6FlowInfo: %d; IPv6ScopeId: %d", sainet.IPv6FlowInfo, sainet.IPv6ScopeId)
+	}
+
+	return result
+}

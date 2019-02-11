@@ -9,24 +9,24 @@ package winipcfg
 // Defined in iptypes.h
 type IP_ADAPTER_ADDRESSES_LH struct {
 	Length ULONG
-	IfIndex uint32 //IF_INDEX flattened to uint32
+	IfIndex uint32 // Windows type: IF_INDEX
 	Next *IP_ADAPTER_ADDRESSES_LH
 	AdapterName *uint8 //*CHAR flattened to *uint8
 	FirstUnicastAddress *IP_ADAPTER_UNICAST_ADDRESS_LH
 	FirstAnycastAddress *IP_ADAPTER_ANYCAST_ADDRESS_XP
 	FirstMulticastAddress *IP_ADAPTER_MULTICAST_ADDRESS_XP
 	FirstDnsServerAddress *IP_ADAPTER_DNS_SERVER_ADDRESS_XP
-	DnsSuffix *WCHAR
-	Description *WCHAR
-	FriendlyName *uint16 // *WCHAR flattened to *uint16
-	PhysicalAddress [MAX_ADAPTER_ADDRESS_LENGTH]BYTE
-	PhysicalAddressLength ULONG
-	Flags ULONG
-	Mtu ULONG
+	DnsSuffix *uint16 // Windows type: *WCHAR
+	Description *uint16 // Windows type: *WCHAR
+	FriendlyName *uint16 // Windows type: *WCHAR
+	PhysicalAddress [MAX_ADAPTER_ADDRESS_LENGTH]uint8 // Windows type: [MAX_ADAPTER_ADDRESS_LENGTH]BYTE
+	PhysicalAddressLength uint32 // Windows type: ULONG
+	Flags uint32 // Windows type: ULONG
+	Mtu uint32 // Windows type: ULONG
 	IfType IFTYPE
 	OperStatus IF_OPER_STATUS
-	Ipv6IfIndex uint32 //IF_INDEX flattened to uint32
-	ZoneIndices [16]ULONG
+	Ipv6IfIndex uint32 // Windows type: IF_INDEX
+	ZoneIndices [16]uint32 // Windows type: [16]ULONG
 	FirstPrefix *IP_ADAPTER_PREFIX_XP
 
 	TransmitLinkSpeed ULONG64
@@ -35,7 +35,7 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	FirstGatewayAddress *IP_ADAPTER_GATEWAY_ADDRESS_LH
 	Ipv4Metric ULONG
 	Ipv6Metric ULONG
-	Luid uint64 // IF_LUID flattened to uint64
+	Luid uint64 // Windows type:  IF_LUID
 	Dhcpv4Server SOCKET_ADDRESS
 	CompartmentId NET_IF_COMPARTMENT_ID
 	NetworkGuid NET_IF_NETWORK_GUID

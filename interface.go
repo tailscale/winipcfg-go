@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"net"
 	"os"
 	"syscall"
 	"unsafe"
@@ -18,113 +19,221 @@ type Interface struct {
 	Index uint32
 	AdapterName string
 	FriendlyName string
+	UnicastAddress []*UnicastAddress
+	DnsSuffix string
+	Description string
+	PhysicalAddress net.HardwareAddr
+	Flags uint32
+	Mtu uint32
+	IfType IFTYPE
+	OperStatus IF_OPER_STATUS
+	Ipv6IfIndex uint32
+	ZoneIndices [16]uint32
 }
 
-func (iaa *IP_ADAPTER_ADDRESSES) toInterface() *Interface {
+func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
 
 	ifc := Interface{
 		Luid: iaa.Luid,
 		Index: uint32(iaa.IfIndex),
 		AdapterName: iaa.getAdapterName(),
 		FriendlyName: iaa.getFriendlyName(),
+		DnsSuffix: wcharToString(iaa.DnsSuffix),
+		Description: wcharToString(iaa.Description),
+		Flags: iaa.Flags,
+		Mtu: iaa.Mtu,
+		IfType: iaa.IfType,
+		OperStatus: iaa.OperStatus,
+		Ipv6IfIndex: iaa.Ipv6IfIndex,
+		ZoneIndices: iaa.ZoneIndices,
 	}
 
-	return &ifc
+	if iaa.PhysicalAddressLength > 0 {
+
+		ifc.PhysicalAddress = net.HardwareAddr(make([]byte, iaa.PhysicalAddressLength, iaa.PhysicalAddressLength))
+
+		for i := uint32(0); i < iaa.PhysicalAddressLength; i++ {
+			ifc.PhysicalAddress[i] = iaa.PhysicalAddress[i]
+		}
+	}
+
+	uap := iaa.FirstUnicastAddress
+
+	var unicastAddresses []*UnicastAddress
+
+	for ; uap != nil; uap = uap.Next {
+
+		ua, err := toUnicastAddress(ifc, uap)
+
+		if err != nil {
+			return nil, err
+		}
+
+		unicastAddresses = append(unicastAddresses, ua)
+	}
+
+	ifc.UnicastAddress = unicastAddresses
+
+	return &ifc, nil
 }
 
 // Based on function with the same name in 'net' module, in file interface_windows.go
 func adapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
+
 	var b []byte
+
 	size := uint32(15000) // recommended initial size
+
 	for {
+
 		b = make([]byte, size)
+
 		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
 			(*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])), &size)
+
 		if result == 0 {
+
 			if size == 0 {
 				return nil, nil
 			}
+
 			break
 		}
+
 		if result != uint32(syscall.ERROR_BUFFER_OVERFLOW) {
 			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
 		}
+
 		if size <= uint32(len(b)) {
 			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
 		}
 	}
 
 	var aas []*IP_ADAPTER_ADDRESSES
+
 	for aa := (*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])); aa != nil; aa = aa.NextCasted() {
 		aas = append(aas, aa)
 	}
+
 	return aas, nil
 }
 
 func GetInterfaces() ([]*Interface, error) {
-	aa, err := adapterAddresses()
+
+	iaas, err := adapterAddresses()
+
 	if err != nil {
 		return nil, err
 	}
-	if aa == nil {
+
+	if iaas == nil {
 		return nil, nil
 	}
-	ifcs := make([]*Interface, len(aa), len(aa))
-	for i, ifc := range aa {
-		ifcs[i] = ifc.toInterface()
+
+	ifcs := make([]*Interface, len(iaas), len(iaas))
+
+	for i, iaa := range iaas {
+
+		ifc, err := iaa.toInterface()
+
+		if err != nil {
+			return nil, err
+		}
+
+		ifcs[i] = ifc
 	}
+
 	return ifcs, nil
 }
 
 func InterfaceFromLUID(luid uint64) (*Interface, error) {
+
 	aa, err := adapterAddresses()
+
 	if err != nil {
 		return nil, err
 	}
+
 	if aa == nil {
 		return nil, nil
 	}
+
 	for _, a := range aa {
 		if a.Luid == luid {
-			return a.toInterface(), nil
+
+			ifc, err := a.toInterface()
+
+			if err != nil {
+				return nil, err
+			}
+
+			return ifc, nil
 		}
 	}
+
 	return nil, nil
 }
 
 func InterfaceFromIndex(index uint32) (*Interface, error) {
+
 	aa, err := adapterAddresses()
+
 	if err != nil {
 		return nil, err
 	}
+
 	if aa == nil {
 		return nil, nil
 	}
+
 	for _, a := range aa {
+
 		idx := a.IfIndex
+
 		if idx == 0 {
 			idx = a.Ipv6IfIndex
 		}
+
 		if idx == index {
-			return a.toInterface(), nil
+
+			ifc, err := a.toInterface()
+
+			if err != nil {
+				return nil, err
+			}
+
+			return ifc, nil
 		}
 	}
+
 	return nil, nil
 }
 
 func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
+
 	aa, err := adapterAddresses()
+
 	if err != nil {
 		return nil, err
 	}
+
 	if aa == nil {
 		return nil, nil
 	}
+
 	for _, a := range aa {
 		if a.getFriendlyName() == friendlyName {
-			return a.toInterface(), nil
+
+			ifc, err := a.toInterface()
+
+			if err != nil {
+				return nil, err
+			}
+
+			return ifc, nil
 		}
 	}
+
 	return nil, nil
 }
 
@@ -169,6 +278,33 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 //func DefaultInterface() (*Interface, error)
 
 func (ifc *Interface) String() string {
-	return fmt.Sprintf("Luid: %d; Index: %d; AdapterName: %s; FriendlyName: %s", ifc.Luid, ifc.Index,
-		ifc.AdapterName, ifc.FriendlyName)
+
+	result := fmt.Sprintf(
+		`
+======================== INTERFACE OUTPUT START ========================
+Luid: %d
+Index: %d
+AdapterName: %s
+FriendlyName: %s
+Unicast addresses:
+`, ifc.Luid, ifc.Index, ifc.AdapterName, ifc.FriendlyName)
+
+	for _, ifc := range ifc.UnicastAddress {
+		result += fmt.Sprintf("\t%s\n", ifc.String())
+	}
+
+	result += fmt.Sprintf(`DnsSuffix: %s
+Description: %s
+PhysicalAddress: %s
+Flags: %d
+MTU: %d
+IfType: %s
+OperStatus: %s
+Ipv6IfIndex: %d
+ZoneIndices: %v
+========================= INTERFACE OUTPUT END =========================
+`, ifc.DnsSuffix, ifc.Description, ifc.PhysicalAddress.String(), ifc.Flags, ifc.Mtu, ifc.IfType.String(),
+ifc.OperStatus.String(), ifc.Ipv6IfIndex, ifc.ZoneIndices)
+
+	return result
 }

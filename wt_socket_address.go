@@ -5,6 +5,11 @@
 
 package winipcfg
 
+import (
+	"fmt"
+	"unsafe"
+)
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-_socket_address
 // Defined in ws2def.h
 type SOCKET_ADDRESS struct {
@@ -17,4 +22,42 @@ type SOCKET_ADDRESS struct {
 type SOCKADDR struct {
 	sa_family ADDRESS_FAMILY
 	sa_data [14]CHAR
+}
+
+func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
+
+	if sa == nil {
+		return nil, nil
+	}
+
+	switch sa.lpSockaddr.sa_family {
+
+	case AF_INET:
+
+		// TODO: Remove this check once it's confirmed that it works OK.
+		if sa.iSockaddrLength != SOCKADDR_IN_Size {
+			return nil,
+				fmt.Errorf("SOCKET_ADDRESS.lpSockaddr.sa_family is %s, but SOCKET_ADDRESS.iSockaddrLength is %d (%d expected).",
+					AF_INET.String(), sa.iSockaddrLength, SOCKADDR_IN_Size)
+		}
+
+		break
+
+	case AF_INET6:
+
+		// TODO: Remove this check once it's confirmed that it works OK.
+		if sa.iSockaddrLength != SOCKADDR_IN6_LH_Size {
+			return nil,
+				fmt.Errorf("SOCKET_ADDRESS.lpSockaddr.sa_family is %s, but SOCKET_ADDRESS.iSockaddrLength is %d (%d expected).",
+					AF_INET6.String(), sa.iSockaddrLength, SOCKADDR_IN6_LH_Size)
+		}
+
+		break
+
+	default:
+		return nil, fmt.Errorf("Input argument cannot be converted to SOCKADDR_INET because its family is %s.",
+			sa.lpSockaddr.sa_family.String())
+	}
+
+	return (*SOCKADDR_INET)(unsafe.Pointer(sa.lpSockaddr)), nil
 }

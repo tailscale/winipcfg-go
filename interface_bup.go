@@ -34,9 +34,10 @@ func toInterfaceEx(aa *IP_ADAPTER_ADDRESSES) *InterfaceEx {
 			Index: int(index),
 			Name: aa.Name(),
 		},
-		Luid: uint64(aa.Luid.Value),
+		// TODO: Casting to uint64 won't be needed once we "flatten" Windows types.
+		Luid: uint64(aa.Luid),
 	}
-	if aa.OperStatus == windows.IfOperStatusUp {
+	if aa.OperStatus == IfOperStatusUp {
 		ifi.Flags |= net.FlagUp
 	}
 	// For now we need to infer link-layer service
@@ -74,7 +75,7 @@ func adapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 	for {
 		b = make([]byte, size)
 		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
-			(*byte)(unsafe.Pointer(&b[0])), &size)
+			(*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])), &size)
 		if result == 0 {
 			if size == 0 {
 				return nil, nil
@@ -120,7 +121,8 @@ func InterfaceFromLUID(luid uint64) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		if uint64(a.Luid.Value) == luid {
+		// TODO: Casting to uint64 won't be needed once we "flatten" Windows types.
+		if uint64(a.Luid) == luid {
 			return toInterfaceEx(a), nil
 		}
 	}

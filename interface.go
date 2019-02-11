@@ -12,8 +12,6 @@ import (
 	"os"
 	"syscall"
 	"unsafe"
-
-	. "./wintypes"
 )
 
 type InterfaceEx struct {

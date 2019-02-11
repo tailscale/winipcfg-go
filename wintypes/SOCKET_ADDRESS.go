@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package wintypes
+package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-_socket_address
 // Defined in ws2def.h

@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package wintypes
+package winipcfg
 
 type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
 	Length ULONG

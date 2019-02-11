@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package wintypes
+package winipcfg
 
 const (
 	IP_ADAPTER_ADDRESSES_LH_Size = 448

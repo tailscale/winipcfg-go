@@ -8,64 +8,28 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
-	"net"
 	"os"
 	"syscall"
 	"unsafe"
 )
 
-type InterfaceEx struct {
-	net.Interface
+type Interface struct {
 	Luid uint64
-	// Plus private members if required
+	Index uint32
+	AdapterName string
+	FriendlyName string
 }
 
-// Created based on interfaceTable method from 'net' module, interface_windows.go file.
-func toInterfaceEx(aa *IP_ADAPTER_ADDRESSES) *InterfaceEx {
-	if aa == nil {
-		return nil
+func (iaa *IP_ADAPTER_ADDRESSES) toInterface() *Interface {
+
+	ifc := Interface{
+		Luid: iaa.Luid,
+		Index: uint32(iaa.IfIndex),
+		AdapterName: iaa.getAdapterName(),
+		FriendlyName: iaa.getFriendlyName(),
 	}
-	index := aa.IfIndex
-	if index == 0 { // ipv6IfIndex is a substitute for ifIndex
-		index = aa.Ipv6IfIndex
-	}
-	ifi := InterfaceEx{
-		Interface: net.Interface{
-			Index: int(index),
-			Name: aa.Name(),
-		},
-		// TODO: Casting to uint64 won't be needed once we "flatten" Windows types.
-		Luid: uint64(aa.Luid),
-	}
-	if aa.OperStatus == IfOperStatusUp {
-		ifi.Flags |= net.FlagUp
-	}
-	// For now we need to infer link-layer service
-	// capabilities from media types.
-	// TODO: use MIB_IF_ROW2.AccessType now that we no longer support
-	// Windows XP.
-	switch aa.IfType {
-	case windows.IF_TYPE_ETHERNET_CSMACD, windows.IF_TYPE_ISO88025_TOKENRING, windows.IF_TYPE_IEEE80211, windows.IF_TYPE_IEEE1394:
-		ifi.Flags |= net.FlagBroadcast | net.FlagMulticast
-	case windows.IF_TYPE_PPP, windows.IF_TYPE_TUNNEL:
-		ifi.Flags |= net.FlagPointToPoint | net.FlagMulticast
-	case windows.IF_TYPE_SOFTWARE_LOOPBACK:
-		ifi.Flags |= net.FlagLoopback | net.FlagMulticast
-	case windows.IF_TYPE_ATM:
-		ifi.Flags |= net.FlagBroadcast | net.FlagPointToPoint | net.FlagMulticast // assume all services available; LANE, point-to-point and point-to-multipoint
-	}
-	if aa.Mtu == 0xffffffff {
-		ifi.MTU = -1
-	} else {
-		ifi.MTU = int(aa.Mtu)
-	}
-	if aa.PhysicalAddressLength > 0 {
-		ifi.HardwareAddr = make(net.HardwareAddr, aa.PhysicalAddressLength)
-		for i := uint32(0); i < uint32(aa.PhysicalAddressLength); i++ {
-			ifi.HardwareAddr[i] = byte(aa.PhysicalAddress[i])
-		}
-	}
-	return &ifi
+
+	return &ifc
 }
 
 // Based on function with the same name in 'net' module, in file interface_windows.go
@@ -97,7 +61,7 @@ func adapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 	return aas, nil
 }
 
-func GetInterfaces() ([]*InterfaceEx, error) {
+func GetInterfaces() ([]*Interface, error) {
 	aa, err := adapterAddresses()
 	if err != nil {
 		return nil, err
@@ -105,14 +69,14 @@ func GetInterfaces() ([]*InterfaceEx, error) {
 	if aa == nil {
 		return nil, nil
 	}
-	ifcs := make([]*InterfaceEx, len(aa), len(aa))
+	ifcs := make([]*Interface, len(aa), len(aa))
 	for i, ifc := range aa {
-		ifcs[i] = toInterfaceEx(ifc)
+		ifcs[i] = ifc.toInterface()
 	}
 	return ifcs, nil
 }
 
-func InterfaceFromLUID(luid uint64) (*InterfaceEx, error) {
+func InterfaceFromLUID(luid uint64) (*Interface, error) {
 	aa, err := adapterAddresses()
 	if err != nil {
 		return nil, err
@@ -121,15 +85,14 @@ func InterfaceFromLUID(luid uint64) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		// TODO: Casting to uint64 won't be needed once we "flatten" Windows types.
-		if uint64(a.Luid) == luid {
-			return toInterfaceEx(a), nil
+		if a.Luid == luid {
+			return a.toInterface(), nil
 		}
 	}
 	return nil, nil
 }
 
-func InterfaceFromIndex(index uint32) (*InterfaceEx, error) {
+func InterfaceFromIndex(index uint32) (*Interface, error) {
 	aa, err := adapterAddresses()
 	if err != nil {
 		return nil, err
@@ -138,18 +101,18 @@ func InterfaceFromIndex(index uint32) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		idx := uint32(a.IfIndex)
+		idx := a.IfIndex
 		if idx == 0 {
-			idx = uint32(a.Ipv6IfIndex)
+			idx = a.Ipv6IfIndex
 		}
 		if idx == index {
-			return toInterfaceEx(a), nil
+			return a.toInterface(), nil
 		}
 	}
 	return nil, nil
 }
 
-func InterfaceFromName(name string) (*InterfaceEx, error) {
+func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 	aa, err := adapterAddresses()
 	if err != nil {
 		return nil, err
@@ -158,12 +121,14 @@ func InterfaceFromName(name string) (*InterfaceEx, error) {
 		return nil, nil
 	}
 	for _, a := range aa {
-		if a.Name() == name {
-			return toInterfaceEx(a), nil
+		if a.getFriendlyName() == friendlyName {
+			return a.toInterface(), nil
 		}
 	}
 	return nil, nil
 }
+
+// TODO: Check interfaceTable method from 'net' module, interface_windows.go file - it may be useful...
 
 //// Sets up the interface to be totally blank, with no settings. If the user has
 //// subsequently edited the interface particulars or added/removed parts using
@@ -203,7 +168,7 @@ func InterfaceFromName(name string) (*InterfaceEx, error) {
 //// Returns the interface that has 0.0.0.0/0.
 //func DefaultInterface() (*Interface, error)
 
-func (ifc *InterfaceEx) String() string {
-	return fmt.Sprintf("Luid: %d; Index: %d; MTU: %d; Name: %s; HardwareAddr: %s", ifc.Luid, ifc.Index, ifc.MTU,
-		ifc.Name, ifc.HardwareAddr)
+func (ifc *Interface) String() string {
+	return fmt.Sprintf("Luid: %d; Index: %d; AdapterName: %s; FriendlyName: %s", ifc.Luid, ifc.Index,
+		ifc.AdapterName, ifc.FriendlyName)
 }

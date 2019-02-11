@@ -6,7 +6,6 @@
 package winipcfg
 
 import (
-	"golang.org/x/sys/windows"
 	"unsafe"
 )
 
@@ -23,6 +22,10 @@ func (aa *IP_ADAPTER_ADDRESSES) NextCasted() *IP_ADAPTER_ADDRESSES {
 	return (*IP_ADAPTER_ADDRESSES) (unsafe.Pointer(aa.Next))
 }
 
-func (aa *IP_ADAPTER_ADDRESSES) Name() string {
-	return windows.UTF16ToString((*(*[10000]uint16)(unsafe.Pointer(aa.FriendlyName)))[:])
+func (aa *IP_ADAPTER_ADDRESSES) getAdapterName() string {
+	return charToString(aa.AdapterName)
+}
+
+func (aa *IP_ADAPTER_ADDRESSES) getFriendlyName() string {
+	return wcharToString(aa.FriendlyName)
 }

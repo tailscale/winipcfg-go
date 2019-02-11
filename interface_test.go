@@ -92,31 +92,31 @@ func Test_InterfaceFromIndex_NonExisting(t *testing.T) {
 // TODO: Set an existing interface name here:
 const existingName string = "LAN"
 
-func Test_InterfaceFromName_Existing(t *testing.T) {
-	ifc, err := InterfaceFromName(existingName)
+func Test_InterfaceFromFriendlyName_Existing(t *testing.T) {
+	ifc, err := InterfaceFromFriendlyName(existingName)
 
 	if err != nil {
-		t.Errorf("InterfaceFromName() returned error: %v", err)
+		t.Errorf("InterfaceFromFriendlyName() returned error: %v", err)
 	} else if ifc == nil {
-		t.Errorf("InterfaceFromName() returned nil for name=%s. Have you set existingName constant?",
+		t.Errorf("InterfaceFromFriendlyName() returned nil for name=%s. Have you set existingName constant?",
 			existingName)
-	} else if ifc.Name != existingName {
-		t.Errorf("InterfaceFromName() returned interface with a wrong name. Requested: %s; returned: %s.",
-			existingName, ifc.Name)
+	} else if ifc.FriendlyName != existingName {
+		t.Errorf("InterfaceFromFriendlyName() returned interface with a wrong name. Requested: %s; returned: %s.",
+			existingName, ifc.FriendlyName)
 	} else {
-		fmt.Printf("InterfaceFromName() returned corresponding interface:\n%s\n", ifc)
+		fmt.Printf("InterfaceFromFriendlyName() returned corresponding interface:\n%s\n", ifc)
 	}
 }
 
 const nonExistingName string = "NON-EXISTING-NAME"
 
-func Test_InterfaceFromName_NonExisting(t *testing.T) {
-	ifc, err := InterfaceFromName(nonExistingName)
+func Test_InterfaceFromFriendlyName_NonExisting(t *testing.T) {
+	ifc, err := InterfaceFromFriendlyName(nonExistingName)
 
 	if err != nil {
-		t.Errorf("InterfaceFromName() returned error: %v", err)
+		t.Errorf("InterfaceFromFriendlyName() returned error: %v", err)
 	} else if ifc != nil {
-		t.Errorf("InterfaceFromName() returned an interface with name=%s, although requested name was %s.",
-			ifc.Name, nonExistingName)
+		t.Errorf("InterfaceFromFriendlyName() returned an interface with name=%s, although requested name was %s.",
+			ifc.FriendlyName, nonExistingName)
 	}
 }

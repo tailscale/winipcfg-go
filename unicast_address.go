@@ -5,12 +5,17 @@
 
 package winipcfg
 
-// https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_unicast_address_lh
-// Defined in iptypes.h
-type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
-	Length ULONG
-	Flags DWORD
-	Next *IP_ADAPTER_UNICAST_ADDRESS_LH
+type UnicastAddress struct {
+	Interface Interface
+
+	// The rest is from IP_ADAPTER_ADDRESSES_LH
+
+	// TODO: Documentation missing. What is it?
+	Length uint32
+
+	// TODO: Documentation missing. What is it?
+	Flags uint32
+
 	Address SOCKET_ADDRESS
 
 	PrefixOrigin IP_PREFIX_ORIGIN

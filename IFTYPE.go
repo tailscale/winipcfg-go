@@ -63,7 +63,7 @@ const (
 	IF_TYPE_SONET_PATH                       IFTYPE = 50
 	IF_TYPE_SONET_VT                         IFTYPE = 51
 	IF_TYPE_SMDS_ICIP                        IFTYPE = 52 // SMDS InterCarrier Interface
-	IF_TYPE_PROP_VIRTUAL                     IFTYPE = 53 // Proprietary virtual/wintypes
+	IF_TYPE_PROP_VIRTUAL                     IFTYPE = 53 // Proprietary virtual/internal
 	IF_TYPE_PROP_MULTIPLEXOR                 IFTYPE = 54 // Proprietary multiplexing
 	IF_TYPE_IEEE80212                        IFTYPE = 55 // 100BaseVG
 	IF_TYPE_FIBRECHANNEL                     IFTYPE = 56

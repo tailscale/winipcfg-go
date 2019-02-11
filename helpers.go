@@ -18,8 +18,9 @@ func wcharToString(wchar *uint16) string {
 
 	buffer := make([]uint16, expectedStringLength)
 
+	const size = uintptr(2) // unsafe.Sizeof(uint16(0))
+
 	start := unsafe.Pointer(wchar)
-	size := unsafe.Sizeof(uint16(0))
 
 	for i := 0; ; i++ {
 
@@ -48,8 +49,9 @@ func charToString(char *uint8) string {
 
 	buffer := make([]byte, expectedStringLength)
 
+	const size = uintptr(1) // unsafe.Sizeof(uint8(0))
+
 	start := unsafe.Pointer(char)
-	size := unsafe.Sizeof(uint8(0))
 
 	var i int
 

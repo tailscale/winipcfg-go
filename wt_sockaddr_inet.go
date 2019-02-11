@@ -15,9 +15,18 @@ import (
 // Defined in ws2def.h
 type SOCKADDR_IN struct {
 	sin_family ADDRESS_FAMILY
-	sin_port USHORT
+	sin_port uint16 // USHORT flattened to uint16
 	sin_addr IN_ADDR
 	sin_zero [8]CHAR
+}
+
+// SOCKADDR_IN constructor. Creates an empty SOCKADDR_IN struct.
+func NewSOCKADDR_IN() *SOCKADDR_IN {
+	return &SOCKADDR_IN{
+		sin_family: AF_INET,
+		sin_port: 0,
+		sin_addr: *NewIN_ADDR(),
+		sin_zero: [8]CHAR{0, 0, 0, 0, 0, 0, 0, 0}}
 }
 
 func (addr *SOCKADDR_IN) String() string {
@@ -27,11 +36,16 @@ func (addr *SOCKADDR_IN) String() string {
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-sockaddr_in6
 // Defined in ws2ipdef.h
 type SOCKADDR_IN6_LH struct {
-	sin6_family ADDRESS_FAMILY // AF_INET6.
-	sin6_port USHORT           // Transport level port number.
-	sin6_flowinfo ULONG        // IPv6 flow information.
-	sin6_addr IN6_ADDR         // IPv6 address.
-	sin6_scope_id ULONG        // Set of interfaces for a scope.
+	// AF_INET6.
+	sin6_family ADDRESS_FAMILY
+	// Transport level port number.
+	sin6_port uint16 // USHORT flattened to uint16
+	// IPv6 flow information.
+	sin6_flowinfo uint32 // ULONG flattened to uint32
+	// IPv6 address.
+	sin6_addr IN6_ADDR
+	// Set of interfaces for a scope.
+	sin6_scope_id uint32 // ULONG flattened to uint32
 }
 
 func (addr *SOCKADDR_IN6_LH) String() string {
@@ -60,9 +74,19 @@ func (addr *SOCKADDR_INET) ToIPv4() (*SOCKADDR_IN, error) {
 	if addr.IsIPv4() {
 		return (*SOCKADDR_IN)(unsafe.Pointer(addr)), nil
 	} else {
-		return nil, fmt.Errorf(
-			"Only SOCKADDR_INET values with sin6_family = AF_INET can be converted. In this case sin6_family is %s.",
-			addr.sin6_family.String())
+		return nil,
+			fmt.Errorf("Only SOCKADDR_INET values with sin6_family = %s can be converted to SOCKADDR_IN. In this case sin6_family is %s.",
+				AF_INET.String(), addr.sin6_family.String())
+	}
+}
+
+func (addr *SOCKADDR_INET) ToIPv6() (*SOCKADDR_IN6, error) {
+	if addr.IsIPv4() {
+		return (*SOCKADDR_IN6)(unsafe.Pointer(addr)), nil
+	} else {
+		return nil,
+			fmt.Errorf("Only SOCKADDR_INET values with sin6_family = %s can be converted to SOCKADDR_IN6. In this case sin6_family is %s.",
+				AF_INET6.String(), addr.sin6_family.String())
 	}
 }
 
@@ -76,7 +100,7 @@ func (addr *SOCKADDR_INET) String() string {
 	}
 }
 
-func Create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
+func create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
 
 	ipv4 := address.To4()
 
@@ -84,7 +108,7 @@ func Create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
 
 	if ipv4 != nil {
 		// address is IPv4
-		result.FillAs_SOCKADDR_IN(ipv4, port)
+		result.fillAs_SOCKADDR_IN(ipv4, port)
 		result.sin6_family = AF_INET
 		return result, nil
 	}
@@ -98,7 +122,7 @@ func Create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
 	in6_addr, _ := IpTo_IN6_ADDR(ipv6)
 
 	result.sin6_family = AF_INET6
-	result.sin6_port = USHORT(port)
+	result.sin6_port = port
 	result.sin6_flowinfo = 0
 	result.sin6_addr = *in6_addr
 	result.sin6_scope_id = 0
@@ -106,14 +130,14 @@ func Create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
 	return result, nil
 }
 
-func (sin *SOCKADDR_INET) FillAs_SOCKADDR_IN (ipv4 net.IP, port uint16) {
+func (sin *SOCKADDR_INET) fillAs_SOCKADDR_IN(ipv4 net.IP, port uint16) {
 
 	in_addr, _ := IpTo_IN_ADDR(ipv4)
 
 	sin4 := (*SOCKADDR_IN)(unsafe.Pointer(sin))
 	sin4.sin_family = AF_INET
 	sin4.sin_addr = *in_addr
-	sin4.sin_port = USHORT(port)
+	sin4.sin_port = port
 
 	for i := 0; i < 8; i++ {
 		sin4.sin_zero[i] = 0

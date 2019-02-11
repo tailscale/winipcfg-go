@@ -37,9 +37,7 @@ type GUID struct {
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ns-ifdef-_net_luid_lh
 // Defined in ifdef
-type NET_LUID_LH struct {
-	Value ULONG64
-}
+type NET_LUID_LH ULONG64
 
 // Defined in ifdef.h
 type NET_IFINDEX ULONG

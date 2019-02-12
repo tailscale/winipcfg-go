@@ -32,35 +32,35 @@ type Interface struct {
 	Prefixes []*IpAdapterPrefix
 }
 
-func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
+func interfaceFromWtIpAdapterAddresses(wtiaa *IP_ADAPTER_ADDRESSES) (*Interface, error) {
 
 	ifc := Interface{
-		Luid: iaa.Luid,
-		Index: uint32(iaa.IfIndex),
-		AdapterName: iaa.getAdapterName(),
-		FriendlyName: iaa.getFriendlyName(),
-		DnsSuffix: wcharToString(iaa.DnsSuffix),
-		Description: wcharToString(iaa.Description),
-		Flags: iaa.Flags,
-		Mtu: iaa.Mtu,
-		IfType: iaa.IfType,
-		OperStatus: iaa.OperStatus,
-		Ipv6IfIndex: iaa.Ipv6IfIndex,
-		ZoneIndices: iaa.ZoneIndices,
+		Luid:         wtiaa.Luid,
+		Index:        uint32(wtiaa.IfIndex),
+		AdapterName:  wtiaa.getAdapterName(),
+		FriendlyName: wtiaa.getFriendlyName(),
+		DnsSuffix:    wcharToString(wtiaa.DnsSuffix),
+		Description:  wcharToString(wtiaa.Description),
+		Flags:        wtiaa.Flags,
+		Mtu:          wtiaa.Mtu,
+		IfType:       wtiaa.IfType,
+		OperStatus:   wtiaa.OperStatus,
+		Ipv6IfIndex:  wtiaa.Ipv6IfIndex,
+		ZoneIndices:  wtiaa.ZoneIndices,
 	}
 
-	if iaa.PhysicalAddressLength > 0 {
+	if wtiaa.PhysicalAddressLength > 0 {
 
-		ifc.PhysicalAddress = net.HardwareAddr(make([]byte, iaa.PhysicalAddressLength, iaa.PhysicalAddressLength))
+		ifc.PhysicalAddress = net.HardwareAddr(make([]byte, wtiaa.PhysicalAddressLength, wtiaa.PhysicalAddressLength))
 
-		for i := uint32(0); i < iaa.PhysicalAddressLength; i++ {
-			ifc.PhysicalAddress[i] = iaa.PhysicalAddress[i]
+		for i := uint32(0); i < wtiaa.PhysicalAddressLength; i++ {
+			ifc.PhysicalAddress[i] = wtiaa.PhysicalAddress[i]
 		}
 	}
 
 	var unicastAddresses []*IpAdapterUnicastAddress
 
-	for uap := iaa.FirstUnicastAddress; uap != nil; uap = uap.Next {
+	for uap := wtiaa.FirstUnicastAddress; uap != nil; uap = uap.Next {
 
 		ua, err := ipAdapterUnicastAddressFromWinType(ifc, uap)
 
@@ -75,7 +75,7 @@ func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
 
 	var prefixes []*IpAdapterPrefix
 
-	for wtp := iaa.FirstPrefix; wtp != nil; wtp = wtp.Next {
+	for wtp := wtiaa.FirstPrefix; wtp != nil; wtp = wtp.Next {
 
 		p, err := ipAdapterPrefixFromWinType(wtp)
 
@@ -92,7 +92,7 @@ func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
 }
 
 // Based on function with the same name in 'net' module, in file interface_windows.go
-func adapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
+func getWtAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 
 	var b []byte
 
@@ -134,21 +134,21 @@ func adapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 
 func GetInterfaces() ([]*Interface, error) {
 
-	iaas, err := adapterAddresses()
+	wtiaas, err := getWtAdapterAddresses()
 
 	if err != nil {
 		return nil, err
 	}
 
-	if iaas == nil {
+	if wtiaas == nil {
 		return nil, nil
 	}
 
-	ifcs := make([]*Interface, len(iaas), len(iaas))
+	ifcs := make([]*Interface, len(wtiaas), len(wtiaas))
 
-	for i, iaa := range iaas {
+	for i, wtiaa := range wtiaas {
 
-		ifc, err := iaa.toInterface()
+		ifc, err := interfaceFromWtIpAdapterAddresses(wtiaa)
 
 		if err != nil {
 			return nil, err
@@ -162,7 +162,7 @@ func GetInterfaces() ([]*Interface, error) {
 
 func InterfaceFromLUID(luid uint64) (*Interface, error) {
 
-	aa, err := adapterAddresses()
+	aa, err := getWtAdapterAddresses()
 
 	if err != nil {
 		return nil, err
@@ -175,7 +175,7 @@ func InterfaceFromLUID(luid uint64) (*Interface, error) {
 	for _, a := range aa {
 		if a.Luid == luid {
 
-			ifc, err := a.toInterface()
+			ifc, err := interfaceFromWtIpAdapterAddresses(a)
 
 			if err != nil {
 				return nil, err
@@ -190,7 +190,7 @@ func InterfaceFromLUID(luid uint64) (*Interface, error) {
 
 func InterfaceFromIndex(index uint32) (*Interface, error) {
 
-	aa, err := adapterAddresses()
+	aa, err := getWtAdapterAddresses()
 
 	if err != nil {
 		return nil, err
@@ -210,7 +210,7 @@ func InterfaceFromIndex(index uint32) (*Interface, error) {
 
 		if idx == index {
 
-			ifc, err := a.toInterface()
+			ifc, err := interfaceFromWtIpAdapterAddresses(a)
 
 			if err != nil {
 				return nil, err
@@ -225,7 +225,7 @@ func InterfaceFromIndex(index uint32) (*Interface, error) {
 
 func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 
-	aa, err := adapterAddresses()
+	aa, err := getWtAdapterAddresses()
 
 	if err != nil {
 		return nil, err
@@ -238,7 +238,7 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 	for _, a := range aa {
 		if a.getFriendlyName() == friendlyName {
 
-			ifc, err := a.toInterface()
+			ifc, err := interfaceFromWtIpAdapterAddresses(a)
 
 			if err != nil {
 				return nil, err

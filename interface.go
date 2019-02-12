@@ -25,8 +25,8 @@ type Interface struct {
 	PhysicalAddress net.HardwareAddr
 	Flags uint32
 	Mtu uint32
-	IfType IFTYPE
-	OperStatus IF_OPER_STATUS
+	IfType IfType
+	OperStatus IfOperStatus
 	Ipv6IfIndex uint32
 	ZoneIndices [16]uint32
 	Prefixes []*IpAdapterPrefix

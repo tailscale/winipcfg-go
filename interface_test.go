@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func Test_GetInterfaces(t *testing.T) {
+func TestGetInterfaces(t *testing.T) {
 	ifcs, err := GetInterfaces()
 
 	if err != nil {
@@ -28,7 +28,7 @@ func Test_GetInterfaces(t *testing.T) {
 // TODO: Set an existing LUID here:
 const existingLuid uint64 = 1689399632855040
 
-func Test_InterfaceFromLUID_Existing(t *testing.T) {
+func TestInterfaceFromLUIDExisting(t *testing.T) {
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
@@ -46,7 +46,7 @@ func Test_InterfaceFromLUID_Existing(t *testing.T) {
 
 const nonExistingLuid uint64 = 42
 
-func Test_InterfaceFromLUID_NonExisting(t *testing.T) {
+func TestInterfaceFromLUIDNonExisting(t *testing.T) {
 	ifc, err := InterfaceFromLUID(nonExistingLuid)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func Test_InterfaceFromLUID_NonExisting(t *testing.T) {
 // TODO: Set an existing interface index here:
 const existingIndex uint32 = 14
 
-func Test_InterfaceFromIndex_Existing(t *testing.T) {
+func TestInterfaceFromIndexExisting(t *testing.T) {
 	ifc, err := InterfaceFromIndex(existingIndex)
 
 	if err != nil {
@@ -78,7 +78,7 @@ func Test_InterfaceFromIndex_Existing(t *testing.T) {
 
 const nonExistingIndex uint32 = 42000000
 
-func Test_InterfaceFromIndex_NonExisting(t *testing.T) {
+func TestInterfaceFromIndexNonExisting(t *testing.T) {
 	ifc, err := InterfaceFromIndex(nonExistingIndex)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func Test_InterfaceFromIndex_NonExisting(t *testing.T) {
 // TODO: Set an existing interface name here:
 const existingName string = "LAN"
 
-func Test_InterfaceFromFriendlyName_Existing(t *testing.T) {
+func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 	ifc, err := InterfaceFromFriendlyName(existingName)
 
 	if err != nil {
@@ -110,7 +110,7 @@ func Test_InterfaceFromFriendlyName_Existing(t *testing.T) {
 
 const nonExistingName string = "NON-EXISTING-NAME"
 
-func Test_InterfaceFromFriendlyName_NonExisting(t *testing.T) {
+func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 	ifc, err := InterfaceFromFriendlyName(nonExistingName)
 
 	if err != nil {

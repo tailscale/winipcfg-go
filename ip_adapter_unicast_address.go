@@ -23,9 +23,9 @@ type IpAdapterUnicastAddress struct {
 	// The address
 	Address SockaddrInet
 
-	PrefixOrigin IP_PREFIX_ORIGIN
+	PrefixOrigin IpPrefixOrigin
 	SuffixOrigin IP_SUFFIX_ORIGIN
-	DadState IP_DAD_STATE
+	DadState IpDadState
 
 	ValidLifetime uint32
 	PreferredLifetime uint32

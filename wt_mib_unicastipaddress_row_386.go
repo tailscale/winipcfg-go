@@ -20,7 +20,7 @@ type MIB_UNICASTIPADDRESS_ROW struct {
 	//
 	// Read-Write Fileds.
 	//
-	PrefixOrigin NL_PREFIX_ORIGIN
+	PrefixOrigin NlPrefixOrigin
 	SuffixOrigin NL_SUFFIX_ORIGIN
 	ValidLifetime ULONG
 	PreferredLifetime ULONG
@@ -30,7 +30,7 @@ type MIB_UNICASTIPADDRESS_ROW struct {
 	//
 	// Read-Only Fields.
 	//
-	DadState NL_DAD_STATE
+	DadState NlDadState
 	ScopeId ULONG
 	CreationTimeStamp LARGE_INTEGER
 }

@@ -8,20 +8,20 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ne-ifdef-if_oper_status
-// Defined in ifdef.h
-type IF_OPER_STATUS uint32
+// IF_OPER_STATUS defined in ifdef.h
+type IfOperStatus uint32
 
 const (
-	IfOperStatusUp             IF_OPER_STATUS = 1
-	IfOperStatusDown           IF_OPER_STATUS = 2
-	IfOperStatusTesting        IF_OPER_STATUS = 3
-	IfOperStatusUnknown        IF_OPER_STATUS = 4
-	IfOperStatusDormant        IF_OPER_STATUS = 5
-	IfOperStatusNotPresent     IF_OPER_STATUS = 6
-	IfOperStatusLowerLayerDown IF_OPER_STATUS = 7
+	IfOperStatusUp             IfOperStatus = 1
+	IfOperStatusDown           IfOperStatus = 2
+	IfOperStatusTesting        IfOperStatus = 3
+	IfOperStatusUnknown        IfOperStatus = 4
+	IfOperStatusDormant        IfOperStatus = 5
+	IfOperStatusNotPresent     IfOperStatus = 6
+	IfOperStatusLowerLayerDown IfOperStatus = 7
 )
 
-func (s IF_OPER_STATUS) String() string {
+func (s IfOperStatus) String() string {
 	switch s {
 	case IfOperStatusUp:
 		return "IfOperStatusUp"
@@ -38,6 +38,6 @@ func (s IF_OPER_STATUS) String() string {
 	case IfOperStatusLowerLayerDown:
 		return "IfOperStatusLowerLayerDown"
 	default:
-		return fmt.Sprintf("IF_OPER_STATUS_UNKNOWN(%d)", s)
+		return fmt.Sprintf("IfOperStatus_UNKNOWN(%d)", s)
 	}
 }

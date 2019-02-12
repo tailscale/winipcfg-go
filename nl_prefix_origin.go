@@ -8,19 +8,19 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/nldef/ne-nldef-nl_prefix_origin
-// Defined in nldef.h
-type NL_PREFIX_ORIGIN uint32
+// NL_PREFIX_ORIGIN defined in nldef.h
+type NlPrefixOrigin uint32
 
 const (
-	IpPrefixOriginOther               NL_PREFIX_ORIGIN = 0
-	IpPrefixOriginManual              NL_PREFIX_ORIGIN = 1
-	IpPrefixOriginWellKnown           NL_PREFIX_ORIGIN = 2
-	IpPrefixOriginDhcp                NL_PREFIX_ORIGIN = 3
-	IpPrefixOriginRouterAdvertisement NL_PREFIX_ORIGIN = 4
-	IpPrefixOriginUnchanged           NL_PREFIX_ORIGIN = 1 << 4
+	IpPrefixOriginOther               NlPrefixOrigin = 0
+	IpPrefixOriginManual              NlPrefixOrigin = 1
+	IpPrefixOriginWellKnown           NlPrefixOrigin = 2
+	IpPrefixOriginDhcp                NlPrefixOrigin = 3
+	IpPrefixOriginRouterAdvertisement NlPrefixOrigin = 4
+	IpPrefixOriginUnchanged           NlPrefixOrigin = 1 << 4
 )
 
-func (o NL_PREFIX_ORIGIN) String() string {
+func (o NlPrefixOrigin) String() string {
 	switch o {
 	case IpPrefixOriginOther:
 		return "IpPrefixOriginOther"
@@ -35,13 +35,13 @@ func (o NL_PREFIX_ORIGIN) String() string {
 	case IpPrefixOriginUnchanged:
 		return "IpPrefixOriginUnchanged"
 	default:
-		return fmt.Sprintf("NL_PREFIX_ORIGIN_UNKNOWN(%d)", o)
+		return fmt.Sprintf("NlPrefixOrigin_UNKNOWN(%d)", o)
 	}
 }
 
-// Defined in iptypes.h
-type IP_PREFIX_ORIGIN NL_PREFIX_ORIGIN
+// IP_PREFIX_ORIGIN defined in iptypes.h
+type IpPrefixOrigin NlPrefixOrigin
 
-func (o IP_PREFIX_ORIGIN) String() string {
-	return NL_PREFIX_ORIGIN(o).String()
+func (o IpPrefixOrigin) String() string {
+	return NlPrefixOrigin(o).String()
 }

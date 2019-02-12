@@ -23,8 +23,8 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	PhysicalAddressLength uint32 // Windows type: ULONG
 	Flags uint32 // Windows type: ULONG
 	Mtu uint32 // Windows type: ULONG
-	IfType IFTYPE
-	OperStatus IF_OPER_STATUS
+	IfType IfType
+	OperStatus IfOperStatus
 	Ipv6IfIndex uint32 // Windows type: IF_INDEX
 	ZoneIndices [16]uint32 // Windows type: [16]ULONG
 	FirstPrefix *wtIpAdapterPrefixXp
@@ -39,7 +39,7 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	Dhcpv4Server wtSocketAddress
 	CompartmentId NET_IF_COMPARTMENT_ID
 	NetworkGuid NET_IF_NETWORK_GUID
-	ConnectionType NET_IF_CONNECTION_TYPE
+	ConnectionType NetIfConnectionType
 	TunnelType TUNNEL_TYPE
 	//
 	// DHCP v6 Info.

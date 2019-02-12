@@ -8,17 +8,17 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ne-ifdef-_net_if_connection_type
-// Defined in ifdef.h
-type NET_IF_CONNECTION_TYPE uint32
+// NET_IF_CONNECTION_TYPE defined in ifdef.h
+type NetIfConnectionType uint32
 
 const (
-	NET_IF_CONNECTION_DEDICATED NET_IF_CONNECTION_TYPE = 1
-	NET_IF_CONNECTION_PASSIVE   NET_IF_CONNECTION_TYPE = 2
-	NET_IF_CONNECTION_DEMAND    NET_IF_CONNECTION_TYPE = 3
-	NET_IF_CONNECTION_MAXIMUM   NET_IF_CONNECTION_TYPE = 4
+	NET_IF_CONNECTION_DEDICATED NetIfConnectionType = 1
+	NET_IF_CONNECTION_PASSIVE   NetIfConnectionType = 2
+	NET_IF_CONNECTION_DEMAND    NetIfConnectionType = 3
+	NET_IF_CONNECTION_MAXIMUM   NetIfConnectionType = 4
 )
 
-func (t NET_IF_CONNECTION_TYPE) String() string {
+func (t NetIfConnectionType) String() string {
 	switch t {
 	case NET_IF_CONNECTION_DEDICATED:
 		return "NET_IF_CONNECTION_DEDICATED"
@@ -29,6 +29,6 @@ func (t NET_IF_CONNECTION_TYPE) String() string {
 	case NET_IF_CONNECTION_MAXIMUM:
 		return "NET_IF_CONNECTION_MAXIMUM"
 	default:
-		return fmt.Sprintf("NET_IF_CONNECTION_TYPE_UNKNOWN(%d)", t)
+		return fmt.Sprintf("NetIfConnectionType_UNKNOWN(%d)", t)
 	}
 }

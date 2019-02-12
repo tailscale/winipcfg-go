@@ -8,18 +8,18 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/nldef/ne-nldef-nl_dad_state
-// Defined in nldef.h
-type NL_DAD_STATE uint32
+// NL_DAD_STATE defined in nldef.h
+type NlDadState uint32
 
 const (
-	IpDadStateInvalid    NL_DAD_STATE = 0
-	IpDadStateTentative  NL_DAD_STATE = 1
-	IpDadStateDuplicate  NL_DAD_STATE = 2
-	IpDadStateDeprecated NL_DAD_STATE = 3
-	IpDadStatePreferred  NL_DAD_STATE = 4
+	IpDadStateInvalid    NlDadState = 0
+	IpDadStateTentative  NlDadState = 1
+	IpDadStateDuplicate  NlDadState = 2
+	IpDadStateDeprecated NlDadState = 3
+	IpDadStatePreferred  NlDadState = 4
 )
 
-func (s NL_DAD_STATE) String() string {
+func (s NlDadState) String() string {
 	switch s {
 	case IpDadStateInvalid:
 		return "IpDadStateInvalid"
@@ -32,13 +32,13 @@ func (s NL_DAD_STATE) String() string {
 	case IpDadStatePreferred:
 		return "IpDadStatePreferred"
 	default:
-		return fmt.Sprintf("NL_DAD_STATE_UNKNOWN(%d)", s)
+		return fmt.Sprintf("NlDadState_UNKNOWN(%d)", s)
 	}
 }
 
-// Defined in iptypes.h
-type IP_DAD_STATE NL_DAD_STATE
+// IP_DAD_STATE defined in iptypes.h
+type IpDadState NlDadState
 
-func (s IP_DAD_STATE) String() string {
-	return NL_DAD_STATE(s).String()
+func (s IpDadState) String() string {
+	return NlDadState(s).String()
 }

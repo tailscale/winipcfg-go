@@ -65,40 +65,40 @@ const (
 
 	wtIpAdapterDnsSuffix_String_Offset = 4
 
-	IP_ADAPTER_GATEWAY_ADDRESS_LH_Size = 24
+	wtIpAdapterGatewayAddressLh_Size = 24
 
-	IP_ADAPTER_GATEWAY_ADDRESS_LH_Reserved_Offset = 4
-	IP_ADAPTER_GATEWAY_ADDRESS_LH_Next_Offset = 8
-	IP_ADAPTER_GATEWAY_ADDRESS_LH_Address_Offset = 12
+	wtIpAdapterGatewayAddressLh_Reserved_Offset = 4
+	wtIpAdapterGatewayAddressLh_Next_Offset = 8
+	wtIpAdapterGatewayAddressLh_Address_Offset = 12
 
-	IP_ADAPTER_MULTICAST_ADDRESS_XP_Size = 24
+	wtIpAdapterMulticastAddressXp_Size = 24
 
-	IP_ADAPTER_MULTICAST_ADDRESS_XP_Flags_Offset = 4
-	IP_ADAPTER_MULTICAST_ADDRESS_XP_Next_Offset = 8
-	IP_ADAPTER_MULTICAST_ADDRESS_XP_Address_Offset = 12
+	wtIpAdapterMulticastAddressXp_Flags_Offset = 4
+	wtIpAdapterMulticastAddressXp_Next_Offset = 8
+	wtIpAdapterMulticastAddressXp_Address_Offset = 12
 
-	IP_ADAPTER_PREFIX_XP_Size = 24
+	wtIpAdapterPrefixXp_Size = 24
 
-	IP_ADAPTER_PREFIX_XP_Flags_Offset = 4
-	IP_ADAPTER_PREFIX_XP_Next_Offset = 8
-	IP_ADAPTER_PREFIX_XP_Address_Offset = 12
-	IP_ADAPTER_PREFIX_XP_PrefixLength_Offset = 20
+	wtIpAdapterPrefixXp_Flags_Offset = 4
+	wtIpAdapterPrefixXp_Next_Offset = 8
+	wtIpAdapterPrefixXp_Address_Offset = 12
+	wtIpAdapterPrefixXp_PrefixLength_Offset = 20
 
-	IP_ADAPTER_UNICAST_ADDRESS_LH_Size = 48
+	wtIpAdapterUnicastAddressLh_Size = 48
 
-	IP_ADAPTER_UNICAST_ADDRESS_LH_Flags_Offset = 4
-	IP_ADAPTER_UNICAST_ADDRESS_LH_Next_Offset = 8
-	IP_ADAPTER_UNICAST_ADDRESS_LH_Address_Offset = 12
-	IP_ADAPTER_UNICAST_ADDRESS_LH_PrefixOrigin_Offset = 20
-	IP_ADAPTER_UNICAST_ADDRESS_LH_SuffixOrigin_Offset = 24
-	IP_ADAPTER_UNICAST_ADDRESS_LH_DadState_Offset = 28
-	IP_ADAPTER_UNICAST_ADDRESS_LH_ValidLifetime_Offset = 32
-	IP_ADAPTER_UNICAST_ADDRESS_LH_PreferredLifetime_Offset = 36
-	IP_ADAPTER_UNICAST_ADDRESS_LH_LeaseLifetime_Offset = 40
-	IP_ADAPTER_UNICAST_ADDRESS_LH_OnLinkPrefixLength_Offset = 44
-	IP_ADAPTER_WINS_SERVER_ADDRESS_LH_Size = 24
+	wtIpAdapterUnicastAddressLh_Flags_Offset = 4
+	wtIpAdapterUnicastAddressLh_Next_Offset = 8
+	wtIpAdapterUnicastAddressLh_Address_Offset = 12
+	wtIpAdapterUnicastAddressLh_PrefixOrigin_Offset = 20
+	wtIpAdapterUnicastAddressLh_SuffixOrigin_Offset = 24
+	wtIpAdapterUnicastAddressLh_DadState_Offset = 28
+	wtIpAdapterUnicastAddressLh_ValidLifetime_Offset = 32
+	wtIpAdapterUnicastAddressLh_PreferredLifetime_Offset = 36
+	wtIpAdapterUnicastAddressLh_LeaseLifetime_Offset = 40
+	wtIpAdapterUnicastAddressLh_OnLinkPrefixLength_Offset = 44
+	wtIpAdapterWinsServerAddressLh_Size = 24
 
-	IP_ADAPTER_WINS_SERVER_ADDRESS_LH_Reserved_Offset = 4
-	IP_ADAPTER_WINS_SERVER_ADDRESS_LH_Next_Offset = 8
-	IP_ADAPTER_WINS_SERVER_ADDRESS_LH_Address_Offset = 12
+	wtIpAdapterWinsServerAddressLh_Reserved_Offset = 4
+	wtIpAdapterWinsServerAddressLh_Next_Offset = 8
+	wtIpAdapterWinsServerAddressLh_Address_Offset = 12
 )

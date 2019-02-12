@@ -6,11 +6,11 @@
 package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_unicast_address_lh
-// Defined in iptypes.h
-type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
+// IP_ADAPTER_UNICAST_ADDRESS_LH defined in iptypes.h
+type wtIpAdapterUnicastAddressLh struct {
 	Length uint32 // Windows type: ULONG
 	Flags uint32 // Windows type: DWORD
-	Next *IP_ADAPTER_UNICAST_ADDRESS_LH
+	Next *wtIpAdapterUnicastAddressLh
 	Address wtSocketAddress
 
 	PrefixOrigin IP_PREFIX_ORIGIN

@@ -8,11 +8,11 @@ package winipcfg
 import "unsafe"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_prefix_xp
-// Defined in iptypes.h
-type IP_ADAPTER_PREFIX_XP struct {
+// IP_ADAPTER_PREFIX_XP defined in iptypes.h
+type wtIpAdapterPrefixXp struct {
 	Length uint32 // Windows type: ULONG
 	Flags uint32 // Windows type: DWORD
-	Next *IP_ADAPTER_PREFIX_XP
+	Next *wtIpAdapterPrefixXp
 	Address wtSocketAddress
 	PrefixLength uint32 // Windows type: ULONG
 }
@@ -20,9 +20,9 @@ type IP_ADAPTER_PREFIX_XP struct {
 // TODO: IP_ADAPTER_PREFIX and related methods probably can be removed?
 
 // Defined in iptypes.h
-type IP_ADAPTER_PREFIX IP_ADAPTER_PREFIX_XP
+type IP_ADAPTER_PREFIX wtIpAdapterPrefixXp
 
-func (pxp *IP_ADAPTER_PREFIX_XP) nextCasted() *IP_ADAPTER_PREFIX {
+func (pxp *wtIpAdapterPrefixXp) nextCasted() *IP_ADAPTER_PREFIX {
 	if pxp == nil {
 		return nil
 	} else {

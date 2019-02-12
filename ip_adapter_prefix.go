@@ -14,7 +14,7 @@ type IpAdapterPrefix struct {
 	PrefixLength uint32
 }
 
-func ipAdapterPrefixFromWinType(wt *IP_ADAPTER_PREFIX_XP) (*IpAdapterPrefix, error) {
+func ipAdapterPrefixFromWinType(wt *wtIpAdapterPrefixXp) (*IpAdapterPrefix, error) {
 
 	if wt == nil {
 		return nil, nil

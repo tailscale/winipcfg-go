@@ -33,7 +33,7 @@ type IpAdapterUnicastAddress struct {
 	OnLinkPrefixLength uint8
 }
 
-func ipAdapterUnicastAddressFromWinType(ifc Interface, iaua *IP_ADAPTER_UNICAST_ADDRESS_LH) (*IpAdapterUnicastAddress,
+func ipAdapterUnicastAddressFromWinType(ifc Interface, iaua *wtIpAdapterUnicastAddressLh) (*IpAdapterUnicastAddress,
 	error) {
 
 	if iaua == nil {

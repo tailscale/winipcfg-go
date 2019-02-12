@@ -12,9 +12,9 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	IfIndex uint32 // Windows type: IF_INDEX
 	Next *IP_ADAPTER_ADDRESSES_LH
 	AdapterName *uint8 //*CHAR flattened to *uint8
-	FirstUnicastAddress *IP_ADAPTER_UNICAST_ADDRESS_LH
+	FirstUnicastAddress *wtIpAdapterUnicastAddressLh
 	FirstAnycastAddress *IP_ADAPTER_ANYCAST_ADDRESS_XP
-	FirstMulticastAddress *IP_ADAPTER_MULTICAST_ADDRESS_XP
+	FirstMulticastAddress *wtIpAdapterMulticastAddressXp
 	FirstDnsServerAddress *wtIpAdapterDnsServerAddressXp
 	DnsSuffix *uint16 // Windows type: *WCHAR
 	Description *uint16 // Windows type: *WCHAR
@@ -27,12 +27,12 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	OperStatus IF_OPER_STATUS
 	Ipv6IfIndex uint32 // Windows type: IF_INDEX
 	ZoneIndices [16]uint32 // Windows type: [16]ULONG
-	FirstPrefix *IP_ADAPTER_PREFIX_XP
+	FirstPrefix *wtIpAdapterPrefixXp
 
 	TransmitLinkSpeed ULONG64
 	ReceiveLinkSpeed ULONG64
-	FirstWinsServerAddress *IP_ADAPTER_WINS_SERVER_ADDRESS_LH
-	FirstGatewayAddress *IP_ADAPTER_GATEWAY_ADDRESS_LH
+	FirstWinsServerAddress *wtIpAdapterWinsServerAddressLh
+	FirstGatewayAddress *wtIpAdapterGatewayAddressLh
 	Ipv4Metric ULONG
 	Ipv6Metric ULONG
 	Luid uint64 // Windows type:  IF_LUID

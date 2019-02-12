@@ -6,11 +6,11 @@
 package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_wins_server_address_lh
-// Defined in iptypes.h
-type IP_ADAPTER_WINS_SERVER_ADDRESS_LH struct {
+// IP_ADAPTER_WINS_SERVER_ADDRESS_LH defined in iptypes.h
+type wtIpAdapterWinsServerAddressLh struct {
 	Length ULONG
 	Reserved DWORD
-	Next *IP_ADAPTER_WINS_SERVER_ADDRESS_LH
+	Next *wtIpAdapterWinsServerAddressLh
 	Address wtSocketAddress
 	// Fixing layout! I've had to add this padding to ensure the same structure size.
 	correction [4]uint8

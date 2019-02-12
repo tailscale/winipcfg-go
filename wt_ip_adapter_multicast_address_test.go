@@ -10,38 +10,42 @@ import (
 	"unsafe"
 )
 
-func Test_IP_ADAPTER_MULTICAST_ADDRESS_XP_Size(t *testing.T) {
+func TestWtIpAdapterMulticastAddressXpSize(t *testing.T) {
 
-	const Actual_IP_ADAPTER_MULTICAST_ADDRESS_XP_Size = unsafe.Sizeof(IP_ADAPTER_MULTICAST_ADDRESS_XP{})
+	const actualWtIpAdapterMulticastAddressXpSize = unsafe.Sizeof(wtIpAdapterMulticastAddressXp{})
 
-	if Actual_IP_ADAPTER_MULTICAST_ADDRESS_XP_Size != IP_ADAPTER_MULTICAST_ADDRESS_XP_Size {
-		t.Errorf("Size of IP_ADAPTER_MULTICAST_ADDRESS_XP is %d, although %d is expected.", Actual_IP_ADAPTER_MULTICAST_ADDRESS_XP_Size, IP_ADAPTER_MULTICAST_ADDRESS_XP_Size)
+	if actualWtIpAdapterMulticastAddressXpSize != wtIpAdapterMulticastAddressXp_Size {
+		t.Errorf("Size of wtIpAdapterMulticastAddressXp is %d, although %d is expected.",
+			actualWtIpAdapterMulticastAddressXpSize, wtIpAdapterMulticastAddressXp_Size)
 	}
 }
 
-func Test_IP_ADAPTER_MULTICAST_ADDRESS_XP_Offsets(t *testing.T) {
+func TestWtIpAdapterMulticastAddressXpOffsets(t *testing.T) {
 
-	s := IP_ADAPTER_MULTICAST_ADDRESS_XP{}
+	s := wtIpAdapterMulticastAddressXp{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.Flags)) - sp
 
-	if offset != IP_ADAPTER_MULTICAST_ADDRESS_XP_Flags_Offset {
-		t.Errorf("IP_ADAPTER_MULTICAST_ADDRESS_XP.Flags offset is %d although %d is expected", offset, IP_ADAPTER_MULTICAST_ADDRESS_XP_Flags_Offset)
+	if offset != wtIpAdapterMulticastAddressXp_Flags_Offset {
+		t.Errorf("wtIpAdapterMulticastAddressXp.Flags offset is %d although %d is expected", offset,
+			wtIpAdapterMulticastAddressXp_Flags_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Next)) - sp
 
-	if offset != IP_ADAPTER_MULTICAST_ADDRESS_XP_Next_Offset {
-		t.Errorf("IP_ADAPTER_MULTICAST_ADDRESS_XP.Next offset is %d although %d is expected", offset, IP_ADAPTER_MULTICAST_ADDRESS_XP_Next_Offset)
+	if offset != wtIpAdapterMulticastAddressXp_Next_Offset {
+		t.Errorf("wtIpAdapterMulticastAddressXp.Next offset is %d although %d is expected", offset,
+			wtIpAdapterMulticastAddressXp_Next_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Address)) - sp
 
-	if offset != IP_ADAPTER_MULTICAST_ADDRESS_XP_Address_Offset {
-		t.Errorf("IP_ADAPTER_MULTICAST_ADDRESS_XP.Address offset is %d although %d is expected", offset, IP_ADAPTER_MULTICAST_ADDRESS_XP_Address_Offset)
+	if offset != wtIpAdapterMulticastAddressXp_Address_Offset {
+		t.Errorf("wtIpAdapterMulticastAddressXp.Address offset is %d although %d is expected", offset,
+			wtIpAdapterMulticastAddressXp_Address_Offset)
 		return
 	}
 }

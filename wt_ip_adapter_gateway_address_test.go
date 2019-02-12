@@ -10,38 +10,42 @@ import (
 	"unsafe"
 )
 
-func Test_IP_ADAPTER_GATEWAY_ADDRESS_LH_Size(t *testing.T) {
+func TestWtIpAdapterGatewayAddressLh_Size(t *testing.T) {
 
-	const Actual_IP_ADAPTER_GATEWAY_ADDRESS_LH_Size = unsafe.Sizeof(IP_ADAPTER_GATEWAY_ADDRESS_LH{})
+	const actualWtIpAdapterGatewayAddressLhSize = unsafe.Sizeof(wtIpAdapterGatewayAddressLh{})
 
-	if Actual_IP_ADAPTER_GATEWAY_ADDRESS_LH_Size != IP_ADAPTER_GATEWAY_ADDRESS_LH_Size {
-		t.Errorf("Size of IP_ADAPTER_GATEWAY_ADDRESS_LH is %d, although %d is expected.", Actual_IP_ADAPTER_GATEWAY_ADDRESS_LH_Size, IP_ADAPTER_GATEWAY_ADDRESS_LH_Size)
+	if actualWtIpAdapterGatewayAddressLhSize != wtIpAdapterGatewayAddressLh_Size {
+		t.Errorf("Size of wtIpAdapterGatewayAddressLh is %d, although %d is expected.",
+			actualWtIpAdapterGatewayAddressLhSize, wtIpAdapterGatewayAddressLh_Size)
 	}
 }
 
-func Test_IP_ADAPTER_GATEWAY_ADDRESS_LH_Offsets(t *testing.T) {
+func TestWtIpAdapterGatewayAddressLh_Offsets(t *testing.T) {
 
-	s := IP_ADAPTER_GATEWAY_ADDRESS_LH{}
+	s := wtIpAdapterGatewayAddressLh{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.Reserved)) - sp
 
-	if offset != IP_ADAPTER_GATEWAY_ADDRESS_LH_Reserved_Offset {
-		t.Errorf("IP_ADAPTER_GATEWAY_ADDRESS_LH.Reserved offset is %d although %d is expected", offset, IP_ADAPTER_GATEWAY_ADDRESS_LH_Reserved_Offset)
+	if offset != wtIpAdapterGatewayAddressLh_Reserved_Offset {
+		t.Errorf("wtIpAdapterGatewayAddressLh.Reserved offset is %d although %d is expected", offset,
+			wtIpAdapterGatewayAddressLh_Reserved_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Next)) - sp
 
-	if offset != IP_ADAPTER_GATEWAY_ADDRESS_LH_Next_Offset {
-		t.Errorf("IP_ADAPTER_GATEWAY_ADDRESS_LH.Next offset is %d although %d is expected", offset, IP_ADAPTER_GATEWAY_ADDRESS_LH_Next_Offset)
+	if offset != wtIpAdapterGatewayAddressLh_Next_Offset {
+		t.Errorf("wtIpAdapterGatewayAddressLh.Next offset is %d although %d is expected", offset,
+			wtIpAdapterGatewayAddressLh_Next_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Address)) - sp
 
-	if offset != IP_ADAPTER_GATEWAY_ADDRESS_LH_Address_Offset {
-		t.Errorf("IP_ADAPTER_GATEWAY_ADDRESS_LH.Address offset is %d although %d is expected", offset, IP_ADAPTER_GATEWAY_ADDRESS_LH_Address_Offset)
+	if offset != wtIpAdapterGatewayAddressLh_Address_Offset {
+		t.Errorf("wtIpAdapterGatewayAddressLh.Address offset is %d although %d is expected", offset,
+			wtIpAdapterGatewayAddressLh_Address_Offset)
 		return
 	}
 }

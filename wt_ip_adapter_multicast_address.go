@@ -6,4 +6,4 @@
 package winipcfg
 
 // Defined in iptypes.h
-type IP_ADAPTER_MULTICAST_ADDRESS IP_ADAPTER_MULTICAST_ADDRESS_XP
+type IP_ADAPTER_MULTICAST_ADDRESS wtIpAdapterMulticastAddressXp

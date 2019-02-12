@@ -6,10 +6,10 @@
 package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_multicast_address_xp
-// Defined in iptypes.h
-type IP_ADAPTER_MULTICAST_ADDRESS_XP struct {
+// IP_ADAPTER_MULTICAST_ADDRESS_XP defined in iptypes.h
+type wtIpAdapterMulticastAddressXp struct {
 	Length ULONG
 	Flags DWORD
-	Next *IP_ADAPTER_MULTICAST_ADDRESS_XP
+	Next *wtIpAdapterMulticastAddressXp
 	Address wtSocketAddress
 }

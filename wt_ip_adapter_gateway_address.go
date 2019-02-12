@@ -6,4 +6,4 @@
 package winipcfg
 
 // Defined in iptypes.h
-type IP_ADAPTER_GATEWAY_ADDRESS IP_ADAPTER_GATEWAY_ADDRESS_LH
+type IP_ADAPTER_GATEWAY_ADDRESS wtIpAdapterGatewayAddressLh

@@ -10,38 +10,42 @@ import (
 	"unsafe"
 )
 
-func Test_IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size(t *testing.T) {
+func TestWpIpAdapterDnsServerAddressXpSize(t *testing.T) {
 
-	const Actual_IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size = unsafe.Sizeof(IP_ADAPTER_DNS_SERVER_ADDRESS_XP{})
+	const actualWpIpAdapterDnsServerAddressXp = unsafe.Sizeof(wtIpAdapterDnsServerAddressXp{})
 
-	if Actual_IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size != IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size {
-		t.Errorf("Size of IP_ADAPTER_DNS_SERVER_ADDRESS_XP is %d, although %d is expected.", Actual_IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size, IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size)
+	if actualWpIpAdapterDnsServerAddressXp != wtIpAdapterDnsServerAddressXp_Size {
+		t.Errorf("Size of wtIpAdapterDnsServerAddressXp is %d, although %d is expected.",
+			actualWpIpAdapterDnsServerAddressXp, wtIpAdapterDnsServerAddressXp_Size)
 	}
 }
 
-func Test_IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Offsets(t *testing.T) {
+func Test_wtIpAdapterDnsServerAddressXp_Offsets(t *testing.T) {
 
-	s := IP_ADAPTER_DNS_SERVER_ADDRESS_XP{}
+	s := wtIpAdapterDnsServerAddressXp{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.Reserved)) - sp
 
-	if offset != IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Reserved_Offset {
-		t.Errorf("IP_ADAPTER_DNS_SERVER_ADDRESS_XP.Reserved offset is %d although %d is expected", offset, IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Reserved_Offset)
+	if offset != wtIpAdapterDnsServerAddressXp_Reserved_Offset {
+		t.Errorf("wtIpAdapterDnsServerAddressXp.Reserved offset is %d although %d is expected", offset,
+			wtIpAdapterDnsServerAddressXp_Reserved_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Next)) - sp
 
-	if offset != IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Next_Offset {
-		t.Errorf("IP_ADAPTER_DNS_SERVER_ADDRESS_XP.Next offset is %d although %d is expected", offset, IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Next_Offset)
+	if offset != wtIpAdapterDnsServerAddressXp_Next_Offset {
+		t.Errorf("wtIpAdapterDnsServerAddressXp.Next offset is %d although %d is expected", offset,
+			wtIpAdapterDnsServerAddressXp_Next_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Address)) - sp
 
-	if offset != IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Address_Offset {
-		t.Errorf("IP_ADAPTER_DNS_SERVER_ADDRESS_XP.Address offset is %d although %d is expected", offset, IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Address_Offset)
+	if offset != wtIpAdapterDnsServerAddressXp_Address_Offset {
+		t.Errorf("wtIpAdapterDnsServerAddressXp.Address offset is %d although %d is expected", offset,
+			wtIpAdapterDnsServerAddressXp_Address_Offset)
 		return
 	}
 }

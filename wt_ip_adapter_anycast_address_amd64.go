@@ -11,5 +11,5 @@ type IP_ADAPTER_ANYCAST_ADDRESS_XP struct {
 	Length ULONG
 	Flags DWORD
 	Next *IP_ADAPTER_ANYCAST_ADDRESS_XP
-	Address SOCKET_ADDRESS
+	Address wtSocketAddress
 }

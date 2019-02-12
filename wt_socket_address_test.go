@@ -10,24 +10,24 @@ import (
 	"unsafe"
 )
 
-func Test_SOCKET_ADDRESS_Size(t *testing.T) {
+func TestWpSocketAddressSize(t *testing.T) {
 
-	const Actual_SOCKET_ADDRESS_Size = unsafe.Sizeof(SOCKET_ADDRESS{})
+	const actualWpSocketAddressSize = unsafe.Sizeof(wtSocketAddress{})
 
-	if Actual_SOCKET_ADDRESS_Size != SOCKET_ADDRESS_Size {
-		t.Errorf("Size of SOCKET_ADDRESS is %d, although %d is expected.", Actual_SOCKET_ADDRESS_Size, SOCKET_ADDRESS_Size)
+	if actualWpSocketAddressSize != wtSocketAddress_Size {
+		t.Errorf("Size of wtSocketAddress is %d, although %d is expected.", actualWpSocketAddressSize, wtSocketAddress_Size)
 	}
 }
 
-func Test_SOCKET_ADDRESS_Offsets(t *testing.T) {
+func TestWpSocketAddressOffsets(t *testing.T) {
 
-	s := SOCKET_ADDRESS{}
+	s := wtSocketAddress{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.iSockaddrLength)) - sp
 
-	if offset != SOCKET_ADDRESS_iSockaddrLength_Offset {
-		t.Errorf("SOCKET_ADDRESS.iSockaddrLength offset is %d although %d is expected", offset, SOCKET_ADDRESS_iSockaddrLength_Offset)
+	if offset != wtSocketAddress_iSockaddrLength_Offset {
+		t.Errorf("wtSocketAddress.iSockaddrLength offset is %d although %d is expected", offset, wtSocketAddress_iSockaddrLength_Offset)
 		return
 	}
 }

@@ -6,10 +6,10 @@
 package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_dns_server_address_xp
-// Defined in iptypes.h
-type IP_ADAPTER_DNS_SERVER_ADDRESS_XP struct {
+// IP_ADAPTER_DNS_SERVER_ADDRESS_XP defined in iptypes.h
+type wtIpAdapterDnsServerAddressXp struct {
 	Length ULONG
 	Reserved DWORD
-	Next *IP_ADAPTER_DNS_SERVER_ADDRESS_XP
-	Address SOCKET_ADDRESS
+	Next *wtIpAdapterDnsServerAddressXp
+	Address wtSocketAddress
 }

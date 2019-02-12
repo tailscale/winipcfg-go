@@ -6,4 +6,4 @@
 package winipcfg
 
 // Defined in iptypes.h
-type IP_ADAPTER_DNS_SERVER_ADDRESS IP_ADAPTER_DNS_SERVER_ADDRESS_XP
+type IP_ADAPTER_DNS_SERVER_ADDRESS wtIpAdapterDnsServerAddressXp

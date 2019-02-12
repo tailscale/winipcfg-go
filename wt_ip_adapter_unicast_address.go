@@ -11,7 +11,7 @@ type IP_ADAPTER_UNICAST_ADDRESS_LH struct {
 	Length uint32 // Windows type: ULONG
 	Flags uint32 // Windows type: DWORD
 	Next *IP_ADAPTER_UNICAST_ADDRESS_LH
-	Address SOCKET_ADDRESS
+	Address wtSocketAddress
 
 	PrefixOrigin IP_PREFIX_ORIGIN
 	SuffixOrigin IP_SUFFIX_ORIGIN

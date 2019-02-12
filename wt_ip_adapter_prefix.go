@@ -13,7 +13,7 @@ type IP_ADAPTER_PREFIX_XP struct {
 	Length uint32 // Windows type: ULONG
 	Flags uint32 // Windows type: DWORD
 	Next *IP_ADAPTER_PREFIX_XP
-	Address SOCKET_ADDRESS
+	Address wtSocketAddress
 	PrefixLength uint32 // Windows type: ULONG
 }
 

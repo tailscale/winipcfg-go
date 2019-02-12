@@ -6,64 +6,64 @@
 package winipcfg
 
 const (
-	IP_ADAPTER_ADDRESSES_LH_Size = 448
+	wtIpAdapterAddressesLh_Size = 448
 
-	IP_ADAPTER_ADDRESSES_LH_IfIndex_Offset = 4
-	IP_ADAPTER_ADDRESSES_LH_Next_Offset = 8
-	IP_ADAPTER_ADDRESSES_LH_AdapterName_Offset = 16
-	IP_ADAPTER_ADDRESSES_LH_FirstUnicastAddress_Offset = 24
-	IP_ADAPTER_ADDRESSES_LH_FirstAnycastAddress_Offset = 32
-	IP_ADAPTER_ADDRESSES_LH_FirstMulticastAddress_Offset = 40
-	IP_ADAPTER_ADDRESSES_LH_FirstDnsServerAddress_Offset = 48
-	IP_ADAPTER_ADDRESSES_LH_DnsSuffix_Offset = 56
-	IP_ADAPTER_ADDRESSES_LH_Description_Offset = 64
-	IP_ADAPTER_ADDRESSES_LH_FriendlyName_Offset = 72
-	IP_ADAPTER_ADDRESSES_LH_PhysicalAddress_Offset = 80
-	IP_ADAPTER_ADDRESSES_LH_PhysicalAddressLength_Offset = 88
-	IP_ADAPTER_ADDRESSES_LH_Flags_Offset = 92
-	IP_ADAPTER_ADDRESSES_LH_Mtu_Offset = 96
-	IP_ADAPTER_ADDRESSES_LH_IfType_Offset = 100
-	IP_ADAPTER_ADDRESSES_LH_OperStatus_Offset = 104
-	IP_ADAPTER_ADDRESSES_LH_Ipv6IfIndex_Offset = 108
-	IP_ADAPTER_ADDRESSES_LH_ZoneIndices_Offset = 112
-	IP_ADAPTER_ADDRESSES_LH_FirstPrefix_Offset = 176
-	IP_ADAPTER_ADDRESSES_LH_TransmitLinkSpeed_Offset = 184
-	IP_ADAPTER_ADDRESSES_LH_ReceiveLinkSpeed_Offset = 192
-	IP_ADAPTER_ADDRESSES_LH_FirstWinsServerAddress_Offset = 200
-	IP_ADAPTER_ADDRESSES_LH_FirstGatewayAddress_Offset = 208
-	IP_ADAPTER_ADDRESSES_LH_Ipv4Metric_Offset = 216
-	IP_ADAPTER_ADDRESSES_LH_Ipv6Metric_Offset = 220
-	IP_ADAPTER_ADDRESSES_LH_Luid_Offset = 224
-	IP_ADAPTER_ADDRESSES_LH_Dhcpv4Server_Offset = 232
-	IP_ADAPTER_ADDRESSES_LH_CompartmentId_Offset = 248
-	IP_ADAPTER_ADDRESSES_LH_NetworkGuid_Offset = 252
-	IP_ADAPTER_ADDRESSES_LH_ConnectionType_Offset = 268
-	IP_ADAPTER_ADDRESSES_LH_TunnelType_Offset = 272
-	IP_ADAPTER_ADDRESSES_LH_Dhcpv6Server_Offset = 280
-	IP_ADAPTER_ADDRESSES_LH_Dhcpv6ClientDuid_Offset = 296
-	IP_ADAPTER_ADDRESSES_LH_Dhcpv6ClientDuidLength_Offset = 428
-	IP_ADAPTER_ADDRESSES_LH_Dhcpv6Iaid_Offset = 432
-	IP_ADAPTER_ADDRESSES_LH_FirstDnsSuffix_Offset = 440
+	wtIpAdapterAddressesLh_IfIndex_Offset                = 4
+	wtIpAdapterAddressesLh_Next_Offset                   = 8
+	wtIpAdapterAddressesLh_AdapterName_Offset           = 16
+	wtIpAdapterAddressesLh_FirstUnicastAddress_Offset     = 24
+	wtIpAdapterAddressesLh_FirstAnycastAddress_Offset     = 32
+	wtIpAdapterAddressesLh_FirstMulticastAddress_Offset   = 40
+	wtIpAdapterAddressesLh_FirstDnsServerAddress_Offset   = 48
+	wtIpAdapterAddressesLh_DnsSuffix_Offset               = 56
+	wtIpAdapterAddressesLh_Description_Offset             = 64
+	wtIpAdapterAddressesLh_FriendlyName_Offset            = 72
+	wtIpAdapterAddressesLh_PhysicalAddress_Offset         = 80
+	wtIpAdapterAddressesLh_PhysicalAddressLength_Offset  = 88
+	wtIpAdapterAddressesLh_Flags_Offset                  = 92
+	wtIpAdapterAddressesLh_Mtu_Offset                    = 96
+	wtIpAdapterAddressesLh_IfType_Offset                 = 100
+	wtIpAdapterAddressesLh_OperStatus_Offset              = 104
+	wtIpAdapterAddressesLh_Ipv6IfIndex_Offset             = 108
+	wtIpAdapterAddressesLh_ZoneIndices_Offset             = 112
+	wtIpAdapterAddressesLh_FirstPrefix_Offset             = 176
+	wtIpAdapterAddressesLh_TransmitLinkSpeed_Offset       = 184
+	wtIpAdapterAddressesLh_ReceiveLinkSpeed_Offset        = 192
+	wtIpAdapterAddressesLh_FirstWinsServerAddress_Offset  = 200
+	wtIpAdapterAddressesLh_FirstGatewayAddress_Offset     = 208
+	wtIpAdapterAddressesLh_Ipv4Metric_Offset              = 216
+	wtIpAdapterAddressesLh_Ipv6Metric_Offset             = 220
+	wtIpAdapterAddressesLh_Luid_Offset                   = 224
+	wtIpAdapterAddressesLh_Dhcpv4Server_Offset           = 232
+	wtIpAdapterAddressesLh_CompartmentId_Offset          = 248
+	wtIpAdapterAddressesLh_NetworkGuid_Offset            = 252
+	wtIpAdapterAddressesLh_ConnectionType_Offset         = 268
+	wtIpAdapterAddressesLh_TunnelType_Offset             = 272
+	wtIpAdapterAddressesLh_Dhcpv6Server_Offset           = 280
+	wtIpAdapterAddressesLh_Dhcpv6ClientDuid_Offset       = 296
+	wtIpAdapterAddressesLh_Dhcpv6ClientDuidLength_Offset = 428
+	wtIpAdapterAddressesLh_Dhcpv6Iaid_Offset             = 432
+	wtIpAdapterAddressesLh_FirstDnsSuffix_Offset         = 440
 
-	IP_ADAPTER_ANYCAST_ADDRESS_XP_Size = 32
+	wtIpAdapterAnycastAddressXp_Size = 32
 
-	IP_ADAPTER_ANYCAST_ADDRESS_XP_Flags_Offset = 4
-	IP_ADAPTER_ANYCAST_ADDRESS_XP_Next_Offset = 8
-	IP_ADAPTER_ANYCAST_ADDRESS_XP_Address_Offset = 16
+	wtIpAdapterAnycastAddressXp_Flags_Offset   = 4
+	wtIpAdapterAnycastAddressXp_Next_Offset    = 8
+	wtIpAdapterAnycastAddressXp_Address_Offset = 16
 
-	SOCKET_ADDRESS_Size = 16
+	wtSocketAddress_Size = 16
 
-	SOCKET_ADDRESS_iSockaddrLength_Offset = 8
+	wtSocketAddress_iSockaddrLength_Offset = 8
 
-	IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Size = 32
+	wtIpAdapterDnsServerAddressXp_Size = 32
 
-	IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Reserved_Offset = 4
-	IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Next_Offset = 8
-	IP_ADAPTER_DNS_SERVER_ADDRESS_XP_Address_Offset = 16
+	wtIpAdapterDnsServerAddressXp_Reserved_Offset = 4
+	wtIpAdapterDnsServerAddressXp_Next_Offset = 8
+	wtIpAdapterDnsServerAddressXp_Address_Offset = 16
 
-	IP_ADAPTER_DNS_SUFFIX_Size = 520
+	wtIpAdapterDnsSuffix_Size = 520
 
-	IP_ADAPTER_DNS_SUFFIX_String_Offset = 8
+	wtIpAdapterDnsSuffix_String_Offset = 8
 
 	IP_ADAPTER_GATEWAY_ADDRESS_LH_Size = 32
 

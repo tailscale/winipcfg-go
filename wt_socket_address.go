@@ -11,8 +11,8 @@ import (
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-_socket_address
-// Defined in ws2def.h
-type SOCKET_ADDRESS struct {
+// SOCKET_ADDRESS defined in ws2def.h
+type wtSocketAddress struct {
 	lpSockaddr *SOCKADDR
 	iSockaddrLength INT
 }
@@ -24,7 +24,7 @@ type SOCKADDR struct {
 	sa_data   [14]CHAR
 }
 
-func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
+func (sa *wtSocketAddress) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
 
 	if sa == nil {
 		return nil, nil
@@ -37,7 +37,7 @@ func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
 		// TODO: Remove this check once it's confirmed that it works OK.
 		if sa.iSockaddrLength != wtSockaddrIn_Size {
 			return nil,
-				fmt.Errorf("SOCKET_ADDRESS.lpSockaddr.sa_family is %s, but SOCKET_ADDRESS.iSockaddrLength is %d (%d expected).",
+				fmt.Errorf("wtSocketAddress.lpSockaddr.sa_family is %s, but wtSocketAddress.iSockaddrLength is %d (%d expected).",
 					AF_INET.String(), sa.iSockaddrLength, wtSockaddrIn_Size)
 		}
 
@@ -48,7 +48,7 @@ func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
 		// TODO: Remove this check once it's confirmed that it works OK.
 		if sa.iSockaddrLength != wtSockaddrIn6Lh_Size {
 			return nil,
-				fmt.Errorf("SOCKET_ADDRESS.lpSockaddr.sa_family is %s, but SOCKET_ADDRESS.iSockaddrLength is %d (%d expected).",
+				fmt.Errorf("wtSocketAddress.lpSockaddr.sa_family is %s, but wtSocketAddress.iSockaddrLength is %d (%d expected).",
 					AF_INET6.String(), sa.iSockaddrLength, wtSockaddrIn6Lh_Size)
 		}
 

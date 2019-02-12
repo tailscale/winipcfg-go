@@ -11,8 +11,8 @@ const (
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_dns_suffix
-// Defined in iptypes.h
-type IP_ADAPTER_DNS_SUFFIX struct {
-	Next *IP_ADAPTER_DNS_SUFFIX
+// IP_ADAPTER_DNS_SUFFIX defined in iptypes.h
+type wtIpAdapterDnsSuffix struct {
+	Next *wtIpAdapterDnsSuffix
 	String [MAX_DNS_SUFFIX_STRING_LENGTH]WCHAR
 }

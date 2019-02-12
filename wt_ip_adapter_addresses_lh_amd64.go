@@ -15,7 +15,7 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	FirstUnicastAddress *IP_ADAPTER_UNICAST_ADDRESS_LH
 	FirstAnycastAddress *IP_ADAPTER_ANYCAST_ADDRESS_XP
 	FirstMulticastAddress *IP_ADAPTER_MULTICAST_ADDRESS_XP
-	FirstDnsServerAddress *IP_ADAPTER_DNS_SERVER_ADDRESS_XP
+	FirstDnsServerAddress *wtIpAdapterDnsServerAddressXp
 	DnsSuffix *uint16 // Windows type: *WCHAR
 	Description *uint16 // Windows type: *WCHAR
 	FriendlyName *uint16 // Windows type: *WCHAR
@@ -36,7 +36,7 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	Ipv4Metric ULONG
 	Ipv6Metric ULONG
 	Luid uint64 // Windows type:  IF_LUID
-	Dhcpv4Server SOCKET_ADDRESS
+	Dhcpv4Server wtSocketAddress
 	CompartmentId NET_IF_COMPARTMENT_ID
 	NetworkGuid NET_IF_NETWORK_GUID
 	ConnectionType NET_IF_CONNECTION_TYPE
@@ -44,9 +44,9 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	//
 	// DHCP v6 Info.
 	//
-	Dhcpv6Server SOCKET_ADDRESS
+	Dhcpv6Server wtSocketAddress
 	Dhcpv6ClientDuid [MAX_DHCPV6_DUID_LENGTH]BYTE
 	Dhcpv6ClientDuidLength ULONG
 	Dhcpv6Iaid ULONG
-	FirstDnsSuffix *IP_ADAPTER_DNS_SUFFIX
+	FirstDnsSuffix *wtIpAdapterDnsSuffix
 }

@@ -11,5 +11,5 @@ type IP_ADAPTER_WINS_SERVER_ADDRESS_LH struct {
 	Length ULONG
 	Reserved DWORD
 	Next *IP_ADAPTER_WINS_SERVER_ADDRESS_LH
-	Address SOCKET_ADDRESS
+	Address wtSocketAddress
 }

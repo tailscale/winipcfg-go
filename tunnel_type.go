@@ -8,20 +8,20 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ne-ifdef-tunnel_type
-// Defined in ifdef.h
-type TUNNEL_TYPE uint32
+// TUNNEL_TYPE defined in ifdef.h
+type TunnelType uint32
 
 const (
-	TUNNEL_TYPE_NONE    TUNNEL_TYPE = 0
-	TUNNEL_TYPE_OTHER   TUNNEL_TYPE = 1
-	TUNNEL_TYPE_DIRECT  TUNNEL_TYPE = 2
-	TUNNEL_TYPE_6TO4    TUNNEL_TYPE = 11
-	TUNNEL_TYPE_ISATAP  TUNNEL_TYPE = 13
-	TUNNEL_TYPE_TEREDO  TUNNEL_TYPE = 14
-	TUNNEL_TYPE_IPHTTPS TUNNEL_TYPE = 15
+	TUNNEL_TYPE_NONE    TunnelType = 0
+	TUNNEL_TYPE_OTHER   TunnelType = 1
+	TUNNEL_TYPE_DIRECT  TunnelType = 2
+	TUNNEL_TYPE_6TO4    TunnelType = 11
+	TUNNEL_TYPE_ISATAP  TunnelType = 13
+	TUNNEL_TYPE_TEREDO  TunnelType = 14
+	TUNNEL_TYPE_IPHTTPS TunnelType = 15
 )
 
-func (t TUNNEL_TYPE) String() string {
+func (t TunnelType) String() string {
 	switch t {
 	case TUNNEL_TYPE_NONE:
 		return "TUNNEL_TYPE_NONE"
@@ -38,6 +38,6 @@ func (t TUNNEL_TYPE) String() string {
 	case TUNNEL_TYPE_IPHTTPS:
 		return "TUNNEL_TYPE_IPHTTPS"
 	default:
-		return fmt.Sprintf("TUNNEL_TYPE_UNKNOWN(%d)", t)
+		return fmt.Sprintf("TunnelType_UNKNOWN(%d)", t)
 	}
 }

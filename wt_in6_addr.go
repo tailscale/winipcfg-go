@@ -11,11 +11,12 @@ import (
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/in6addr/ns-in6addr-in6_addr
-type IN6_ADDR struct {
+// IN6_ADDR defined in in6addr.h
+type wtIn6Addr struct {
 	Byte [16]uint8 // Windows type [16]UCHAR
 }
 
-func (addr *IN6_ADDR) toNetIp() net.IP {
+func (addr *wtIn6Addr) toNetIp() net.IP {
 
 	if addr == nil {
 		return nil
@@ -40,7 +41,7 @@ func (addr *IN6_ADDR) toNetIp() net.IP {
 		byte(addr.Byte[15]), }
 }
 
-func netIpToWtIn6Addr(ip net.IP) (*IN6_ADDR, error) {
+func netIpToWtIn6Addr(ip net.IP) (*wtIn6Addr, error) {
 
 	ip6 := ip.To16()
 
@@ -48,7 +49,7 @@ func netIpToWtIn6Addr(ip net.IP) (*IN6_ADDR, error) {
 		return nil, fmt.Errorf("Input IP isn't a valid IPv6 address.")
 	}
 
-	in6_addr := IN6_ADDR{}
+	in6_addr := wtIn6Addr{}
 
 	for i := 0; i < 16; i++ {
 		in6_addr.Byte[i] = ip6[i]

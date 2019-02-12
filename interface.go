@@ -92,7 +92,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *IP_ADAPTER_ADDRESSES) (*Interface,
 }
 
 // Based on function with the same name in 'net' module, in file interface_windows.go
-func getWtAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
+func getWtIpAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 
 	var b []byte
 
@@ -123,18 +123,18 @@ func getWtAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 		}
 	}
 
-	var aas []*IP_ADAPTER_ADDRESSES
+	var wtiaas []*IP_ADAPTER_ADDRESSES
 
-	for aa := (*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])); aa != nil; aa = aa.NextCasted() {
-		aas = append(aas, aa)
+	for wtiaa := (*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])); wtiaa != nil; wtiaa = wtiaa.NextCasted() {
+		wtiaas = append(wtiaas, wtiaa)
 	}
 
-	return aas, nil
+	return wtiaas, nil
 }
 
 func GetInterfaces() ([]*Interface, error) {
 
-	wtiaas, err := getWtAdapterAddresses()
+	wtiaas, err := getWtIpAdapterAddresses()
 
 	if err != nil {
 		return nil, err
@@ -162,20 +162,20 @@ func GetInterfaces() ([]*Interface, error) {
 
 func InterfaceFromLUID(luid uint64) (*Interface, error) {
 
-	aa, err := getWtAdapterAddresses()
+	wtiaas, err := getWtIpAdapterAddresses()
 
 	if err != nil {
 		return nil, err
 	}
 
-	if aa == nil {
+	if wtiaas == nil {
 		return nil, nil
 	}
 
-	for _, a := range aa {
-		if a.Luid == luid {
+	for _, wtiaa := range wtiaas {
+		if wtiaa.Luid == luid {
 
-			ifc, err := interfaceFromWtIpAdapterAddresses(a)
+			ifc, err := interfaceFromWtIpAdapterAddresses(wtiaa)
 
 			if err != nil {
 				return nil, err
@@ -190,27 +190,27 @@ func InterfaceFromLUID(luid uint64) (*Interface, error) {
 
 func InterfaceFromIndex(index uint32) (*Interface, error) {
 
-	aa, err := getWtAdapterAddresses()
+	wtiaas, err := getWtIpAdapterAddresses()
 
 	if err != nil {
 		return nil, err
 	}
 
-	if aa == nil {
+	if wtiaas == nil {
 		return nil, nil
 	}
 
-	for _, a := range aa {
+	for _, wtiaa := range wtiaas {
 
-		idx := a.IfIndex
+		idx := wtiaa.IfIndex
 
 		if idx == 0 {
-			idx = a.Ipv6IfIndex
+			idx = wtiaa.Ipv6IfIndex
 		}
 
 		if idx == index {
 
-			ifc, err := interfaceFromWtIpAdapterAddresses(a)
+			ifc, err := interfaceFromWtIpAdapterAddresses(wtiaa)
 
 			if err != nil {
 				return nil, err
@@ -225,20 +225,20 @@ func InterfaceFromIndex(index uint32) (*Interface, error) {
 
 func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 
-	aa, err := getWtAdapterAddresses()
+	wtiaas, err := getWtIpAdapterAddresses()
 
 	if err != nil {
 		return nil, err
 	}
 
-	if aa == nil {
+	if wtiaas == nil {
 		return nil, nil
 	}
 
-	for _, a := range aa {
-		if a.getFriendlyName() == friendlyName {
+	for _, wtiaa := range wtiaas {
+		if wtiaa.getFriendlyName() == friendlyName {
 
-			ifc, err := interfaceFromWtIpAdapterAddresses(a)
+			ifc, err := interfaceFromWtIpAdapterAddresses(wtiaa)
 
 			if err != nil {
 				return nil, err

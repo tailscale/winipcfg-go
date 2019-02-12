@@ -44,7 +44,7 @@ type wtSockaddrIn6Lh struct {
 	// IPv6 flow information.
 	sin6_flowinfo uint32 // ULONG flattened to uint32
 	// IPv6 address.
-	sin6_addr IN6_ADDR
+	sin6_addr wtIn6Addr
 	// Set of interfaces for a scope.
 	sin6_scope_id uint32 // ULONG flattened to uint32
 }

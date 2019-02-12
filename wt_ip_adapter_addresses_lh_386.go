@@ -42,7 +42,7 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	CompartmentId uint32 // Windows type: NET_IF_COMPARTMENT_ID
 	NetworkGuid windows.GUID // Windows type: NET_IF_NETWORK_GUID
 	ConnectionType NetIfConnectionType
-	TunnelType TUNNEL_TYPE
+	TunnelType TunnelType
 	//
 	// DHCP v6 Info.
 	//

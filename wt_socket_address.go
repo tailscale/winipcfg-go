@@ -13,18 +13,18 @@ import (
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-_socket_address
 // SOCKET_ADDRESS defined in ws2def.h
 type wtSocketAddress struct {
-	lpSockaddr *SOCKADDR
+	lpSockaddr *wtSockaddr
 	iSockaddrLength int32 // Windows type: INT
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/WinSock/sockaddr-2
-// Defined in ws2def.h
-type SOCKADDR struct {
+// SOCKADDR defined in ws2def.h
+type wtSockaddr struct {
 	sa_family AddressFamily
 	sa_data   [14]uint8 // Windows type: [14]CHAR
 }
 
-func (sa *wtSocketAddress) get_SOCKETADDR_INET() (*wtSockaddrInet, error) {
+func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 
 	if sa == nil {
 		return nil, nil

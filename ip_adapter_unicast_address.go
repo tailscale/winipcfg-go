@@ -40,7 +40,7 @@ func ipAdapterUnicastAddressFromWinType(ifc Interface, iaua *wtIpAdapterUnicastA
 		return nil, nil
 	}
 
-	wtsainet, err := iaua.Address.get_SOCKETADDR_INET()
+	wtsainet, err := iaua.Address.getWtSockaddrInet()
 
 	if err != nil {
 		return nil, err

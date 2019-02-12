@@ -10,38 +10,38 @@ import (
 	"unsafe"
 )
 
-func Test_SOCKADDR_IN_Size(t *testing.T) {
+func TestWtSockaddrInSize(t *testing.T) {
 
-	const Actual_SOCKADDR_IN_Size = unsafe.Sizeof(SOCKADDR_IN{})
+	const actualWtSockaddrInSize = unsafe.Sizeof(wtSockaddrIn{})
 
-	if Actual_SOCKADDR_IN_Size != wtSockaddrIn_Size {
-		t.Errorf("Size of SOCKADDR_IN is %d, although %d is expected.", Actual_SOCKADDR_IN_Size, wtSockaddrIn_Size)
+	if actualWtSockaddrInSize != wtSockaddrIn_Size {
+		t.Errorf("Size of wtSockaddrIn is %d, although %d is expected.", actualWtSockaddrInSize, wtSockaddrIn_Size)
 	}
 }
 
-func Test_SOCKADDR_IN_Offsets(t *testing.T) {
+func TestWtSockaddrInOffsets(t *testing.T) {
 
-	s := SOCKADDR_IN{}
+	s := wtSockaddrIn{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.sin_port)) - sp
 
 	if offset != wtSockaddrIn_sin_port_Offset {
-		t.Errorf("SOCKADDR_IN.sin_port offset is %d although %d is expected", offset, wtSockaddrIn_sin_port_Offset)
+		t.Errorf("wtSockaddrIn.sin_port offset is %d although %d is expected", offset, wtSockaddrIn_sin_port_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.sin_addr)) - sp
 
 	if offset != wtSockaddrIn_sin_addr_Offset {
-		t.Errorf("SOCKADDR_IN.sin_addr offset is %d although %d is expected", offset, wtSockaddrIn_sin_addr_Offset)
+		t.Errorf("wtSockaddrIn.sin_addr offset is %d although %d is expected", offset, wtSockaddrIn_sin_addr_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.sin_zero)) - sp
 
 	if offset != wtSockaddrIn_sin_zero_Offset {
-		t.Errorf("SOCKADDR_IN.sin_zero offset is %d although %d is expected", offset, wtSockaddrIn_sin_zero_Offset)
+		t.Errorf("wtSockaddrIn.sin_zero offset is %d although %d is expected", offset, wtSockaddrIn_sin_zero_Offset)
 		return
 	}
 }

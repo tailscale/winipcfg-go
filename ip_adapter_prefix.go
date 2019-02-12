@@ -20,7 +20,7 @@ func ipAdapterPrefixFromWinType(wt *wtIpAdapterPrefixXp) (*IpAdapterPrefix, erro
 		return nil, nil
 	}
 
-	wtsai, err := wt.Address.get_SOCKETADDR_INET()
+	wtsai, err := wt.Address.getWtSockaddrInet()
 
 	if err != nil {
 		return nil, err

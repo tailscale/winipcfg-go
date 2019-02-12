@@ -12,25 +12,26 @@ import (
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-sockaddr_in
-// Defined in ws2def.h
-type SOCKADDR_IN struct {
+// SOCKADDR_IN defined in ws2def.h
+type wtSockaddrIn struct {
 	sin_family AddressFamily
 	sin_port   uint16 // USHORT flattened to uint16
 	sin_addr   WtInAddr
 	sin_zero   [8]uint8 // Windows type: [8]CHAR
 }
 
-// SOCKADDR_IN constructor. Creates an empty SOCKADDR_IN struct.
-func NewSOCKADDR_IN() *SOCKADDR_IN {
-	return &SOCKADDR_IN{
+// wtSockaddrIn constructor. Creates an empty wtSockaddrIn struct.
+func NewWtSockaddrIn() *wtSockaddrIn {
+	return &wtSockaddrIn{
 		sin_family: AF_INET,
 		sin_port: 0,
 		sin_addr: *NewWtInAddr(),
 		sin_zero: [8]uint8{0, 0, 0, 0, 0, 0, 0, 0}}
 }
 
-func (addr *SOCKADDR_IN) String() string {
-	return fmt.Sprintf("sin_family: %s; sin_port: %d; IP: %s", addr.sin_family.String(), addr.sin_port, addr.sin_addr.toNetIp().String())
+func (addr *wtSockaddrIn) String() string {
+	return fmt.Sprintf("sin_family: %s; sin_port: %d; IP: %s", addr.sin_family.String(), addr.sin_port,
+		addr.sin_addr.toNetIp().String())
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-sockaddr_in6
@@ -50,17 +51,18 @@ type wtSockaddrIn6Lh struct {
 
 func (addr *wtSockaddrIn6Lh) String() string {
 	return fmt.Sprintf("sin6_family: %s; sin6_port: %d; sin6_flowinfo: %d; sin6_addr: [%s]; sin6_scope_id: %d",
-		addr.sin6_family.String(), addr.sin6_port, addr.sin6_flowinfo, addr.sin6_addr.toNetIp().String(), addr.sin6_scope_id)
+		addr.sin6_family.String(), addr.sin6_port, addr.sin6_flowinfo, addr.sin6_addr.toNetIp().String(),
+		addr.sin6_scope_id)
 }
 
-// Defined in ws2ipdef.h
-type SOCKADDR_IN6 wtSockaddrIn6Lh
+// SOCKADDR_IN6 defined in ws2ipdef.h
+type wtSockaddrIn6 wtSockaddrIn6Lh
 
 /*
 * According to https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-_sockaddr_inet
 * SOCKADDR_INET is a usnion of several types, and I'll use the largest among them (SOCKADDR_IN6) instead.
  */
-type wtSockaddrInet SOCKADDR_IN6
+type wtSockaddrInet wtSockaddrIn6
 
 func (addr *wtSockaddrInet) isIPv4() bool {
 	return addr.sin6_family == AF_INET;
@@ -70,32 +72,32 @@ func (addr *wtSockaddrInet) isIPv6() bool {
 	return addr.sin6_family == AF_INET6;
 }
 
-func (addr *wtSockaddrInet) toWtSockaddrIn() (*SOCKADDR_IN, error) {
+func (addr *wtSockaddrInet) toWtSockaddrIn() (*wtSockaddrIn, error) {
 
 	if addr == nil {
 		return nil, nil
 	}
 
 	if addr.isIPv4() {
-		return (*SOCKADDR_IN)(unsafe.Pointer(addr)), nil
+		return (*wtSockaddrIn)(unsafe.Pointer(addr)), nil
 	} else {
 		return nil,
-			fmt.Errorf("Only wtSockaddrInet values with sin6_family = %s can be converted to SOCKADDR_IN. In this case sin6_family is %s.",
+			fmt.Errorf("Only wtSockaddrInet values with sin6_family = %s can be converted to wtSockaddrIn. In this case sin6_family is %s.",
 				AF_INET.String(), addr.sin6_family.String())
 	}
 }
 
-func (addr *wtSockaddrInet) toWtSockaddrIn6() (*SOCKADDR_IN6, error) {
+func (addr *wtSockaddrInet) toWtSockaddrIn6() (*wtSockaddrIn6, error) {
 
 	if addr == nil {
 		return nil, nil
 	}
 
 	if addr.isIPv6() {
-		return (*SOCKADDR_IN6)(unsafe.Pointer(addr)), nil
+		return (*wtSockaddrIn6)(unsafe.Pointer(addr)), nil
 	} else {
 		return nil,
-			fmt.Errorf("Only wtSockaddrInet values with sin6_family = %s can be converted to SOCKADDR_IN6. In this case sin6_family is %s.",
+			fmt.Errorf("Only wtSockaddrInet values with sin6_family = %s can be converted to wtSockaddrIn6. In this case sin6_family is %s.",
 				AF_INET6.String(), addr.sin6_family.String())
 	}
 }
@@ -144,7 +146,7 @@ func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) {
 
 	in_addr, _ := netIpToWtInAddr(ipv4)
 
-	sin4 := (*SOCKADDR_IN)(unsafe.Pointer(sin))
+	sin4 := (*wtSockaddrIn)(unsafe.Pointer(sin))
 	sin4.sin_family = AF_INET
 	sin4.sin_addr = *in_addr
 	sin4.sin_port = port

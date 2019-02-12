@@ -6,42 +6,43 @@
 package winipcfg
 
 import (
+	"golang.org/x/sys/windows"
 	"testing"
 	"unsafe"
 )
 
-func Test_GUID_Size(t *testing.T) {
+func TestGuidSize(t *testing.T) {
 
-	const Actual_GUID_Size = unsafe.Sizeof(GUID{})
+	const actualGuidSize = unsafe.Sizeof(windows.GUID{})
 
-	if Actual_GUID_Size != wtGuid_Size {
-		t.Errorf("Size of GUID is %d, although %d is expected.", Actual_GUID_Size, wtGuid_Size)
+	if actualGuidSize != windowsGuid_Size {
+		t.Errorf("Size of GUID is %d, although %d is expected.", actualGuidSize, windowsGuid_Size)
 	}
 }
 
-func Test_GUID_Offsets(t *testing.T) {
+func TestGuidOffsets(t *testing.T) {
 
-	s := GUID{}
+	s := windows.GUID{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.Data2)) - sp
 
-	if offset != wtGuid_Data2_Offset {
-		t.Errorf("GUID.Data2 offset is %d although %d is expected", offset, wtGuid_Data2_Offset)
+	if offset != windowsGuid_Data2_Offset {
+		t.Errorf("GUID.Data2 offset is %d although %d is expected", offset, windowsGuid_Data2_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Data3)) - sp
 
-	if offset != wtGuid_Data3_Offset {
-		t.Errorf("GUID.Data3 offset is %d although %d is expected", offset, wtGuid_Data3_Offset)
+	if offset != windowsGuid_Data3_Offset {
+		t.Errorf("GUID.Data3 offset is %d although %d is expected", offset, windowsGuid_Data3_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.Data4)) - sp
 
-	if offset != wtGuid_Data4_Offset {
-		t.Errorf("GUID.Data4 offset is %d although %d is expected", offset, wtGuid_Data4_Offset)
+	if offset != windowsGuid_Data4_Offset {
+		t.Errorf("GUID.Data4 offset is %d although %d is expected", offset, windowsGuid_Data4_Offset)
 		return
 	}
 }

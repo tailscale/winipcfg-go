@@ -14,7 +14,7 @@ type wtIpAdapterUnicastAddressLh struct {
 	Address wtSocketAddress
 
 	PrefixOrigin IpPrefixOrigin
-	SuffixOrigin IP_SUFFIX_ORIGIN
+	SuffixOrigin IpSuffixOrigin
 	DadState IpDadState
 
 	ValidLifetime uint32 // Windows type: ULONG

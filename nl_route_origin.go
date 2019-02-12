@@ -7,17 +7,18 @@ package winipcfg
 
 import "fmt"
 
-type NL_ROUTE_ORIGIN uint32
+// NL_ROUTE_ORIGIN defined in nldef.h
+type NlRouteOrigin uint32
 
 const (
-	NlroManual              NL_ROUTE_ORIGIN = 0
-	NlroWellKnown           NL_ROUTE_ORIGIN = 1
-	NlroDHCP                NL_ROUTE_ORIGIN = 2
-	NlroRouterAdvertisement NL_ROUTE_ORIGIN = 3
-	Nlro6to4                NL_ROUTE_ORIGIN = 4
+	NlroManual              NlRouteOrigin = 0
+	NlroWellKnown           NlRouteOrigin = 1
+	NlroDHCP                NlRouteOrigin = 2
+	NlroRouterAdvertisement NlRouteOrigin = 3
+	Nlro6to4                NlRouteOrigin = 4
 )
 
-func (o NL_ROUTE_ORIGIN) String() string {
+func (o NlRouteOrigin) String() string {
 	switch o {
 	case NlroManual:
 		return "NlroManual"
@@ -30,6 +31,6 @@ func (o NL_ROUTE_ORIGIN) String() string {
 	case Nlro6to4:
 		return "Nlro6to4"
 	default:
-		return fmt.Sprintf("NL_ROUTE_ORIGIN_UNKNOWN(%d)", o)
+		return fmt.Sprintf("NlRouteOrigin_UNKNOWN(%d)", o)
 	}
 }

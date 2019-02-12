@@ -24,7 +24,7 @@ type MIB_IPFORWARD_ROW2 struct {
 	ValidLifetime ULONG
 	PreferredLifetime ULONG
 	Metric ULONG
-	Protocol NL_ROUTE_PROTOCOL
+	Protocol NlRouteProtocol
 
 	Loopback BOOLEAN
 	AutoconfigureAddress BOOLEAN
@@ -35,7 +35,7 @@ type MIB_IPFORWARD_ROW2 struct {
 	// Read-Only Fields.
 	//
 	Age ULONG
-	Origin NL_ROUTE_ORIGIN
+	Origin NlRouteOrigin
 }
 
 type PMIB_IPFORWARD_ROW2 *MIB_IPFORWARD_ROW2

@@ -8,28 +8,29 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ne-netioapi-_mib_notification_type
-type MIB_NOTIFICATION_TYPE uint32
+// MIB_NOTIFICATION_TYPE defined in netioapi.h
+type MibNotificationType uint32
 
 const (
 	//
 	// ParameterChange.
 	//
-	MibParameterNotification MIB_NOTIFICATION_TYPE = 0
+	MibParameterNotification MibNotificationType = 0
 	//
 	// Addition.
 	//
-	MibAddInstance           MIB_NOTIFICATION_TYPE = 1
+	MibAddInstance           MibNotificationType = 1
 	//
 	// Deletion.
 	//
-	MibDeleteInstance        MIB_NOTIFICATION_TYPE = 2
+	MibDeleteInstance        MibNotificationType = 2
 	//
 	// Initial notification.
 	//
-	MibInitialNotification   MIB_NOTIFICATION_TYPE = 3
+	MibInitialNotification   MibNotificationType = 3
 )
 
-func (mnt MIB_NOTIFICATION_TYPE) String() string {
+func (mnt MibNotificationType) String() string {
 	switch mnt {
 	case MibParameterNotification:
 		return "MibParameterNotification"
@@ -40,6 +41,6 @@ func (mnt MIB_NOTIFICATION_TYPE) String() string {
 	case MibInitialNotification:
 		return "MibInitialNotification"
 	default:
-		return fmt.Sprintf("MIB_NOTIFICATION_TYPE_UNKNOWN(%d)", mnt)
+		return fmt.Sprintf("MibNotificationType_UNKNOWN(%d)", mnt)
 	}
 }

@@ -5,7 +5,10 @@
 
 package winipcfg
 
-import "fmt"
+import (
+	"fmt"
+	"golang.org/x/sys/windows"
+)
 
 // Types from https://docs.microsoft.com/en-us/windows/desktop/winprog/windows-data-types
 type BYTE uint8
@@ -27,14 +30,6 @@ type INT int32
 // Defined in winnt.h, it's a union...
 type LARGE_INTEGER LONGLONG
 
-// Defined in guid.h
-type GUID struct {
-	Data1 uint32
-	Data2 uint16
-	Data3 uint16
-	Data4 [8]UCHAR
-}
-
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ns-ifdef-_net_luid_lh
 // Defined in ifdef
 type NET_LUID_LH ULONG64
@@ -43,7 +38,7 @@ type NET_LUID_LH ULONG64
 type NET_IFINDEX ULONG
 type IF_INDEX NET_IFINDEX
 type NET_IF_COMPARTMENT_ID uint32
-type NET_IF_NETWORK_GUID GUID
+type NET_IF_NETWORK_GUID windows.GUID
 type NET_LUID NET_LUID_LH
 type IF_LUID NET_LUID
 

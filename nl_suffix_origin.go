@@ -8,20 +8,20 @@ package winipcfg
 import "fmt"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/nldef/ne-nldef-nl_suffix_origin
-// Defined in nldef.h
-type NL_SUFFIX_ORIGIN uint32
+// NL_SUFFIX_ORIGIN defined in nldef.h
+type NlSuffixOrigin uint32
 
 const (
-	IpSuffixOriginOther            NL_SUFFIX_ORIGIN = 0
-	IpSuffixOriginManual           NL_SUFFIX_ORIGIN = 1
-	IpSuffixOriginWellKnown        NL_SUFFIX_ORIGIN = 2
-	IpSuffixOriginDhcp             NL_SUFFIX_ORIGIN = 3
-	IpSuffixOriginLinkLayerAddress NL_SUFFIX_ORIGIN = 4
-	IpSuffixOriginRandom           NL_SUFFIX_ORIGIN = 5
-	IpSuffixOriginUnchanged        NL_SUFFIX_ORIGIN = 1 << 4
+	IpSuffixOriginOther            NlSuffixOrigin = 0
+	IpSuffixOriginManual           NlSuffixOrigin = 1
+	IpSuffixOriginWellKnown        NlSuffixOrigin = 2
+	IpSuffixOriginDhcp             NlSuffixOrigin = 3
+	IpSuffixOriginLinkLayerAddress NlSuffixOrigin = 4
+	IpSuffixOriginRandom           NlSuffixOrigin = 5
+	IpSuffixOriginUnchanged        NlSuffixOrigin = 1 << 4
 )
 
-func (o NL_SUFFIX_ORIGIN) String() string {
+func (o NlSuffixOrigin) String() string {
 	switch o {
 	case IpSuffixOriginOther:
 		return "IpSuffixOriginOther"
@@ -38,13 +38,13 @@ func (o NL_SUFFIX_ORIGIN) String() string {
 	case IpSuffixOriginUnchanged:
 		return "IpSuffixOriginUnchanged"
 	default:
-		return fmt.Sprintf("NL_SUFFIX_ORIGIN_UNKNOWN(%d)", o)
+		return fmt.Sprintf("NlSuffixOrigin_UNKNOWN(%d)", o)
 	}
 }
 
-// Defined in iptypes.h
-type IP_SUFFIX_ORIGIN NL_SUFFIX_ORIGIN
+// IP_SUFFIX_ORIGIN defined in iptypes.h
+type IpSuffixOrigin NlSuffixOrigin
 
-func (o IP_SUFFIX_ORIGIN) String() string {
-	return NL_SUFFIX_ORIGIN(o).String()
+func (o IpSuffixOrigin) String() string {
+	return NlSuffixOrigin(o).String()
 }

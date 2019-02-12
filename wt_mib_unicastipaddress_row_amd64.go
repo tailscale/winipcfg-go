@@ -19,7 +19,7 @@ type MIB_UNICASTIPADDRESS_ROW struct {
 	// Read-Write Fileds.
 	//
 	PrefixOrigin NlPrefixOrigin
-	SuffixOrigin NL_SUFFIX_ORIGIN
+	SuffixOrigin NlSuffixOrigin
 	ValidLifetime ULONG
 	PreferredLifetime ULONG
 	OnLinkPrefixLength UINT8

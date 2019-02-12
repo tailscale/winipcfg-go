@@ -6,11 +6,11 @@
 package winipcfg
 
 const (
-	wtGuid_Size = 16
+	windowsGuid_Size = 16
 
-	wtGuid_Data2_Offset = 4
-	wtGuid_Data3_Offset = 6
-	wtGuid_Data4_Offset = 8
+	windowsGuid_Data2_Offset = 4
+	windowsGuid_Data3_Offset = 6
+	windowsGuid_Data4_Offset = 8
 
 	wtIn6Addr_Size = 16
 

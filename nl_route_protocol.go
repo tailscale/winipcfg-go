@@ -7,39 +7,40 @@ package winipcfg
 
 import "fmt"
 
-type NL_ROUTE_PROTOCOL uint32
+// https://docs.microsoft.com/en-us/windows/desktop/api/nldef/ne-nldef-nl_route_protocol
+// NL_ROUTE_PROTOCOL defined in nldef.h
+type NlRouteProtocol uint32
 
-// According to https://docs.microsoft.com/en-us/windows/desktop/api/nldef/ne-nldef-nl_route_protocol (defined in nldef.h)
 const (
-	RouteProtocolOther   NL_ROUTE_PROTOCOL = 1
-	RouteProtocolLocal   NL_ROUTE_PROTOCOL = 2
-	RouteProtocolNetMgmt NL_ROUTE_PROTOCOL = 3
-	RouteProtocolIcmp    NL_ROUTE_PROTOCOL = 4
-	RouteProtocolEgp     NL_ROUTE_PROTOCOL = 5
-	RouteProtocolGgp     NL_ROUTE_PROTOCOL = 6
-	RouteProtocolHello   NL_ROUTE_PROTOCOL = 7
-	RouteProtocolRip     NL_ROUTE_PROTOCOL = 8
-	RouteProtocolIsIs    NL_ROUTE_PROTOCOL = 9
-	RouteProtocolEsIs    NL_ROUTE_PROTOCOL = 10
-	RouteProtocolCisco   NL_ROUTE_PROTOCOL = 11
-	RouteProtocolBbn     NL_ROUTE_PROTOCOL = 12
-	RouteProtocolOspf    NL_ROUTE_PROTOCOL = 13
-	RouteProtocolBgp     NL_ROUTE_PROTOCOL = 14
-	RouteProtocolIdpr    NL_ROUTE_PROTOCOL = 15
-	RouteProtocolEigrp   NL_ROUTE_PROTOCOL = 16
-	RouteProtocolDvmrp   NL_ROUTE_PROTOCOL = 17
-	RouteProtocolRpl     NL_ROUTE_PROTOCOL = 18
-	RouteProtocolDhcp    NL_ROUTE_PROTOCOL = 19
+	RouteProtocolOther   NlRouteProtocol = 1
+	RouteProtocolLocal   NlRouteProtocol = 2
+	RouteProtocolNetMgmt NlRouteProtocol = 3
+	RouteProtocolIcmp    NlRouteProtocol = 4
+	RouteProtocolEgp     NlRouteProtocol = 5
+	RouteProtocolGgp     NlRouteProtocol = 6
+	RouteProtocolHello   NlRouteProtocol = 7
+	RouteProtocolRip     NlRouteProtocol = 8
+	RouteProtocolIsIs    NlRouteProtocol = 9
+	RouteProtocolEsIs    NlRouteProtocol = 10
+	RouteProtocolCisco   NlRouteProtocol = 11
+	RouteProtocolBbn     NlRouteProtocol = 12
+	RouteProtocolOspf    NlRouteProtocol = 13
+	RouteProtocolBgp     NlRouteProtocol = 14
+	RouteProtocolIdpr    NlRouteProtocol = 15
+	RouteProtocolEigrp   NlRouteProtocol = 16
+	RouteProtocolDvmrp   NlRouteProtocol = 17
+	RouteProtocolRpl     NlRouteProtocol = 18
+	RouteProtocolDhcp    NlRouteProtocol = 19
 
 	//
 	// Windows-specific definitions.
 	//
-	NT_AUTOSTATIC        NL_ROUTE_PROTOCOL = 10002
-	NT_STATIC            NL_ROUTE_PROTOCOL = 10006
-	NT_STATIC_NON_DOD    NL_ROUTE_PROTOCOL = 10007
+	NT_AUTOSTATIC        NlRouteProtocol = 10002
+	NT_STATIC            NlRouteProtocol = 10006
+	NT_STATIC_NON_DOD    NlRouteProtocol = 10007
 )
 
-func (protocol NL_ROUTE_PROTOCOL) String() string {
+func (protocol NlRouteProtocol) String() string {
 	switch protocol {
 	case RouteProtocolOther:
 		return "RouteProtocolOther"
@@ -86,6 +87,6 @@ func (protocol NL_ROUTE_PROTOCOL) String() string {
 	case NT_STATIC_NON_DOD:
 		return "NT_STATIC_NON_DOD"
 	default:
-		return fmt.Sprintf("NL_ROUTE_PROTOCOL_UNKNOWN(%d)", protocol)
+		return fmt.Sprintf("NlRouteProtocol_UNKNOWN(%d)", protocol)
 	}
 }

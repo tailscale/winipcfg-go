@@ -76,3 +76,15 @@ func charToString(char *uint8) string {
 
 	return string(buffer)
 }
+
+func guidToString(guid windows.GUID) string {
+
+	// Buffer of length 39 should always be enough for GUID, but I'll set bigger, just in case...
+	const bufferLength = 200
+
+	buffer := make([]uint16, bufferLength, bufferLength)
+
+	stringFromGUID2(&guid, (*uint16)(unsafe.Pointer(&buffer[0])), bufferLength)
+
+	return windows.UTF16ToString(buffer)
+}

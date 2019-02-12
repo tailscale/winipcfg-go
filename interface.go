@@ -40,6 +40,14 @@ type Interface struct {
 	Ipv4Metric          uint32
 	Ipv6Metric          uint32
 	Dhcpv4Server        *SockaddrInet
+	CompartmentId       uint32
+	NetworkGuid         windows.GUID
+	ConnectionType      NetIfConnectionType
+	TunnelType          TunnelType
+	Dhcpv6Server        *SockaddrInet
+	Dhcpv6ClientDuid    []uint8
+	Dhcpv6Iaid          uint32
+	DnsSuffixes         []string
 }
 
 func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface, error) {
@@ -61,6 +69,11 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 		ReceiveLinkSpeed:  wtiaa.ReceiveLinkSpeed,
 		Ipv4Metric:        wtiaa.Ipv4Metric,
 		Ipv6Metric:        wtiaa.Ipv6Metric,
+		CompartmentId:     wtiaa.CompartmentId,
+		NetworkGuid:       wtiaa.NetworkGuid,
+		ConnectionType:    wtiaa.ConnectionType,
+		TunnelType:        wtiaa.TunnelType,
+		Dhcpv6Iaid:        wtiaa.Dhcpv6Iaid,
 	}
 
 	if wtiaa.PhysicalAddressLength > 0 {
@@ -184,6 +197,31 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 	}
 
 	ifc.Dhcpv4Server = dhcpv4s
+
+	dhcpv6s, err := sockaddrInetFromWtSocketAddress(&wtiaa.Dhcpv6Server)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ifc.Dhcpv6Server = dhcpv6s
+
+	if wtiaa.Dhcpv6ClientDuidLength > 0 {
+
+		ifc.Dhcpv6ClientDuid = make([]uint8, wtiaa.Dhcpv6ClientDuidLength, wtiaa.Dhcpv6ClientDuidLength)
+
+		for i := uint32(0); i < wtiaa.Dhcpv6ClientDuidLength; i++ {
+			ifc.Dhcpv6ClientDuid[i] = wtiaa.Dhcpv6ClientDuid[i]
+		}
+	}
+
+	var dnsSuffixes []string
+
+	for dnss := wtiaa.FirstDnsSuffix; dnss != nil; dnss = dnss.Next {
+		dnsSuffixes = append(dnsSuffixes, wcharToString(&dnss.String[0]))
+	}
+
+	ifc.DnsSuffixes = dnsSuffixes
 
 	return &ifc, nil
 }
@@ -455,7 +493,21 @@ ifc.OperStatus.String(), ifc.Ipv6IfIndex, ifc.ZoneIndices)
 	result += fmt.Sprintf(`Ipv4Metric: %d
 Ipv6Metric: %d
 Dhcpv4Server: %s
-`, ifc.Ipv4Metric, ifc.Ipv6Metric, ifc.Dhcpv4Server.String())
+CompartmentId: %d
+NetworkGuid: %v
+ConnectionType: %s
+TunnelType: %s
+Dhcpv6Server: %s
+Dhcpv6ClientDuid: %v
+Dhcpv6Iaid: %d
+`, ifc.Ipv4Metric, ifc.Ipv6Metric, ifc.Dhcpv4Server.String(), ifc.CompartmentId, guidToString(ifc.NetworkGuid),
+ifc.ConnectionType.String(), ifc.TunnelType.String(), ifc.Dhcpv6Server.String(), ifc.Dhcpv6ClientDuid, ifc.Dhcpv6Iaid)
+
+	result += "DnsSuffixes:\n"
+
+	for _, dnss := range ifc.DnsSuffixes {
+		result += fmt.Sprintf("\t%s\n", dnss)
+	}
 
 	result += "========================= INTERFACE OUTPUT END =========================\n"
 

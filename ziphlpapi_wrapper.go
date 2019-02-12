@@ -38,9 +38,11 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
+	modCombase  = windows.NewLazySystemDLL("Combase.dll")
 
 	procCancelMibChangeNotify2 = modiphlpapi.NewProc("CancelMibChangeNotify2")
 	procGetAdaptersAddresses   = modiphlpapi.NewProc("GetAdaptersAddresses")
+	procStringFromGUID2        = modCombase.NewProc("StringFromGUID2")
 )
 
 func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
@@ -52,5 +54,11 @@ func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
 func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) {
 	r0, _, _ := syscall.Syscall6(procGetAdaptersAddresses.Addr(), 5, uintptr(Family), uintptr(Flags), uintptr(Reserved), uintptr(unsafe.Pointer(AdapterAddresses)), uintptr(unsafe.Pointer(SizePointer)), 0)
 	result = uint32(r0)
+	return
+}
+
+func stringFromGUID2(guid *windows.GUID, stringPointer *uint16, cchMax int) (result int) {
+	r0, _, _ := syscall.Syscall(procStringFromGUID2.Addr(), 3, uintptr(unsafe.Pointer(guid)), uintptr(unsafe.Pointer(stringPointer)), uintptr(cchMax))
+	result = int(r0)
 	return
 }

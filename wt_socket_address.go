@@ -35,10 +35,10 @@ func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
 	case AF_INET:
 
 		// TODO: Remove this check once it's confirmed that it works OK.
-		if sa.iSockaddrLength != SOCKADDR_IN_Size {
+		if sa.iSockaddrLength != wtSockaddrIn_Size {
 			return nil,
 				fmt.Errorf("SOCKET_ADDRESS.lpSockaddr.sa_family is %s, but SOCKET_ADDRESS.iSockaddrLength is %d (%d expected).",
-					AF_INET.String(), sa.iSockaddrLength, SOCKADDR_IN_Size)
+					AF_INET.String(), sa.iSockaddrLength, wtSockaddrIn_Size)
 		}
 
 		break
@@ -46,10 +46,10 @@ func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
 	case AF_INET6:
 
 		// TODO: Remove this check once it's confirmed that it works OK.
-		if sa.iSockaddrLength != SOCKADDR_IN6_LH_Size {
+		if sa.iSockaddrLength != wtSockaddrIn6Lh_Size {
 			return nil,
 				fmt.Errorf("SOCKET_ADDRESS.lpSockaddr.sa_family is %s, but SOCKET_ADDRESS.iSockaddrLength is %d (%d expected).",
-					AF_INET6.String(), sa.iSockaddrLength, SOCKADDR_IN6_LH_Size)
+					AF_INET6.String(), sa.iSockaddrLength, wtSockaddrIn6Lh_Size)
 		}
 
 		break

@@ -16,7 +16,7 @@ import (
 type SOCKADDR_IN struct {
 	sin_family AddressFamily
 	sin_port   uint16 // USHORT flattened to uint16
-	sin_addr   IN_ADDR
+	sin_addr   WtInAddr
 	sin_zero   [8]CHAR
 }
 
@@ -25,7 +25,7 @@ func NewSOCKADDR_IN() *SOCKADDR_IN {
 	return &SOCKADDR_IN{
 		sin_family: AF_INET,
 		sin_port: 0,
-		sin_addr: *NewIN_ADDR(),
+		sin_addr: *NewWtInAddr(),
 		sin_zero: [8]CHAR{0, 0, 0, 0, 0, 0, 0, 0}}
 }
 

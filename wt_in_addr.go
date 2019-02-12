@@ -11,22 +11,23 @@ import (
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/inaddr/ns-inaddr-in_addr
-type IN_ADDR struct {
-	s_b1 UCHAR
-	s_b2 UCHAR
-	s_b3 UCHAR
-	s_b4 UCHAR
+// WtInAddr defined in inaddr.h
+type WtInAddr struct {
+	s_b1 uint8 // Windows type: UCHAR
+	s_b2 uint8 // Windows type: UCHAR
+	s_b3 uint8 // Windows type: UCHAR
+	s_b4 uint8 // Windows type: UCHAR
 }
 
-func NewIN_ADDR() *IN_ADDR {
-	return &IN_ADDR{0, 0, 0, 0}
+func NewWtInAddr() *WtInAddr {
+	return &WtInAddr{0, 0, 0, 0}
 }
 
-func (addr *IN_ADDR) toNetIp() net.IP {
+func (addr *WtInAddr) toNetIp() net.IP {
 	return net.IPv4(byte(addr.s_b1), byte(addr.s_b2), byte(addr.s_b3), byte(addr.s_b4))
 }
 
-func netIpToWtInAddr(ip net.IP) (*IN_ADDR, error) {
+func netIpToWtInAddr(ip net.IP) (*WtInAddr, error) {
 
 	ip4 := ip.To4()
 
@@ -40,5 +41,6 @@ func netIpToWtInAddr(ip net.IP) (*IN_ADDR, error) {
 		firstByte = 12
 	}
 
-	return &IN_ADDR{s_b1: UCHAR(ip4[firstByte]), s_b2: UCHAR(ip4[firstByte + 1]), s_b3: UCHAR(ip4[firstByte + 2]), s_b4: UCHAR(ip4[firstByte + 3])}, nil
+	return &WtInAddr{s_b1: ip4[firstByte], s_b2: ip4[firstByte+1], s_b3: ip4[firstByte+2], s_b4: ip4[firstByte+3]},
+		nil
 }

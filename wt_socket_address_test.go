@@ -36,8 +36,8 @@ func Test_SOCKADDR_Size(t *testing.T) {
 
 	const Actual_SOCKADDR_Size = unsafe.Sizeof(SOCKADDR{})
 
-	if Actual_SOCKADDR_Size != SOCKADDR_Size {
-		t.Errorf("Size of SOCKADDR is %d, although %d is expected.", Actual_SOCKADDR_Size, SOCKADDR_Size)
+	if Actual_SOCKADDR_Size != wtSockaddr_Size {
+		t.Errorf("Size of SOCKADDR is %d, although %d is expected.", Actual_SOCKADDR_Size, wtSockaddr_Size)
 	}
 }
 
@@ -48,8 +48,8 @@ func Test_SOCKADDR_Offsets(t *testing.T) {
 
 	offset := uintptr(unsafe.Pointer(&s.sa_data)) - sp
 
-	if offset != SOCKADDR_sa_data_Offset {
-		t.Errorf("SOCKADDR.sa_data offset is %d although %d is expected", offset, SOCKADDR_sa_data_Offset)
+	if offset != wtSockaddr_sa_data_Offset {
+		t.Errorf("SOCKADDR.sa_data offset is %d although %d is expected", offset, wtSockaddr_sa_data_Offset)
 		return
 	}
 }

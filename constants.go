@@ -6,73 +6,73 @@
 package winipcfg
 
 const (
-	GUID_Size = 16
+	wtGuid_Size = 16
 
-	GUID_Data2_Offset = 4
-	GUID_Data3_Offset = 6
-	GUID_Data4_Offset = 8
+	wtGuid_Data2_Offset = 4
+	wtGuid_Data3_Offset = 6
+	wtGuid_Data4_Offset = 8
 
-	IN6_ADDR_Size = 16
+	wtIn6Addr_Size = 16
 
-	IN_ADDR_Size = 4
+	wtInAddr_Size = 4
 
-	IN_ADDR_s_b2_Offset = 1
-	IN_ADDR_s_b3_Offset = 2
-	IN_ADDR_s_b4_Offset = 3
+	wtInAddr_s_b2_Offset = 1
+	wtInAddr_s_b3_Offset = 2
+	wtInAddr_s_b4_Offset = 3
 
-	IP_ADDRESS_PREFIX_Size = 32
+	wtIpAddressPrefix_Size = 32
 
-	IP_ADDRESS_PREFIX_PrefixLength_Offset = 28
+	wtIpAddressPrefix_PrefixLength_Offset = 28
 
-	MIB_IPFORWARD_ROW2_Size = 104
+	wtMibIpforwardRow2_Size = 104
 
-	MIB_IPFORWARD_ROW2_InterfaceIndex_Offset = 8
-	MIB_IPFORWARD_ROW2_DestinationPrefix_Offset = 12
-	MIB_IPFORWARD_ROW2_NextHop_Offset = 44
-	MIB_IPFORWARD_ROW2_SitePrefixLength_Offset = 72
-	MIB_IPFORWARD_ROW2_ValidLifetime_Offset = 76
-	MIB_IPFORWARD_ROW2_PreferredLifetime_Offset = 80
-	MIB_IPFORWARD_ROW2_Metric_Offset = 84
-	MIB_IPFORWARD_ROW2_Protocol_Offset = 88
-	MIB_IPFORWARD_ROW2_Loopback_Offset = 92
-	MIB_IPFORWARD_ROW2_AutoconfigureAddress_Offset = 93
-	MIB_IPFORWARD_ROW2_Publish_Offset = 94
-	MIB_IPFORWARD_ROW2_Immortal_Offset = 95
-	MIB_IPFORWARD_ROW2_Age_Offset = 96
-	MIB_IPFORWARD_ROW2_Origin_Offset = 100
+	wtMibIpforwardRow2_InterfaceIndex_Offset       = 8
+	wtMibIpforwardRow2_DestinationPrefix_Offset    = 12
+	wtMibIpforwardRow2_NextHop_Offset              = 44
+	wtMibIpforwardRow2_SitePrefixLength_Offset     = 72
+	wtMibIpforwardRow2_ValidLifetime_Offset        = 76
+	wtMibIpforwardRow2_PreferredLifetime_Offset    = 80
+	wtMibIpforwardRow2_Metric_Offset               = 84
+	wtMibIpforwardRow2_Protocol_Offset             = 88
+	wtMibIpforwardRow2_Loopback_Offset             = 92
+	wtMibIpforwardRow2_AutoconfigureAddress_Offset = 93
+	wtMibIpforwardRow2_Publish_Offset              = 94
+	wtMibIpforwardRow2_Immortal_Offset             = 95
+	wtMibIpforwardRow2_Age_Offset                  = 96
+	wtMibIpforwardRow2_Origin_Offset               = 100
 
-	MIB_IPFORWARD_TABLE2_Size = 112
+	wtMibIpforwardTable2_Size = 112
 
-	MIB_IPFORWARD_TABLE2_Table_Offset = 8
+	wtMibIpforwardTable2_Table_Offset = 8
 
-	MIB_UNICASTIPADDRESS_ROW_Size = 80
+	wtMibUnicastipaddressRow_Size = 80
 
-	MIB_UNICASTIPADDRESS_ROW_InterfaceLuid_Offset = 32
-	MIB_UNICASTIPADDRESS_ROW_InterfaceIndex_Offset = 40
-	MIB_UNICASTIPADDRESS_ROW_PrefixOrigin_Offset = 44
-	MIB_UNICASTIPADDRESS_ROW_SuffixOrigin_Offset = 48
-	MIB_UNICASTIPADDRESS_ROW_ValidLifetime_Offset = 52
-	MIB_UNICASTIPADDRESS_ROW_PreferredLifetime_Offset = 56
-	MIB_UNICASTIPADDRESS_ROW_OnLinkPrefixLength_Offset = 60
-	MIB_UNICASTIPADDRESS_ROW_SkipAsSource_Offset = 61
-	MIB_UNICASTIPADDRESS_ROW_DadState_Offset = 64
-	MIB_UNICASTIPADDRESS_ROW_ScopeId_Offset = 68
-	MIB_UNICASTIPADDRESS_ROW_CreationTimeStamp_Offset = 72
+	wtMibUnicastipaddressRow_InterfaceLuid_Offset      = 32
+	wtMibUnicastipaddressRow_InterfaceIndex_Offset     = 40
+	wtMibUnicastipaddressRow_PrefixOrigin_Offset       = 44
+	wtMibUnicastipaddressRow_SuffixOrigin_Offset       = 48
+	wtMibUnicastipaddressRow_ValidLifetime_Offset      = 52
+	wtMibUnicastipaddressRow_PreferredLifetime_Offset  = 56
+	wtMibUnicastipaddressRow_OnLinkPrefixLength_Offset = 60
+	wtMibUnicastipaddressRow_SkipAsSource_Offset       = 61
+	wtMibUnicastipaddressRow_DadState_Offset           = 64
+	wtMibUnicastipaddressRow_ScopeId_Offset            = 68
+	wtMibUnicastipaddressRow_CreationTimeStamp_Offset  = 72
 
-	SOCKADDR_IN_Size = 16
+	wtSockaddrIn_Size = 16
 
-	SOCKADDR_IN_sin_port_Offset = 2
-	SOCKADDR_IN_sin_addr_Offset = 4
-	SOCKADDR_IN_sin_zero_Offset = 8
+	wtSockaddrIn_sin_port_Offset = 2
+	wtSockaddrIn_sin_addr_Offset = 4
+	wtSockaddrIn_sin_zero_Offset = 8
 
-	SOCKADDR_IN6_LH_Size = 28
+	wtSockaddrIn6Lh_Size = 28
 
-	SOCKADDR_IN6_LH_sin6_port_Offset = 2
-	SOCKADDR_IN6_LH_sin6_flowinfo_Offset = 4
-	SOCKADDR_IN6_LH_sin6_addr_Offset = 8
-	SOCKADDR_IN6_LH_sin6_scope_id_Offset = 24
+	wtSockaddrIn6Lh_sin6_port_Offset     = 2
+	wtSockaddrIn6Lh_sin6_flowinfo_Offset = 4
+	wtSockaddrIn6Lh_sin6_addr_Offset     = 8
+	wtSockaddrIn6Lh_sin6_scope_id_Offset = 24
 
-	SOCKADDR_Size = 16
+	wtSockaddr_Size = 16
 
-	SOCKADDR_sa_data_Offset = 2
+	wtSockaddr_sa_data_Offset = 2
 )

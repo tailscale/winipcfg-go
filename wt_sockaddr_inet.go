@@ -30,7 +30,7 @@ func NewSOCKADDR_IN() *SOCKADDR_IN {
 }
 
 func (addr *SOCKADDR_IN) String() string {
-	return fmt.Sprintf("sin_family: %s; sin_port: %d; IP: %s", addr.sin_family.String(), addr.sin_port, addr.sin_addr.ToIp().String())
+	return fmt.Sprintf("sin_family: %s; sin_port: %d; IP: %s", addr.sin_family.String(), addr.sin_port, addr.sin_addr.toNetIp().String())
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-sockaddr_in6
@@ -50,7 +50,7 @@ type SOCKADDR_IN6_LH struct {
 
 func (addr *SOCKADDR_IN6_LH) String() string {
 	return fmt.Sprintf("sin6_family: %s; sin6_port: %d; sin6_flowinfo: %d; sin6_addr: [%s]; sin6_scope_id: %d",
-		addr.sin6_family.String(), addr.sin6_port, addr.sin6_flowinfo, addr.sin6_addr.ToIp().String(), addr.sin6_scope_id)
+		addr.sin6_family.String(), addr.sin6_port, addr.sin6_flowinfo, addr.sin6_addr.toNetIp().String(), addr.sin6_scope_id)
 }
 
 // Defined in ws2ipdef.h
@@ -129,7 +129,7 @@ func create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
 		return nil, fmt.Errorf("Input parameter doesn't represent a valid IP address.")
 	}
 
-	in6_addr, _ := IpTo_IN6_ADDR(ipv6)
+	in6_addr, _ := netIpToWtIn6Addr(ipv6)
 
 	result.sin6_family = AF_INET6
 	result.sin6_port = port
@@ -142,7 +142,7 @@ func create_SOCKADDR_INET(address net.IP, port uint16) (*SOCKADDR_INET, error) {
 
 func (sin *SOCKADDR_INET) fillAs_SOCKADDR_IN(ipv4 net.IP, port uint16) {
 
-	in_addr, _ := IpTo_IN_ADDR(ipv4)
+	in_addr, _ := netIpToWtInAddr(ipv4)
 
 	sin4 := (*SOCKADDR_IN)(unsafe.Pointer(sin))
 	sin4.sin_family = AF_INET

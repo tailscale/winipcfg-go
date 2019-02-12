@@ -22,11 +22,11 @@ func NewIN_ADDR() *IN_ADDR {
 	return &IN_ADDR{0, 0, 0, 0}
 }
 
-func (addr *IN_ADDR) ToIp() net.IP {
+func (addr *IN_ADDR) toNetIp() net.IP {
 	return net.IPv4(byte(addr.s_b1), byte(addr.s_b2), byte(addr.s_b3), byte(addr.s_b4))
 }
 
-func IpTo_IN_ADDR(ip net.IP) (*IN_ADDR, error) {
+func netIpToWtInAddr(ip net.IP) (*IN_ADDR, error) {
 
 	ip4 := ip.To4()
 

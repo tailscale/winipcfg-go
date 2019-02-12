@@ -15,7 +15,7 @@ type IN6_ADDR struct {
 	Byte [16]UCHAR
 }
 
-func (addr *IN6_ADDR) ToIp() net.IP {
+func (addr *IN6_ADDR) toNetIp() net.IP {
 
 	if addr == nil {
 		return nil
@@ -40,7 +40,7 @@ func (addr *IN6_ADDR) ToIp() net.IP {
 		byte(addr.Byte[15]), }
 }
 
-func IpTo_IN6_ADDR(ip net.IP) (*IN6_ADDR, error) {
+func netIpToWtIn6Addr(ip net.IP) (*IN6_ADDR, error) {
 
 	ip6 := ip.To16()
 

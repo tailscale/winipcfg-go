@@ -44,7 +44,7 @@ func sockaddrInetFromWinType(sa *SOCKADDR_INET) (*SockaddrInet, error) {
 		sainet := SockaddrInet{
 			Family: AF_INET,
 			Port: sa4.sin_port,
-			Address: sa4.sin_addr.ToIp(),
+			Address: sa4.sin_addr.toNetIp(),
 			IPv6FlowInfo: 0,
 			IPv6ScopeId: 0,
 		}
@@ -59,7 +59,7 @@ func sockaddrInetFromWinType(sa *SOCKADDR_INET) (*SockaddrInet, error) {
 		sainet := SockaddrInet{
 			Family: AF_INET6,
 			Port: sa6.sin6_port,
-			Address: sa6.sin6_addr.ToIp(),
+			Address: sa6.sin6_addr.toNetIp(),
 			IPv6FlowInfo: sa6.sin6_flowinfo,
 			IPv6ScopeId: sa6.sin6_scope_id,
 		}

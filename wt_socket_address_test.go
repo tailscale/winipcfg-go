@@ -43,7 +43,7 @@ func TestWtSockaddrSize(t *testing.T) {
 	}
 }
 
-func Test_wtSockaddr_Offsets(t *testing.T) {
+func TestWtSockaddrOffsets(t *testing.T) {
 
 	s := wtSockaddr{}
 	sp := uintptr(unsafe.Pointer(&s))

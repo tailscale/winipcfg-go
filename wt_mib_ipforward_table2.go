@@ -10,7 +10,7 @@ import "unsafe"
 // Defined in Iprtrmib.h
 const ANY_SIZE uint32 = 1
 
-func (mit *wtMibIpforwardTable2) ToSlice() []wtMibIpforwardRow2 {
+func (mit *wtMibIpforwardTable2) toSlice() []wtMibIpforwardRow2 {
 
 	numberOfRows := uint32(mit.NumEntries)
 

@@ -6,8 +6,8 @@
 package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_unicastipaddress_row
-// Defined in netioapi.h
-type MIB_UNICASTIPADDRESS_ROW struct {
+// MIB_UNICASTIPADDRESS_ROW defined in netioapi.h
+type wtMibUnicastipaddressRow struct {
 	//
 	// Key Structure.
 	//

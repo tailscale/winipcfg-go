@@ -20,7 +20,7 @@ func TestWpIpAdapterDnsServerAddressXpSize(t *testing.T) {
 	}
 }
 
-func Test_wtIpAdapterDnsServerAddressXp_Offsets(t *testing.T) {
+func TestWtIpAdapterDnsServerAddressXpOffsets(t *testing.T) {
 
 	s := wtIpAdapterDnsServerAddressXp{}
 	sp := uintptr(unsafe.Pointer(&s))

@@ -102,16 +102,6 @@ func (addr *wtSockaddrInet) toWtSockaddrIn6() (*wtSockaddrIn6, error) {
 	}
 }
 
-func (addr *wtSockaddrInet) String() string {
-	if addr.isIPv4() {
-		ipv4, _ := addr.toWtSockaddrIn()
-		return ipv4.String()
-	} else {
-		ipv6 := wtSockaddrIn6Lh(*addr)
-		return (&ipv6).String()
-	}
-}
-
 func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) {
 
 	ipv4 := address.To4()
@@ -153,5 +143,15 @@ func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) {
 
 	for i := 0; i < 8; i++ {
 		sin4.sin_zero[i] = 0
+	}
+}
+
+func (addr *wtSockaddrInet) String() string {
+	if addr.isIPv4() {
+		ipv4, _ := addr.toWtSockaddrIn()
+		return ipv4.String()
+	} else {
+		ipv6 := wtSockaddrIn6Lh(*addr)
+		return (&ipv6).String()
 	}
 }

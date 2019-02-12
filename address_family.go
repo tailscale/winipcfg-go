@@ -8,7 +8,7 @@ package winipcfg
 import "fmt"
 
 // Defined in ws2def.h as AddressFamily
-type AddressFamily USHORT
+type AddressFamily uint16 // Windows type: USHORT
 
 // According to https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
 const (

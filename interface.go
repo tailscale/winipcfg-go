@@ -29,6 +29,7 @@ type Interface struct {
 	OperStatus IF_OPER_STATUS
 	Ipv6IfIndex uint32
 	ZoneIndices [16]uint32
+	Prefixes []*IpAdapterPrefix
 }
 
 func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
@@ -57,11 +58,9 @@ func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
 		}
 	}
 
-	uap := iaa.FirstUnicastAddress
-
 	var unicastAddresses []*UnicastAddress
 
-	for ; uap != nil; uap = uap.Next {
+	for uap := iaa.FirstUnicastAddress; uap != nil; uap = uap.Next {
 
 		ua, err := toUnicastAddress(ifc, uap)
 
@@ -73,6 +72,21 @@ func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
 	}
 
 	ifc.UnicastAddress = unicastAddresses
+
+	var prefixes []*IpAdapterPrefix
+
+	for wtp := iaa.FirstPrefix; wtp != nil; wtp = wtp.Next {
+
+		p, err := ipAdapterPrefixFromWinType(wtp)
+
+		if err != nil {
+			return nil, err
+		}
+
+		prefixes = append(prefixes, p)
+	}
+
+	ifc.Prefixes = prefixes
 
 	return &ifc, nil
 }
@@ -302,9 +316,15 @@ IfType: %s
 OperStatus: %s
 Ipv6IfIndex: %d
 ZoneIndices: %v
-========================= INTERFACE OUTPUT END =========================
+Prefixes:
 `, ifc.DnsSuffix, ifc.Description, ifc.PhysicalAddress.String(), ifc.Flags, ifc.Mtu, ifc.IfType.String(),
 ifc.OperStatus.String(), ifc.Ipv6IfIndex, ifc.ZoneIndices)
+
+	for _, p := range ifc.Prefixes {
+		result += fmt.Sprintf("\t%s\n", p.String())
+	}
+
+	result += "========================= INTERFACE OUTPUT END =========================\n"
 
 	return result
 }

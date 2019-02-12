@@ -9,6 +9,7 @@ import (
 	"testing"
 	"unsafe"
 )
+
 func Test_MIB_IPFORWARD_ROW2_Size(t *testing.T) {
 
 	const Actual_MIB_IPFORWARD_ROW2_Size = unsafe.Sizeof(MIB_IPFORWARD_ROW2{})

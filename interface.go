@@ -20,7 +20,7 @@ type Interface struct {
 	AdapterName      string
 	FriendlyName     string
 	UnicastAddresses []*IpAdapterUnicastAddress
-	AnycastAddresses []*IpAdapterAnycastAddress
+	AnycastAddresses []*IpAdapterAddressCommonTypeEx
 	DnsSuffix        string
 	Description      string
 	PhysicalAddress  net.HardwareAddr
@@ -74,11 +74,11 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	ifc.UnicastAddresses = unicastAddresses
 
-	var anycastAddresses []*IpAdapterAnycastAddress
+	var anycastAddresses []*IpAdapterAddressCommonTypeEx
 
 	for wtaa := wtiaa.FirstAnycastAddress; wtaa != nil; wtaa = wtaa.Next {
 
-		ua, err := ipAdapterAnycastAddressFromWinType(ifc, wtaa)
+		ua, err := ipAdapterAddressFromAnycastAddress(ifc, wtaa)
 
 		if err != nil {
 			return nil, err
@@ -93,7 +93,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtp := wtiaa.FirstPrefix; wtp != nil; wtp = wtp.Next {
 
-		p, err := ipAdapterPrefixFromWinType(wtp)
+		p, err := ipAdapterPrefixFromWinType(ifc, wtp)
 
 		if err != nil {
 			return nil, err

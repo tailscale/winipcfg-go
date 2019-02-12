@@ -9,8 +9,8 @@ import "fmt"
 
 type IpAdapterUnicastAddress struct {
 
-	// It contains everything from IpAdapterAnycastAddress
-	IpAdapterAnycastAddress
+	// It extends IpAdapterAddressCommonTypeEx
+	IpAdapterAddressCommonTypeEx
 
 	PrefixOrigin IpPrefixOrigin
 	SuffixOrigin IpSuffixOrigin
@@ -22,37 +22,32 @@ type IpAdapterUnicastAddress struct {
 	OnLinkPrefixLength uint8
 }
 
-func ipAdapterUnicastAddressFromWinType(ifc Interface, wtua *wtIpAdapterUnicastAddressLh) (*IpAdapterUnicastAddress,
+func ipAdapterUnicastAddressFromWinType(ifc Interface, wta *wtIpAdapterUnicastAddressLh) (*IpAdapterUnicastAddress,
 	error) {
 
-	if wtua == nil {
+	if wta == nil {
 		return nil, nil
 	}
 
-	wtsainet, err := wtua.Address.getWtSockaddrInet()
-
-	if err != nil {
-		return nil, err
-	}
-
-	sainet, err := sockaddrInetFromWinType(wtsainet)
-
-	if err != nil {
-		return nil, err
-	}
-
 	ua := IpAdapterUnicastAddress{
-		PrefixOrigin:       wtua.PrefixOrigin,
-		ValidLifetime:      wtua.ValidLifetime,
-		PreferredLifetime:  wtua.PreferredLifetime,
-		LeaseLifetime:      wtua.LeaseLifetime,
-		OnLinkPrefixLength: wtua.OnLinkPrefixLength,
+		PrefixOrigin:       wta.PrefixOrigin,
+		SuffixOrigin:       wta.SuffixOrigin,
+		DadState:           wta.DadState,
+		ValidLifetime:      wta.ValidLifetime,
+		PreferredLifetime:  wta.PreferredLifetime,
+		LeaseLifetime:      wta.LeaseLifetime,
+		OnLinkPrefixLength: wta.OnLinkPrefixLength,
+	}
+
+	err := ua.setAddress(&wta.Address)
+
+	if err != nil {
+		return nil, err
 	}
 
 	ua.Interface = ifc
-	ua.Length = wtua.Length
-	ua.Flags = wtua.Flags
-	ua.Address = *sainet
+	ua.Length = wta.Length
+	ua.Flags = wta.Flags
 
 	return &ua, nil
 }
@@ -61,9 +56,9 @@ func (ua *IpAdapterUnicastAddress) String() string {
 
 	if ua == nil {
 		return ""
+	} else {
+		return fmt.Sprintf("%s/%d; PrefixOrigin: %s; SuffixOrigin: %s; DadState: %s; ValidLifetime: %d; PreferredLifetime: %d; LeaseLifetime: %d",
+			ua.commonTypeExAddressString(), ua.OnLinkPrefixLength, ua.PrefixOrigin.String(), ua.SuffixOrigin.String(),
+			ua.DadState.String(), ua.ValidLifetime, ua.PreferredLifetime, ua.LeaseLifetime)
 	}
-
-	return fmt.Sprintf("Length: %d; Flags: %d; Address: [%s]/%d; PrefixOrigin: %s; SuffixOrigin: %s; DadState: %s; ValidLifetime: %d; PreferredLifetime: %d; LeaseLifetime: %d",
-		ua.Length, ua.Flags, ua.Address.String(), ua.OnLinkPrefixLength, ua.PrefixOrigin.String(),
-		ua.SuffixOrigin.String(), ua.DadState.String(), ua.ValidLifetime, ua.PreferredLifetime, ua.LeaseLifetime)
 }

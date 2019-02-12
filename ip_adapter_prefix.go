@@ -8,41 +8,35 @@ package winipcfg
 import "fmt"
 
 type IpAdapterPrefix struct {
-	Length uint32
-	Flags uint32
-	Address SockaddrInet
+
+	// It extends IpAdapterAddressCommonTypeEx
+	IpAdapterAddressCommonTypeEx
+
+	// Prefix length.
 	PrefixLength uint32
 }
 
-func ipAdapterPrefixFromWinType(wt *wtIpAdapterPrefixXp) (*IpAdapterPrefix, error) {
+func ipAdapterPrefixFromWinType(ifc Interface, wt *wtIpAdapterPrefixXp) (*IpAdapterPrefix, error) {
 
 	if wt == nil {
 		return nil, nil
 	}
 
-	wtsai, err := wt.Address.getWtSockaddrInet()
+	ap := IpAdapterPrefix{PrefixLength: wt.PrefixLength}
+
+	err := ap.setAddress(&wt.Address)
 
 	if err != nil {
 		return nil, err
 	}
 
-	sai, err := sockaddrInetFromWinType(wtsai)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ap := IpAdapterPrefix{
-		Length: wt.Length,
-		Flags: wt.Flags,
-		Address: *sai,
-		PrefixLength: wt.PrefixLength,
-	}
+	ap.Interface = ifc
+	ap.Length = wt.Length
+	ap.Flags = wt.Flags
 
 	return &ap, nil
 }
 
 func (ap *IpAdapterPrefix) String() string {
-	return fmt.Sprintf("Length: %d; Flags: %d; Address: [%s]/%d", ap.Length, ap.Flags, ap.Address.String(),
-		ap.PrefixLength)
+	return fmt.Sprintf("%s/%d", ap.commonTypeExAddressString(), ap.PrefixLength)
 }

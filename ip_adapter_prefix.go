@@ -26,7 +26,7 @@ func ipAdapterPrefixFromWinType(wt *IP_ADAPTER_PREFIX_XP) (*IpAdapterPrefix, err
 		return nil, err
 	}
 
-	sai, err := wtsai.toSockAddrInet()
+	sai, err := sockaddrInetFromWinType(wtsai)
 
 	if err != nil {
 		return nil, err

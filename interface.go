@@ -19,7 +19,7 @@ type Interface struct {
 	Index uint32
 	AdapterName string
 	FriendlyName string
-	UnicastAddress []*UnicastAddress
+	UnicastAddress []*IpAdapterUnicastAddress
 	DnsSuffix string
 	Description string
 	PhysicalAddress net.HardwareAddr
@@ -58,11 +58,11 @@ func (iaa *IP_ADAPTER_ADDRESSES) toInterface() (*Interface, error) {
 		}
 	}
 
-	var unicastAddresses []*UnicastAddress
+	var unicastAddresses []*IpAdapterUnicastAddress
 
 	for uap := iaa.FirstUnicastAddress; uap != nil; uap = uap.Next {
 
-		ua, err := toUnicastAddress(ifc, uap)
+		ua, err := ipAdapterUnicastAddressFromWinType(ifc, uap)
 
 		if err != nil {
 			return nil, err

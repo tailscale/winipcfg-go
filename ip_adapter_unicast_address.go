@@ -7,7 +7,7 @@ package winipcfg
 
 import "fmt"
 
-type UnicastAddress struct {
+type IpAdapterUnicastAddress struct {
 
 	// The interface this address belong to.
 	Interface Interface
@@ -33,29 +33,30 @@ type UnicastAddress struct {
 	OnLinkPrefixLength uint8
 }
 
-func toUnicastAddress(ifc Interface, iaua *IP_ADAPTER_UNICAST_ADDRESS_LH) (*UnicastAddress, error) {
+func ipAdapterUnicastAddressFromWinType(ifc Interface, iaua *IP_ADAPTER_UNICAST_ADDRESS_LH) (*IpAdapterUnicastAddress,
+	error) {
 
 	if iaua == nil {
 		return nil, nil
 	}
 
-	sainet, err := iaua.Address.get_SOCKETADDR_INET()
+	wtsainet, err := iaua.Address.get_SOCKETADDR_INET()
 
 	if err != nil {
 		return nil, err
 	}
 
-	sa, err := sainet.toSockAddrInet()
+	sainet, err := sockaddrInetFromWinType(wtsainet)
 
 	if err != nil {
 		return nil, err
 	}
 
-	ua := UnicastAddress{
+	ua := IpAdapterUnicastAddress{
 		Interface: ifc,
 		Length: iaua.Length,
 		Flags: iaua.Flags,
-		Address: *sa,
+		Address: *sainet,
 		PrefixOrigin: iaua.PrefixOrigin,
 		ValidLifetime: iaua.ValidLifetime,
 		PreferredLifetime: iaua.PreferredLifetime,
@@ -66,7 +67,7 @@ func toUnicastAddress(ifc Interface, iaua *IP_ADAPTER_UNICAST_ADDRESS_LH) (*Unic
 	return &ua, nil
 }
 
-func (ua *UnicastAddress) String() string {
+func (ua *IpAdapterUnicastAddress) String() string {
 
 	if ua == nil {
 		return ""

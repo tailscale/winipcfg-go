@@ -31,7 +31,7 @@ type SockaddrInet struct {
 	IPv6ScopeId uint32
 }
 
-func (sa *SOCKADDR_INET) toSockAddrInet() (*SockaddrInet, error) {
+func sockaddrInetFromWinType(sa *SOCKADDR_INET) (*SockaddrInet, error) {
 
 	if sa == nil {
 		return nil, nil

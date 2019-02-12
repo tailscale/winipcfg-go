@@ -10,7 +10,7 @@ import (
 	"unsafe"
 )
 
-func TestWtIpAdapterGatewayAddressLh_Size(t *testing.T) {
+func TestWtIpAdapterGatewayAddressLhSize(t *testing.T) {
 
 	const actualWtIpAdapterGatewayAddressLhSize = unsafe.Sizeof(wtIpAdapterGatewayAddressLh{})
 
@@ -20,7 +20,7 @@ func TestWtIpAdapterGatewayAddressLh_Size(t *testing.T) {
 	}
 }
 
-func TestWtIpAdapterGatewayAddressLh_Offsets(t *testing.T) {
+func TestWtIpAdapterGatewayAddressLhOffsets(t *testing.T) {
 
 	s := wtIpAdapterGatewayAddressLh{}
 	sp := uintptr(unsafe.Pointer(&s))

@@ -5,5 +5,5 @@
 
 package winipcfg
 
-// Defined in iptypes.h
-type IP_ADAPTER_WINS_SERVER_ADDRESS wtIpAdapterWinsServerAddressLh
+// IP_ADAPTER_WINS_SERVER_ADDRESS defined in iptypes.h
+type wtIpAdapterWinsServerAddress wtIpAdapterWinsServerAddressLh

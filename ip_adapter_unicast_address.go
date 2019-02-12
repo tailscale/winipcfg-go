@@ -12,7 +12,7 @@ type IpAdapterUnicastAddress struct {
 	// The interface this address belong to.
 	Interface Interface
 
-	// The rest is from IP_ADAPTER_ADDRESSES_LH
+	// The rest is from wtIpAdapterAddressesLh
 
 	// TODO: Documentation missing. What is it?
 	Length uint32

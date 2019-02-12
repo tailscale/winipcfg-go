@@ -15,17 +15,17 @@ const (
 	MAX_DHCPV6_DUID_LENGTH = 130
 )
 
-// Defined in iptypes.h
-type IP_ADAPTER_ADDRESSES IP_ADAPTER_ADDRESSES_LH
+// IP_ADAPTER_ADDRESSES defined in iptypes.h
+type wtIpAdapterAddresses wtIpAdapterAddressesLh
 
-func (aa *IP_ADAPTER_ADDRESSES) NextCasted() *IP_ADAPTER_ADDRESSES {
-	return (*IP_ADAPTER_ADDRESSES) (unsafe.Pointer(aa.Next))
+func (aa *wtIpAdapterAddresses) nextCasted() *wtIpAdapterAddresses {
+	return (*wtIpAdapterAddresses) (unsafe.Pointer(aa.Next))
 }
 
-func (aa *IP_ADAPTER_ADDRESSES) getAdapterName() string {
+func (aa *wtIpAdapterAddresses) getAdapterName() string {
 	return charToString(aa.AdapterName)
 }
 
-func (aa *IP_ADAPTER_ADDRESSES) getFriendlyName() string {
+func (aa *wtIpAdapterAddresses) getFriendlyName() string {
 	return wcharToString(aa.FriendlyName)
 }

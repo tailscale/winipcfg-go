@@ -32,7 +32,7 @@ type Interface struct {
 	Prefixes []*IpAdapterPrefix
 }
 
-func interfaceFromWtIpAdapterAddresses(wtiaa *IP_ADAPTER_ADDRESSES) (*Interface, error) {
+func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface, error) {
 
 	ifc := Interface{
 		Luid:         wtiaa.Luid,
@@ -92,7 +92,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *IP_ADAPTER_ADDRESSES) (*Interface,
 }
 
 // Based on function with the same name in 'net' module, in file interface_windows.go
-func getWtIpAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
+func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
 
 	var b []byte
 
@@ -103,7 +103,7 @@ func getWtIpAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 		b = make([]byte, size)
 
 		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
-			(*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])), &size)
+			(*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
 
 		if result == 0 {
 
@@ -123,9 +123,9 @@ func getWtIpAdapterAddresses() ([]*IP_ADAPTER_ADDRESSES, error) {
 		}
 	}
 
-	var wtiaas []*IP_ADAPTER_ADDRESSES
+	var wtiaas []*wtIpAdapterAddresses
 
-	for wtiaa := (*IP_ADAPTER_ADDRESSES)(unsafe.Pointer(&b[0])); wtiaa != nil; wtiaa = wtiaa.NextCasted() {
+	for wtiaa := (*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])); wtiaa != nil; wtiaa = wtiaa.nextCasted() {
 		wtiaas = append(wtiaas, wtiaa)
 	}
 

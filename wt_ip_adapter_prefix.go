@@ -19,13 +19,13 @@ type wtIpAdapterPrefixXp struct {
 
 // TODO: IP_ADAPTER_PREFIX and related methods probably can be removed?
 
-// Defined in iptypes.h
-type IP_ADAPTER_PREFIX wtIpAdapterPrefixXp
+// IP_ADAPTER_PREFIX defined in iptypes.h
+type wtIpAdapterPrefix wtIpAdapterPrefixXp
 
-func (pxp *wtIpAdapterPrefixXp) nextCasted() *IP_ADAPTER_PREFIX {
+func (pxp *wtIpAdapterPrefixXp) nextCasted() *wtIpAdapterPrefix {
 	if pxp == nil {
 		return nil
 	} else {
-		return (*IP_ADAPTER_PREFIX)(unsafe.Pointer(pxp))
+		return (*wtIpAdapterPrefix)(unsafe.Pointer(pxp))
 	}
 }

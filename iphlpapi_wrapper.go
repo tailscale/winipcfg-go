@@ -7,4 +7,4 @@ package winipcfg
 
 //sys	cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) = iphlpapi.CancelMibChangeNotify2
 
-//sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *IP_ADAPTER_ADDRESSES, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses
+//sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses

@@ -10,7 +10,7 @@ import (
 	"unsafe"
 )
 
-func TestWtIpAdapterDnsSuffix_Size(t *testing.T) {
+func TestWtIpAdapterDnsSuffixSize(t *testing.T) {
 
 	const actualWtIpAdapterDnsSuffixSize = unsafe.Sizeof(wtIpAdapterDnsSuffix{})
 
@@ -20,7 +20,7 @@ func TestWtIpAdapterDnsSuffix_Size(t *testing.T) {
 	}
 }
 
-func TestWtIpAdapterDnsSuffix_Offsets(t *testing.T) {
+func TestWtIpAdapterDnsSuffixOffsets(t *testing.T) {
 
 	s := wtIpAdapterDnsSuffix{}
 	sp := uintptr(unsafe.Pointer(&s))

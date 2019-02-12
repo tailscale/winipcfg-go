@@ -8,14 +8,14 @@ package winipcfg
 import "golang.org/x/sys/windows"
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_addresses_lh
-// Defined in iptypes.h
-type IP_ADAPTER_ADDRESSES_LH struct {
+// IP_ADAPTER_ADDRESSES_LH defined in iptypes.h
+type wtIpAdapterAddressesLh struct {
 	Length uint32 // Windows type: ULONG
 	IfIndex uint32 // Windows type: IF_INDEX
-	Next *IP_ADAPTER_ADDRESSES_LH
+	Next *wtIpAdapterAddressesLh
 	AdapterName *uint8 //*CHAR flattened to *uint8
 	FirstUnicastAddress *wtIpAdapterUnicastAddressLh
-	FirstAnycastAddress *IP_ADAPTER_ANYCAST_ADDRESS_XP
+	FirstAnycastAddress *wtIpAdapterAnycastAddressXp
 	FirstMulticastAddress *wtIpAdapterMulticastAddressXp
 	FirstDnsServerAddress *wtIpAdapterDnsServerAddressXp
 	DnsSuffix *uint16 // Windows type: *WCHAR

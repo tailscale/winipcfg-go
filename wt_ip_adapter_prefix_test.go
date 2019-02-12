@@ -20,7 +20,7 @@ func TestWtIpAdapterPrefixXpSize(t *testing.T) {
 	}
 }
 
-func Test_wtIpAdapterPrefixXp_Offsets(t *testing.T) {
+func TestWtIpAdapterPrefixXpOffsets(t *testing.T) {
 
 	s := wtIpAdapterPrefixXp{}
 	sp := uintptr(unsafe.Pointer(&s))

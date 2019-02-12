@@ -6,13 +6,14 @@
 package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipforward_row2
-type MIB_IPFORWARD_ROW2 struct {
+// MIB_IPFORWARD_ROW2 defined in netioapi.h
+type wtMibIpforwardRow2 struct {
 	//
 	// Key Structure.
 	//
 	InterfaceLuid     uint64 // Windows type: NET_LUID
 	InterfaceIndex    uint32 // Windows type: NET_IFINDEX
-	DestinationPrefix IP_ADDRESS_PREFIX
+	DestinationPrefix wtIpAddressPrefix
 	NextHop           wtSockaddrInet
 
 	//
@@ -35,5 +36,3 @@ type MIB_IPFORWARD_ROW2 struct {
 	Age uint32 // Windows type: ULONG
 	Origin NlRouteOrigin
 }
-
-type PMIB_IPFORWARD_ROW2 *MIB_IPFORWARD_ROW2

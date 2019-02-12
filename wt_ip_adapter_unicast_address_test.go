@@ -20,7 +20,7 @@ func TestWtIpAdapterUnicastAddressLhSize(t *testing.T) {
 	}
 }
 
-func Test_wtIpAdapterUnicastAddressLh_Offsets(t *testing.T) {
+func TestWtIpAdapterUnicastAddressLhOffsets(t *testing.T) {
 
 	s := wtIpAdapterUnicastAddressLh{}
 	sp := uintptr(unsafe.Pointer(&s))

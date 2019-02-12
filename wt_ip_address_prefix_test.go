@@ -10,24 +10,26 @@ import (
 	"unsafe"
 )
 
-func Test_IP_ADDRESS_PREFIX_Size(t *testing.T) {
+func TestWtIpAddressPrefixSize(t *testing.T) {
 
-	const Actual_IP_ADDRESS_PREFIX_Size = unsafe.Sizeof(IP_ADDRESS_PREFIX{})
+	const actualWtIpAddressPrefixSize = unsafe.Sizeof(wtIpAddressPrefix{})
 
-	if Actual_IP_ADDRESS_PREFIX_Size != wtIpAddressPrefix_Size {
-		t.Errorf("Size of IP_ADDRESS_PREFIX is %d, although %d is expected.", Actual_IP_ADDRESS_PREFIX_Size, wtIpAddressPrefix_Size)
+	if actualWtIpAddressPrefixSize != wtIpAddressPrefix_Size {
+		t.Errorf("Size of wtIpAddressPrefix is %d, although %d is expected.", actualWtIpAddressPrefixSize,
+			wtIpAddressPrefix_Size)
 	}
 }
 
-func Test_IP_ADDRESS_PREFIX_Offsets(t *testing.T) {
+func TestWtIpAddressPrefixOffsets(t *testing.T) {
 
-	s := IP_ADDRESS_PREFIX{}
+	s := wtIpAddressPrefix{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.PrefixLength)) - sp
 
 	if offset != wtIpAddressPrefix_PrefixLength_Offset {
-		t.Errorf("IP_ADDRESS_PREFIX.PrefixLength offset is %d although %d is expected", offset, wtIpAddressPrefix_PrefixLength_Offset)
+		t.Errorf("wtIpAddressPrefix.PrefixLength offset is %d although %d is expected", offset,
+			wtIpAddressPrefix_PrefixLength_Offset)
 		return
 	}
 }

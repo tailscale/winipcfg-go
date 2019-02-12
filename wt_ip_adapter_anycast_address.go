@@ -5,5 +5,5 @@
 
 package winipcfg
 
-// Defined in iptypes.h
-type IP_ADAPTER_ANYCAST_ADDRESS IP_ADAPTER_ANYCAST_ADDRESS_XP
+// IP_ADAPTER_ANYCAST_ADDRESS defined in iptypes.h
+type wtIpAdapterAnycastAddress wtIpAdapterAnycastAddressXp

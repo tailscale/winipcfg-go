@@ -9,19 +9,8 @@ import "fmt"
 
 type IpAdapterUnicastAddress struct {
 
-	// The interface this address belong to.
-	Interface Interface
-
-	// The rest is from wtIpAdapterAddressesLh
-
-	// TODO: Documentation missing. What is it?
-	Length uint32
-
-	// TODO: Documentation missing. What is it?
-	Flags uint32
-
-	// The address
-	Address SockaddrInet
+	// It contains everything from IpAdapterAnycastAddress
+	IpAdapterAnycastAddress
 
 	PrefixOrigin IpPrefixOrigin
 	SuffixOrigin IpSuffixOrigin
@@ -33,14 +22,14 @@ type IpAdapterUnicastAddress struct {
 	OnLinkPrefixLength uint8
 }
 
-func ipAdapterUnicastAddressFromWinType(ifc Interface, iaua *wtIpAdapterUnicastAddressLh) (*IpAdapterUnicastAddress,
+func ipAdapterUnicastAddressFromWinType(ifc Interface, wtua *wtIpAdapterUnicastAddressLh) (*IpAdapterUnicastAddress,
 	error) {
 
-	if iaua == nil {
+	if wtua == nil {
 		return nil, nil
 	}
 
-	wtsainet, err := iaua.Address.getWtSockaddrInet()
+	wtsainet, err := wtua.Address.getWtSockaddrInet()
 
 	if err != nil {
 		return nil, err
@@ -53,16 +42,17 @@ func ipAdapterUnicastAddressFromWinType(ifc Interface, iaua *wtIpAdapterUnicastA
 	}
 
 	ua := IpAdapterUnicastAddress{
-		Interface: ifc,
-		Length: iaua.Length,
-		Flags: iaua.Flags,
-		Address: *sainet,
-		PrefixOrigin: iaua.PrefixOrigin,
-		ValidLifetime: iaua.ValidLifetime,
-		PreferredLifetime: iaua.PreferredLifetime,
-		LeaseLifetime: iaua.LeaseLifetime,
-		OnLinkPrefixLength: iaua.OnLinkPrefixLength,
+		PrefixOrigin:       wtua.PrefixOrigin,
+		ValidLifetime:      wtua.ValidLifetime,
+		PreferredLifetime:  wtua.PreferredLifetime,
+		LeaseLifetime:      wtua.LeaseLifetime,
+		OnLinkPrefixLength: wtua.OnLinkPrefixLength,
 	}
+
+	ua.Interface = ifc
+	ua.Length = wtua.Length
+	ua.Flags = wtua.Flags
+	ua.Address = *sainet
 
 	return &ua, nil
 }

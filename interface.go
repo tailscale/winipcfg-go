@@ -15,21 +15,22 @@ import (
 )
 
 type Interface struct {
-	Luid uint64
-	Index uint32
-	AdapterName string
-	FriendlyName string
-	UnicastAddress []*IpAdapterUnicastAddress
-	DnsSuffix string
-	Description string
-	PhysicalAddress net.HardwareAddr
-	Flags uint32
-	Mtu uint32
-	IfType IfType
-	OperStatus IfOperStatus
-	Ipv6IfIndex uint32
-	ZoneIndices [16]uint32
-	Prefixes []*IpAdapterPrefix
+	Luid             uint64
+	Index            uint32
+	AdapterName      string
+	FriendlyName     string
+	UnicastAddresses []*IpAdapterUnicastAddress
+	AnycastAddresses []*IpAdapterAnycastAddress
+	DnsSuffix        string
+	Description      string
+	PhysicalAddress  net.HardwareAddr
+	Flags            uint32
+	Mtu              uint32
+	IfType           IfType
+	OperStatus       IfOperStatus
+	Ipv6IfIndex      uint32
+	ZoneIndices      [16]uint32
+	Prefixes         []*IpAdapterPrefix
 }
 
 func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface, error) {
@@ -60,9 +61,9 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	var unicastAddresses []*IpAdapterUnicastAddress
 
-	for uap := wtiaa.FirstUnicastAddress; uap != nil; uap = uap.Next {
+	for wtua := wtiaa.FirstUnicastAddress; wtua != nil; wtua = wtua.Next {
 
-		ua, err := ipAdapterUnicastAddressFromWinType(ifc, uap)
+		ua, err := ipAdapterUnicastAddressFromWinType(ifc, wtua)
 
 		if err != nil {
 			return nil, err
@@ -71,7 +72,22 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 		unicastAddresses = append(unicastAddresses, ua)
 	}
 
-	ifc.UnicastAddress = unicastAddresses
+	ifc.UnicastAddresses = unicastAddresses
+
+	var anycastAddresses []*IpAdapterAnycastAddress
+
+	for wtaa := wtiaa.FirstAnycastAddress; wtaa != nil; wtaa = wtaa.Next {
+
+		ua, err := ipAdapterAnycastAddressFromWinType(ifc, wtaa)
+
+		if err != nil {
+			return nil, err
+		}
+
+		anycastAddresses = append(anycastAddresses, ua)
+	}
+
+	ifc.AnycastAddresses = anycastAddresses
 
 	var prefixes []*IpAdapterPrefix
 
@@ -303,8 +319,14 @@ FriendlyName: %s
 Unicast addresses:
 `, ifc.Luid, ifc.Index, ifc.AdapterName, ifc.FriendlyName)
 
-	for _, ifc := range ifc.UnicastAddress {
-		result += fmt.Sprintf("\t%s\n", ifc.String())
+	for _, ua := range ifc.UnicastAddresses {
+		result += fmt.Sprintf("\t%s\n", ua.String())
+	}
+
+	result += "Anycast addresses:\n"
+
+	for _, aa := range ifc.AnycastAddresses {
+		result += fmt.Sprintf("\t%s\n", aa.String())
 	}
 
 	result += fmt.Sprintf(`DnsSuffix: %s

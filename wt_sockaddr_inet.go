@@ -16,7 +16,7 @@ import (
 type wtSockaddrIn struct {
 	sin_family AddressFamily
 	sin_port   uint16 // USHORT flattened to uint16
-	sin_addr   WtInAddr
+	sin_addr   wtInAddr
 	sin_zero   [8]uint8 // Windows type: [8]CHAR
 }
 

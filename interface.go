@@ -22,6 +22,7 @@ type Interface struct {
 	UnicastAddresses   []*IpAdapterUnicastAddress
 	AnycastAddresses   []*IpAdapterAddressCommonTypeEx
 	MulticastAddresses []*IpAdapterAddressCommonTypeEx
+	DnsServerAddresses []*IpAdapterAddressCommonType
 	DnsSuffix          string
 	Description        string
 	PhysicalAddress    net.HardwareAddr
@@ -79,7 +80,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtaa := wtiaa.FirstAnycastAddress; wtaa != nil; wtaa = wtaa.Next {
 
-		ua, err := ipAdapterAddressFromAnycastAddress(ifc, wtaa)
+		ua, err := ipAdapterAddressFromWtAnycastAddress(ifc, wtaa)
 
 		if err != nil {
 			return nil, err
@@ -94,7 +95,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtma := wtiaa.FirstMulticastAddress; wtma != nil; wtma = wtma.Next {
 
-		ma, err := ipAdapterAddressFromMulticastAddress(ifc, wtma)
+		ma, err := ipAdapterAddressFromWtMulticastAddress(ifc, wtma)
 
 		if err != nil {
 			return nil, err
@@ -104,6 +105,21 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 	}
 
 	ifc.MulticastAddresses = multicastAddresses
+
+	var dnsServerAddresses []*IpAdapterAddressCommonType
+
+	for wtdsa := wtiaa.FirstDnsServerAddress; wtdsa != nil; wtdsa = wtdsa.Next {
+
+		dsa, err := ipAdapterAddressFromWtDnsServerAddress(ifc, wtdsa)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dnsServerAddresses = append(dnsServerAddresses, dsa)
+	}
+
+	ifc.DnsServerAddresses = dnsServerAddresses
 
 	var prefixes []*IpAdapterPrefix
 
@@ -349,6 +365,12 @@ Unicast addresses:
 
 	for _, ma := range ifc.MulticastAddresses {
 		result += fmt.Sprintf("\t%s\n", ma.String())
+	}
+
+	result += "DNS server addresses:\n"
+
+	for _, dsa := range ifc.DnsServerAddresses {
+		result += fmt.Sprintf("\t%s\n", dsa.String())
 	}
 
 	result += fmt.Sprintf(`DnsSuffix: %s

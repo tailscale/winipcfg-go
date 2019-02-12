@@ -15,7 +15,7 @@ type IpAdapterAddressCommonTypeEx struct {
 	Flags uint32
 }
 
-func ipAdapterAddressFromAnycastAddress(ifc Interface, aa *wtIpAdapterAnycastAddressXp) (*IpAdapterAddressCommonTypeEx,
+func ipAdapterAddressFromWtAnycastAddress(ifc Interface, aa *wtIpAdapterAnycastAddressXp) (*IpAdapterAddressCommonTypeEx,
 	error) {
 	if aa == nil {
 		return nil, nil
@@ -24,7 +24,7 @@ func ipAdapterAddressFromAnycastAddress(ifc Interface, aa *wtIpAdapterAnycastAdd
 	}
 }
 
-func ipAdapterAddressFromMulticastAddress(ifc Interface, aa *wtIpAdapterMulticastAddressXp) (*IpAdapterAddressCommonTypeEx,
+func ipAdapterAddressFromWtMulticastAddress(ifc Interface, aa *wtIpAdapterMulticastAddressXp) (*IpAdapterAddressCommonTypeEx,
 	error) {
 	if aa == nil {
 		return nil, nil

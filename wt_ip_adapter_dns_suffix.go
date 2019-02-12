@@ -14,5 +14,5 @@ const (
 // IP_ADAPTER_DNS_SUFFIX defined in iptypes.h
 type wtIpAdapterDnsSuffix struct {
 	Next *wtIpAdapterDnsSuffix
-	String [MAX_DNS_SUFFIX_STRING_LENGTH]WCHAR
+	String [MAX_DNS_SUFFIX_STRING_LENGTH]uint16 // Windows type: [MAX_DNS_SUFFIX_STRING_LENGTH]WCHAR
 }

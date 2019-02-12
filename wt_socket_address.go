@@ -14,17 +14,17 @@ import (
 // SOCKET_ADDRESS defined in ws2def.h
 type wtSocketAddress struct {
 	lpSockaddr *SOCKADDR
-	iSockaddrLength INT
+	iSockaddrLength int32 // Windows type: INT
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/WinSock/sockaddr-2
 // Defined in ws2def.h
 type SOCKADDR struct {
 	sa_family AddressFamily
-	sa_data   [14]CHAR
+	sa_data   [14]uint8 // Windows type: [14]CHAR
 }
 
-func (sa *wtSocketAddress) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
+func (sa *wtSocketAddress) get_SOCKETADDR_INET() (*wtSockaddrInet, error) {
 
 	if sa == nil {
 		return nil, nil
@@ -55,9 +55,9 @@ func (sa *wtSocketAddress) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {
 		break
 
 	default:
-		return nil, fmt.Errorf("Input argument cannot be converted to SOCKADDR_INET because its family is %s.",
+		return nil, fmt.Errorf("Input argument cannot be converted to wtSockaddrInet because its family is %s.",
 			sa.lpSockaddr.sa_family.String())
 	}
 
-	return (*SOCKADDR_INET)(unsafe.Pointer(sa.lpSockaddr)), nil
+	return (*wtSockaddrInet)(unsafe.Pointer(sa.lpSockaddr)), nil
 }

@@ -5,10 +5,12 @@
 
 package winipcfg
 
+import "golang.org/x/sys/windows"
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_addresses_lh
 // Defined in iptypes.h
 type IP_ADAPTER_ADDRESSES_LH struct {
-	Length ULONG
+	Length uint32 // Windows type: ULONG
 	IfIndex uint32 // Windows type: IF_INDEX
 	Next *IP_ADAPTER_ADDRESSES_LH
 	AdapterName *uint8 //*CHAR flattened to *uint8
@@ -29,25 +31,25 @@ type IP_ADAPTER_ADDRESSES_LH struct {
 	ZoneIndices [16]uint32 // Windows type: [16]ULONG
 	FirstPrefix *wtIpAdapterPrefixXp
 
-	TransmitLinkSpeed ULONG64
-	ReceiveLinkSpeed ULONG64
+	TransmitLinkSpeed uint64 // Windows type: ULONG64
+	ReceiveLinkSpeed uint64 // Windows type: ULONG64
 	FirstWinsServerAddress *wtIpAdapterWinsServerAddressLh
 	FirstGatewayAddress *wtIpAdapterGatewayAddressLh
-	Ipv4Metric ULONG
-	Ipv6Metric ULONG
+	Ipv4Metric uint32 // Windows type: ULONG
+	Ipv6Metric uint32 // Windows type: ULONG
 	Luid uint64 // Windows type:  IF_LUID
 	Dhcpv4Server wtSocketAddress
-	CompartmentId NET_IF_COMPARTMENT_ID
-	NetworkGuid NET_IF_NETWORK_GUID
+	CompartmentId uint32 // Windows type: NET_IF_COMPARTMENT_ID
+	NetworkGuid windows.GUID // Windows type: NET_IF_NETWORK_GUID
 	ConnectionType NetIfConnectionType
 	TunnelType TUNNEL_TYPE
 	//
 	// DHCP v6 Info.
 	//
 	Dhcpv6Server wtSocketAddress
-	Dhcpv6ClientDuid [MAX_DHCPV6_DUID_LENGTH]BYTE
-	Dhcpv6ClientDuidLength ULONG
-	Dhcpv6Iaid ULONG
+	Dhcpv6ClientDuid [MAX_DHCPV6_DUID_LENGTH]uint8 // Windows type: [MAX_DHCPV6_DUID_LENGTH]BYTE
+	Dhcpv6ClientDuidLength uint32 // Windows type: ULONG
+	Dhcpv6Iaid uint32 // Windows type: ULONG
 	FirstDnsSuffix *wtIpAdapterDnsSuffix
 	// Fixing layout! I've had to add this padding to ensure the same structure size.
 	correction [4]uint8

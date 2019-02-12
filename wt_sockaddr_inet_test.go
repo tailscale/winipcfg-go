@@ -46,45 +46,50 @@ func Test_SOCKADDR_IN_Offsets(t *testing.T) {
 	}
 }
 
-func Test_SOCKADDR_IN6_LH_Size(t *testing.T) {
+func TestWtSockaddrIn6LhSize(t *testing.T) {
 
-	const Actual_SOCKADDR_IN6_LH_Size = unsafe.Sizeof(SOCKADDR_IN6_LH{})
+	const actualWtSockaddrIn6LhSize = unsafe.Sizeof(wtSockaddrIn6Lh{})
 
-	if Actual_SOCKADDR_IN6_LH_Size != wtSockaddrIn6Lh_Size {
-		t.Errorf("Size of SOCKADDR_IN6_LH is %d, although %d is expected.", Actual_SOCKADDR_IN6_LH_Size, wtSockaddrIn6Lh_Size)
+	if actualWtSockaddrIn6LhSize != wtSockaddrIn6Lh_Size {
+		t.Errorf("Size of wtSockaddrIn6Lh is %d, although %d is expected.", actualWtSockaddrIn6LhSize,
+			wtSockaddrIn6Lh_Size)
 	}
 }
 
-func Test_SOCKADDR_IN6_LH_Offsets(t *testing.T) {
+func TestWtSockaddrIn6LhOffsets(t *testing.T) {
 
-	s := SOCKADDR_IN6_LH{}
+	s := wtSockaddrIn6Lh{}
 	sp := uintptr(unsafe.Pointer(&s))
 
 	offset := uintptr(unsafe.Pointer(&s.sin6_port)) - sp
 
 	if offset != wtSockaddrIn6Lh_sin6_port_Offset {
-		t.Errorf("SOCKADDR_IN6_LH.sin6_port offset is %d although %d is expected", offset, wtSockaddrIn6Lh_sin6_port_Offset)
+		t.Errorf("wtSockaddrIn6Lh.sin6_port offset is %d although %d is expected", offset,
+			wtSockaddrIn6Lh_sin6_port_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.sin6_flowinfo)) - sp
 
 	if offset != wtSockaddrIn6Lh_sin6_flowinfo_Offset {
-		t.Errorf("SOCKADDR_IN6_LH.sin6_flowinfo offset is %d although %d is expected", offset, wtSockaddrIn6Lh_sin6_flowinfo_Offset)
+		t.Errorf("wtSockaddrIn6Lh.sin6_flowinfo offset is %d although %d is expected", offset,
+			wtSockaddrIn6Lh_sin6_flowinfo_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.sin6_addr)) - sp
 
 	if offset != wtSockaddrIn6Lh_sin6_addr_Offset {
-		t.Errorf("SOCKADDR_IN6_LH.sin6_addr offset is %d although %d is expected", offset, wtSockaddrIn6Lh_sin6_addr_Offset)
+		t.Errorf("wtSockaddrIn6Lh.sin6_addr offset is %d although %d is expected", offset,
+			wtSockaddrIn6Lh_sin6_addr_Offset)
 		return
 	}
 
 	offset = uintptr(unsafe.Pointer(&s.sin6_scope_id)) - sp
 
 	if offset != wtSockaddrIn6Lh_sin6_scope_id_Offset {
-		t.Errorf("SOCKADDR_IN6_LH.sin6_scope_id offset is %d although %d is expected", offset, wtSockaddrIn6Lh_sin6_scope_id_Offset)
+		t.Errorf("wtSockaddrIn6Lh.sin6_scope_id offset is %d although %d is expected", offset,
+			wtSockaddrIn6Lh_sin6_scope_id_Offset)
 		return
 	}
 }

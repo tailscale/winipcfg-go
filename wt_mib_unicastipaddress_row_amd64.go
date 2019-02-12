@@ -11,24 +11,24 @@ type MIB_UNICASTIPADDRESS_ROW struct {
 	//
 	// Key Structure.
 	//
-	Address SOCKADDR_INET
-	InterfaceLuid NET_LUID
-	InterfaceIndex NET_IFINDEX
+	Address wtSockaddrInet
+	InterfaceLuid uint64 // Windows type: NET_LUID
+	InterfaceIndex uint32 // Windows type: NET_IFINDEX
 
 	//
 	// Read-Write Fileds.
 	//
 	PrefixOrigin NlPrefixOrigin
 	SuffixOrigin NlSuffixOrigin
-	ValidLifetime ULONG
-	PreferredLifetime ULONG
-	OnLinkPrefixLength UINT8
-	SkipAsSource BOOLEAN
+	ValidLifetime uint32 // Windows type: ULONG
+	PreferredLifetime uint32 // Windows type: ULONG
+	OnLinkPrefixLength uint8 // Windows type: UINT8
+	SkipAsSource uint8 // Windows type: BOOLEAN
 
 	//
 	// Read-Only Fields.
 	//
 	DadState NlDadState
-	ScopeId ULONG
-	CreationTimeStamp LARGE_INTEGER
+	ScopeId uint32 // Windows type: ULONG
+	CreationTimeStamp int64 // Windows type: LARGE_INTEGER
 }

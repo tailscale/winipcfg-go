@@ -31,44 +31,44 @@ type SockaddrInet struct {
 	IPv6ScopeId uint32
 }
 
-func sockaddrInetFromWinType(sa *SOCKADDR_INET) (*SockaddrInet, error) {
+func sockaddrInetFromWinType(wtsa *wtSockaddrInet) (*SockaddrInet, error) {
 
-	if sa == nil {
+	if wtsa == nil {
 		return nil, nil
 	}
 
-	if sa.IsIPv4() {
+	if wtsa.isIPv4() {
 
-		sa4, _ := sa.ToIPv4()
+		wtsa4, _ := wtsa.toWtSockaddrIn()
 
 		sainet := SockaddrInet{
-			Family: AF_INET,
-			Port: sa4.sin_port,
-			Address: sa4.sin_addr.toNetIp(),
+			Family:       AF_INET,
+			Port:         wtsa4.sin_port,
+			Address:      wtsa4.sin_addr.toNetIp(),
 			IPv6FlowInfo: 0,
-			IPv6ScopeId: 0,
+			IPv6ScopeId:  0,
 		}
 
 		return &sainet, nil
 	}
 
-	if sa.IsIPv6() {
+	if wtsa.isIPv6() {
 
-		sa6, _ := sa.ToIPv6()
+		wtsa6, _ := wtsa.toWtSockaddrIn6()
 
 		sainet := SockaddrInet{
-			Family: AF_INET6,
-			Port: sa6.sin6_port,
-			Address: sa6.sin6_addr.toNetIp(),
-			IPv6FlowInfo: sa6.sin6_flowinfo,
-			IPv6ScopeId: sa6.sin6_scope_id,
+			Family:       AF_INET6,
+			Port:         wtsa6.sin6_port,
+			Address:      wtsa6.sin6_addr.toNetIp(),
+			IPv6FlowInfo: wtsa6.sin6_flowinfo,
+			IPv6ScopeId:  wtsa6.sin6_scope_id,
 		}
 
 		return &sainet, nil
 	}
 
 	return nil, fmt.Errorf("Family of the input argument is %s. It has to be either %s or %s",
-		sa.sin6_family.String(), AF_INET.String(), AF_INET6.String())
+		wtsa.sin6_family.String(), AF_INET.String(), AF_INET6.String())
 }
 
 func (sainet *SockaddrInet) String() string {

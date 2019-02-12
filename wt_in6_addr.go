@@ -12,7 +12,7 @@ import (
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/in6addr/ns-in6addr-in6_addr
 type IN6_ADDR struct {
-	Byte [16]UCHAR
+	Byte [16]uint8 // Windows type [16]UCHAR
 }
 
 func (addr *IN6_ADDR) toNetIp() net.IP {
@@ -51,7 +51,7 @@ func netIpToWtIn6Addr(ip net.IP) (*IN6_ADDR, error) {
 	in6_addr := IN6_ADDR{}
 
 	for i := 0; i < 16; i++ {
-		in6_addr.Byte[i] = UCHAR(ip6[i])
+		in6_addr.Byte[i] = ip6[i]
 	}
 
 	return &in6_addr, nil

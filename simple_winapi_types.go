@@ -7,52 +7,51 @@ package winipcfg
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
 )
 
 // Types from https://docs.microsoft.com/en-us/windows/desktop/winprog/windows-data-types
-type BYTE uint8
-type BOOLEAN BYTE
-type CHAR uint8
-type UCHAR uint8
-type UINT8 uint8
-type DWORD uint32
-type USHORT uint16
-type ULONG DWORD
-type ULONG64 uint64
-type HANDLE uintptr
-type PHANDLE *HANDLE
-type PVOID uintptr
-type LONGLONG int64
-type WCHAR uint16
-type INT int32
+//type BYTE uint8
+//type BOOLEAN BYTE
+//type CHAR uint8
+//type UCHAR uint8
+//type UINT8 uint8
+//type DWORD uint32
+//type USHORT uint16
+//type ULONG DWORD
+//type ULONG64 uint64
+//type HANDLE uintptr
+//type PHANDLE *HANDLE
+//type PVOID uintptr
+//type LONGLONG int64
+//type WCHAR uint16
+//type INT int32
 
 // Defined in winnt.h, it's a union...
-type LARGE_INTEGER LONGLONG
+//type LARGE_INTEGER LONGLONG
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ns-ifdef-_net_luid_lh
 // Defined in ifdef
-type NET_LUID_LH ULONG64
+//type NET_LUID_LH ULONG64
 
 // Defined in ifdef.h
-type NET_IFINDEX ULONG
-type IF_INDEX NET_IFINDEX
-type NET_IF_COMPARTMENT_ID uint32
-type NET_IF_NETWORK_GUID windows.GUID
-type NET_LUID NET_LUID_LH
-type IF_LUID NET_LUID
+//type NET_IFINDEX ULONG
+//type IF_INDEX NET_IFINDEX
+//type NET_IF_COMPARTMENT_ID uint32
+//type NET_IF_NETWORK_GUID windows.GUID
+//type NET_LUID NET_LUID_LH
+//type IF_LUID NET_LUID
 
-func (b BOOLEAN) String() string {
-	if b == 0 {
-		return "FALSE"
-	} else {
-		return "TRUE"
-	}
-}
+//func (b BOOLEAN) String() string {
+//	if b == 0 {
+//		return "FALSE"
+//	} else {
+//		return "TRUE"
+//	}
+//}
 
 // Helper functions
 
-func SystemErrorCode(code uint32) string {
+func systemErrorCode(code uint32) string {
 	//https://docs.microsoft.com/en-us/windows/desktop/Debug/system-error-codes--0-499-
 	switch code {
 	case 0:

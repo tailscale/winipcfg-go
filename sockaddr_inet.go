@@ -14,7 +14,7 @@ import (
 type SockaddrInet struct {
 
 	// Can be AF_INET (for IPv4) or AF_INET6 (for IPv6).
-	Family ADDRESS_FAMILY
+	Family AddressFamily
 
 	// Port.
 	Port uint16

@@ -20,8 +20,8 @@ type SOCKET_ADDRESS struct {
 // https://docs.microsoft.com/en-us/windows/desktop/WinSock/sockaddr-2
 // Defined in ws2def.h
 type SOCKADDR struct {
-	sa_family ADDRESS_FAMILY
-	sa_data [14]CHAR
+	sa_family AddressFamily
+	sa_data   [14]CHAR
 }
 
 func (sa *SOCKET_ADDRESS) get_SOCKETADDR_INET() (*SOCKADDR_INET, error) {

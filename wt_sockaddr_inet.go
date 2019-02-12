@@ -14,10 +14,10 @@ import (
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-sockaddr_in
 // Defined in ws2def.h
 type SOCKADDR_IN struct {
-	sin_family ADDRESS_FAMILY
-	sin_port uint16 // USHORT flattened to uint16
-	sin_addr IN_ADDR
-	sin_zero [8]CHAR
+	sin_family AddressFamily
+	sin_port   uint16 // USHORT flattened to uint16
+	sin_addr   IN_ADDR
+	sin_zero   [8]CHAR
 }
 
 // SOCKADDR_IN constructor. Creates an empty SOCKADDR_IN struct.
@@ -37,7 +37,7 @@ func (addr *SOCKADDR_IN) String() string {
 // Defined in ws2ipdef.h
 type SOCKADDR_IN6_LH struct {
 	// AF_INET6.
-	sin6_family ADDRESS_FAMILY
+	sin6_family AddressFamily
 	// Transport level port number.
 	sin6_port uint16 // USHORT flattened to uint16
 	// IPv6 flow information.

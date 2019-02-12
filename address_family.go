@@ -7,17 +7,17 @@ package winipcfg
 
 import "fmt"
 
-// Defined in ws2def.h
-type ADDRESS_FAMILY USHORT
+// Defined in ws2def.h as AddressFamily
+type AddressFamily USHORT
 
 // According to https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
 const (
-	AF_UNSPEC ADDRESS_FAMILY = 0
-	AF_INET ADDRESS_FAMILY = 2
-	AF_INET6 ADDRESS_FAMILY = 23
+	AF_UNSPEC AddressFamily = 0
+	AF_INET   AddressFamily = 2
+	AF_INET6  AddressFamily = 23
 )
 
-func (family ADDRESS_FAMILY) String() string {
+func (family AddressFamily) String() string {
 	switch family {
 	case AF_UNSPEC:
 		return "AF_UNSPEC"

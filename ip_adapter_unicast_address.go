@@ -29,6 +29,12 @@ func ipAdapterUnicastAddressFromWinType(ifc Interface, wta *wtIpAdapterUnicastAd
 		return nil, nil
 	}
 
+	sainet, err := sockaddrInetFromWtSocketAddress(&wta.Address)
+
+	if err != nil {
+		return nil, err
+	}
+
 	ua := IpAdapterUnicastAddress{
 		PrefixOrigin:       wta.PrefixOrigin,
 		SuffixOrigin:       wta.SuffixOrigin,
@@ -39,14 +45,9 @@ func ipAdapterUnicastAddressFromWinType(ifc Interface, wta *wtIpAdapterUnicastAd
 		OnLinkPrefixLength: wta.OnLinkPrefixLength,
 	}
 
-	err := ua.setAddress(&wta.Address)
-
-	if err != nil {
-		return nil, err
-	}
-
 	ua.Interface = ifc
 	ua.Length = wta.Length
+	ua.Address = *sainet
 	ua.Flags = wta.Flags
 
 	return &ua, nil

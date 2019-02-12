@@ -71,6 +71,27 @@ func sockaddrInetFromWinType(wtsa *wtSockaddrInet) (*SockaddrInet, error) {
 		wtsa.sin6_family.String(), AF_INET.String(), AF_INET6.String())
 }
 
+func sockaddrInetFromWtSocketAddress(wtsa *wtSocketAddress) (*SockaddrInet, error) {
+
+	if wtsa == nil {
+		return nil, nil
+	}
+
+	wtsainet, err := wtsa.getWtSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	sainet, err := sockaddrInetFromWinType(wtsainet)
+
+	if err == nil {
+		return sainet, nil
+	} else {
+		return nil, err
+	}
+}
+
 func (sainet *SockaddrInet) String() string {
 
 	if sainet == nil {

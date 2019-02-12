@@ -49,34 +49,15 @@ func ipAdapterAddressFromWtGatewayAddress(ifc Interface, wta *wtIpAdapterGateway
 func ipAdapterAddressFromLengthAddress(ifc Interface, length uint32, wtsa *wtSocketAddress) (*IpAdapterAddressCommonType,
 	error) {
 
-	act := IpAdapterAddressCommonType{Interface: ifc, Length: length}
+	sainet, err := sockaddrInetFromWtSocketAddress(wtsa)
 
-	err := act.setAddress(wtsa)
-
-	if err == nil {
-		return &act, nil
-	} else {
+	if err != nil {
 		return nil, err
 	}
-}
 
-func (a *IpAdapterAddressCommonType) setAddress(wtsa *wtSocketAddress) error {
+	act := IpAdapterAddressCommonType{Interface: ifc, Length: length, Address: *sainet}
 
-	wtsainet, err := wtsa.getWtSockaddrInet()
-
-	if err != nil {
-		return  err
-	}
-
-	sainet, err := sockaddrInetFromWinType(wtsainet)
-
-	if err != nil {
-		return err
-	}
-
-	a.Address = *sainet
-
-	return nil
+	return &act, nil
 }
 
 func (a *IpAdapterAddressCommonType) commonTypeAddressString() string {

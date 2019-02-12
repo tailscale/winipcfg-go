@@ -15,41 +15,52 @@ import (
 )
 
 type Interface struct {
-	Luid               uint64
-	Index              uint32
-	AdapterName        string
-	FriendlyName       string
-	UnicastAddresses   []*IpAdapterUnicastAddress
-	AnycastAddresses   []*IpAdapterAddressCommonTypeEx
-	MulticastAddresses []*IpAdapterAddressCommonTypeEx
-	DnsServerAddresses []*IpAdapterAddressCommonType
-	DnsSuffix          string
-	Description        string
-	PhysicalAddress    net.HardwareAddr
-	Flags              uint32
-	Mtu                uint32
-	IfType             IfType
-	OperStatus         IfOperStatus
-	Ipv6IfIndex        uint32
-	ZoneIndices        [16]uint32
-	Prefixes           []*IpAdapterPrefix
+	Luid                uint64
+	Index               uint32
+	AdapterName         string
+	FriendlyName        string
+	UnicastAddresses    []*IpAdapterUnicastAddress
+	AnycastAddresses    []*IpAdapterAddressCommonTypeEx
+	MulticastAddresses  []*IpAdapterAddressCommonTypeEx
+	DnsServerAddresses  []*IpAdapterAddressCommonType
+	DnsSuffix           string
+	Description         string
+	PhysicalAddress     net.HardwareAddr
+	Flags               uint32
+	Mtu                 uint32
+	IfType              IfType
+	OperStatus          IfOperStatus
+	Ipv6IfIndex         uint32
+	ZoneIndices         [16]uint32
+	Prefixes            []*IpAdapterPrefix
+	TransmitLinkSpeed   uint64
+	ReceiveLinkSpeed    uint64
+	WinsServerAddresses []*IpAdapterAddressCommonType
+	GatewayAddresses    []*IpAdapterAddressCommonType
+	Ipv4Metric          uint32
+	Ipv6Metric          uint32
+	Dhcpv4Server        *SockaddrInet
 }
 
 func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface, error) {
 
 	ifc := Interface{
-		Luid:         wtiaa.Luid,
-		Index:        uint32(wtiaa.IfIndex),
-		AdapterName:  wtiaa.getAdapterName(),
-		FriendlyName: wtiaa.getFriendlyName(),
-		DnsSuffix:    wcharToString(wtiaa.DnsSuffix),
-		Description:  wcharToString(wtiaa.Description),
-		Flags:        wtiaa.Flags,
-		Mtu:          wtiaa.Mtu,
-		IfType:       wtiaa.IfType,
-		OperStatus:   wtiaa.OperStatus,
-		Ipv6IfIndex:  wtiaa.Ipv6IfIndex,
-		ZoneIndices:  wtiaa.ZoneIndices,
+		Luid:              wtiaa.Luid,
+		Index:             uint32(wtiaa.IfIndex),
+		AdapterName:       wtiaa.getAdapterName(),
+		FriendlyName:      wtiaa.getFriendlyName(),
+		DnsSuffix:         wcharToString(wtiaa.DnsSuffix),
+		Description:       wcharToString(wtiaa.Description),
+		Flags:             wtiaa.Flags,
+		Mtu:               wtiaa.Mtu,
+		IfType:            wtiaa.IfType,
+		OperStatus:        wtiaa.OperStatus,
+		Ipv6IfIndex:       wtiaa.Ipv6IfIndex,
+		ZoneIndices:       wtiaa.ZoneIndices,
+		TransmitLinkSpeed: wtiaa.TransmitLinkSpeed,
+		ReceiveLinkSpeed:  wtiaa.ReceiveLinkSpeed,
+		Ipv4Metric:        wtiaa.Ipv4Metric,
+		Ipv6Metric:        wtiaa.Ipv6Metric,
 	}
 
 	if wtiaa.PhysicalAddressLength > 0 {
@@ -135,6 +146,44 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 	}
 
 	ifc.Prefixes = prefixes
+
+	var winsServerAddresses []*IpAdapterAddressCommonType
+
+	for wtwsa := wtiaa.FirstWinsServerAddress; wtwsa != nil; wtwsa = wtwsa.Next {
+
+		wsa, err := ipAdapterAddressFromWtWinsServerAddress(ifc, wtwsa)
+
+		if err != nil {
+			return nil, err
+		}
+
+		winsServerAddresses = append(winsServerAddresses, wsa)
+	}
+
+	ifc.WinsServerAddresses = winsServerAddresses
+
+	var gatewayAddresses []*IpAdapterAddressCommonType
+
+	for wtga := wtiaa.FirstGatewayAddress; wtga != nil; wtga = wtga.Next {
+
+		wsa, err := ipAdapterAddressFromWtGatewayAddress(ifc, wtga)
+
+		if err != nil {
+			return nil, err
+		}
+
+		gatewayAddresses = append(gatewayAddresses, wsa)
+	}
+
+	ifc.GatewayAddresses = gatewayAddresses
+
+	dhcpv4s, err := sockaddrInetFromWtSocketAddress(&wtiaa.Dhcpv4Server)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ifc.Dhcpv4Server = dhcpv4s
 
 	return &ifc, nil
 }
@@ -348,26 +397,26 @@ Luid: %d
 Index: %d
 AdapterName: %s
 FriendlyName: %s
-Unicast addresses:
+UnicastAddresses:
 `, ifc.Luid, ifc.Index, ifc.AdapterName, ifc.FriendlyName)
 
 	for _, ua := range ifc.UnicastAddresses {
 		result += fmt.Sprintf("\t%s\n", ua.String())
 	}
 
-	result += "Anycast addresses:\n"
+	result += "AnycastAddresses:\n"
 
 	for _, aa := range ifc.AnycastAddresses {
 		result += fmt.Sprintf("\t%s\n", aa.String())
 	}
 
-	result += "Multicast addresses:\n"
+	result += "MulticastAddresses:\n"
 
 	for _, ma := range ifc.MulticastAddresses {
 		result += fmt.Sprintf("\t%s\n", ma.String())
 	}
 
-	result += "DNS server addresses:\n"
+	result += "DnsServerAddresses:\n"
 
 	for _, dsa := range ifc.DnsServerAddresses {
 		result += fmt.Sprintf("\t%s\n", dsa.String())
@@ -377,7 +426,7 @@ Unicast addresses:
 Description: %s
 PhysicalAddress: %s
 Flags: %d
-MTU: %d
+Mtu: %d
 IfType: %s
 OperStatus: %s
 Ipv6IfIndex: %d
@@ -389,6 +438,24 @@ ifc.OperStatus.String(), ifc.Ipv6IfIndex, ifc.ZoneIndices)
 	for _, p := range ifc.Prefixes {
 		result += fmt.Sprintf("\t%s\n", p.String())
 	}
+
+	result += fmt.Sprintf("TransmitLinkSpeed: %d\nReceiveLinkSpeed: %d\nWinsServerAddresses:\n",
+		ifc.TransmitLinkSpeed, ifc.ReceiveLinkSpeed)
+
+	for _, wsa := range ifc.WinsServerAddresses {
+		result += fmt.Sprintf("\t%s\n", wsa.String())
+	}
+
+	result += "GatewayAddresses:\n"
+
+	for _, ga := range ifc.GatewayAddresses {
+		result += fmt.Sprintf("\t%s\n", ga.String())
+	}
+
+	result += fmt.Sprintf(`Ipv4Metric: %d
+Ipv6Metric: %d
+Dhcpv4Server: %s
+`, ifc.Ipv4Metric, ifc.Ipv6Metric, ifc.Dhcpv4Server.String())
 
 	result += "========================= INTERFACE OUTPUT END =========================\n"
 

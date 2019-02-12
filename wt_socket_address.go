@@ -30,6 +30,17 @@ func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 		return nil, nil
 	}
 
+	if sa.lpSockaddr == nil {
+		// TODO: The following check is unnecessary. Only for curiosity...
+		if sa.iSockaddrLength == 0 {
+			return nil, nil
+		} else {
+			return nil, fmt.Errorf(
+				"Should not happen ever! wtSocketAddress.lpSockaddr is nil, although wtSocketAddress.iSockaddrLength is %d (0 expected).",
+				sa.iSockaddrLength)
+		}
+	}
+
 	switch sa.lpSockaddr.sa_family {
 
 	case AF_INET:

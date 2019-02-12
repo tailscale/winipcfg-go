@@ -22,16 +22,17 @@ func ipAdapterPrefixFromWinType(ifc Interface, wt *wtIpAdapterPrefixXp) (*IpAdap
 		return nil, nil
 	}
 
-	ap := IpAdapterPrefix{PrefixLength: wt.PrefixLength}
-
-	err := ap.setAddress(&wt.Address)
+	sainet, err := sockaddrInetFromWtSocketAddress(&wt.Address)
 
 	if err != nil {
 		return nil, err
 	}
 
+	ap := IpAdapterPrefix{PrefixLength: wt.PrefixLength}
+
 	ap.Interface = ifc
 	ap.Length = wt.Length
+	ap.Address = *sainet
 	ap.Flags = wt.Flags
 
 	return &ap, nil

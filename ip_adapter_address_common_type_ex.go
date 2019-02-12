@@ -36,19 +36,19 @@ func ipAdapterAddressFromWtMulticastAddress(ifc Interface, aa *wtIpAdapterMultic
 func ipAdapterAddressFromLengthFlagsAddress(ifc Interface, length uint32, flags uint32, wtsa *wtSocketAddress) (*IpAdapterAddressCommonTypeEx,
 	error) {
 
-	act := IpAdapterAddressCommonTypeEx{}
+	sainet, err := sockaddrInetFromWtSocketAddress(wtsa)
+
+	if err != nil {
+		return nil, err
+	}
+
+	act := IpAdapterAddressCommonTypeEx{Flags: flags}
 
 	act.Interface = ifc
 	act.Length = length
-	act.Flags = flags
+	act.Address = *sainet
 
-	err := act.setAddress(wtsa)
-
-	if err == nil {
-		return &act, nil
-	} else {
-		return nil, err
-	}
+	return &act, nil
 }
 
 func (a *IpAdapterAddressCommonTypeEx) commonTypeExAddressString() string {

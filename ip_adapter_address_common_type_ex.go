@@ -24,6 +24,15 @@ func ipAdapterAddressFromAnycastAddress(ifc Interface, aa *wtIpAdapterAnycastAdd
 	}
 }
 
+func ipAdapterAddressFromMulticastAddress(ifc Interface, aa *wtIpAdapterMulticastAddressXp) (*IpAdapterAddressCommonTypeEx,
+	error) {
+	if aa == nil {
+		return nil, nil
+	} else {
+		return ipAdapterAddressFromLengthFlagsAddress(ifc, aa.Length, aa.Flags, &aa.Address)
+	}
+}
+
 func ipAdapterAddressFromLengthFlagsAddress(ifc Interface, length uint32, flags uint32, wtsa *wtSocketAddress) (*IpAdapterAddressCommonTypeEx,
 	error) {
 

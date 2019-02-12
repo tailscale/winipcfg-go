@@ -15,22 +15,23 @@ import (
 )
 
 type Interface struct {
-	Luid             uint64
-	Index            uint32
-	AdapterName      string
-	FriendlyName     string
-	UnicastAddresses []*IpAdapterUnicastAddress
-	AnycastAddresses []*IpAdapterAddressCommonTypeEx
-	DnsSuffix        string
-	Description      string
-	PhysicalAddress  net.HardwareAddr
-	Flags            uint32
-	Mtu              uint32
-	IfType           IfType
-	OperStatus       IfOperStatus
-	Ipv6IfIndex      uint32
-	ZoneIndices      [16]uint32
-	Prefixes         []*IpAdapterPrefix
+	Luid               uint64
+	Index              uint32
+	AdapterName        string
+	FriendlyName       string
+	UnicastAddresses   []*IpAdapterUnicastAddress
+	AnycastAddresses   []*IpAdapterAddressCommonTypeEx
+	MulticastAddresses []*IpAdapterAddressCommonTypeEx
+	DnsSuffix          string
+	Description        string
+	PhysicalAddress    net.HardwareAddr
+	Flags              uint32
+	Mtu                uint32
+	IfType             IfType
+	OperStatus         IfOperStatus
+	Ipv6IfIndex        uint32
+	ZoneIndices        [16]uint32
+	Prefixes           []*IpAdapterPrefix
 }
 
 func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface, error) {
@@ -88,6 +89,21 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 	}
 
 	ifc.AnycastAddresses = anycastAddresses
+
+	var multicastAddresses []*IpAdapterAddressCommonTypeEx
+
+	for wtma := wtiaa.FirstMulticastAddress; wtma != nil; wtma = wtma.Next {
+
+		ma, err := ipAdapterAddressFromMulticastAddress(ifc, wtma)
+
+		if err != nil {
+			return nil, err
+		}
+
+		multicastAddresses = append(multicastAddresses, ma)
+	}
+
+	ifc.MulticastAddresses = multicastAddresses
 
 	var prefixes []*IpAdapterPrefix
 
@@ -327,6 +343,12 @@ Unicast addresses:
 
 	for _, aa := range ifc.AnycastAddresses {
 		result += fmt.Sprintf("\t%s\n", aa.String())
+	}
+
+	result += "Multicast addresses:\n"
+
+	for _, ma := range ifc.MulticastAddresses {
+		result += fmt.Sprintf("\t%s\n", ma.String())
 	}
 
 	result += fmt.Sprintf(`DnsSuffix: %s

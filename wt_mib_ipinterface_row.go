@@ -6,6 +6,11 @@
 package winipcfg
 
 func (wt *wtMibIpinterfaceRow) toMibIpinterfaceRow() *MibIpinterfaceRow {
+
+	if wt == nil {
+		return nil
+	}
+
 	return &MibIpinterfaceRow{
 		Family:                               wt.Family,
 		InterfaceLuid:                        wt.InterfaceLuid,

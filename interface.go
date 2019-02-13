@@ -429,9 +429,7 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 func (ifc *Interface) String() string {
 
 	result := fmt.Sprintf(
-		`
-======================== INTERFACE OUTPUT START ========================
-Luid: %d
+		`Luid: %d
 Index: %d
 AdapterName: %s
 FriendlyName: %s
@@ -508,8 +506,6 @@ ifc.ConnectionType.String(), ifc.TunnelType.String(), ifc.Dhcpv6Server.String(),
 	for _, dnss := range ifc.DnsSuffixes {
 		result += fmt.Sprintf("\t%s\n", dnss)
 	}
-
-	result += "========================= INTERFACE OUTPUT END =========================\n"
 
 	return result
 }

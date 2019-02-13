@@ -5,8 +5,7 @@
 
 package winipcfg
 
-//sys	cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) = iphlpapi.CancelMibChangeNotify2
-
+// https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses
 //sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
@@ -25,11 +24,13 @@ package winipcfg
 //sys	deleteIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) = iphlpapi.DeleteIpForwardEntry2
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-notifyipinterfacechange
-//sys	notifyIpInterfaceChange(route *wtMibIpforwardRow2) (result int32) = iphlpapi.NotifyIpInterfaceChange
+//sys	notifyIpInterfaceChange(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) = iphlpapi.NotifyIpInterfaceChange
 
-//setIpForwardEntry2:           iphlpapi.MustFindProc(""),
-//deleteIpForwardEntry2:        iphlpapi.MustFindProc(""),
-//notifyIpInterfaceChange:      iphlpapi.MustFindProc(""),
-//notifyRouteChange2:           iphlpapi.MustFindProc("NotifyRouteChange2"),
-//notifyUnicastIpAddressChange: iphlpapi.MustFindProc("NotifyUnicastIpAddressChange"),
-//cancelMibChangeNotify2:       iphlpapi.MustFindProc("CancelMibChangeNotify2"),
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-notifyunicastipaddresschange
+//sys	notifyUnicastIpAddressChange(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) = iphlpapi.NotifyUnicastIpAddressChange
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-notifyroutechange2
+//sys	notifyRouteChange2(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) = iphlpapi.NotifyRouteChange2
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-cancelmibchangenotify2
+//sys	cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) = iphlpapi.CancelMibChangeNotify2

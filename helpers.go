@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"strings"
 	"unsafe"
 )
 
@@ -81,4 +82,13 @@ func charToString(char *uint8) string {
 func guidToString(guid windows.GUID) string {
 	return fmt.Sprintf("{%06X-%04X-%04X-%04X-%012X}", guid.Data1, guid.Data2, guid.Data3, guid.Data4[:2],
 		guid.Data4[2:])
+}
+
+func toIndentedText(text, indent string) string {
+
+	indented := strings.TrimSpace(text)
+
+	indented = strings.Replace(indented, "\n", fmt.Sprintf("\n%s", indent), -1)
+
+	return indent + indented
 }

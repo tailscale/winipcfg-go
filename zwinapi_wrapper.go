@@ -39,21 +39,17 @@ func errnoErr(e syscall.Errno) error {
 var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
 
-	procCancelMibChangeNotify2  = modiphlpapi.NewProc("CancelMibChangeNotify2")
-	procGetAdaptersAddresses    = modiphlpapi.NewProc("GetAdaptersAddresses")
-	procGetIpForwardTable2      = modiphlpapi.NewProc("GetIpForwardTable2")
-	procFreeMibTable            = modiphlpapi.NewProc("FreeMibTable")
-	procCreateIpForwardEntry2   = modiphlpapi.NewProc("CreateIpForwardEntry2")
-	procSetIpForwardEntry2      = modiphlpapi.NewProc("SetIpForwardEntry2")
-	procDeleteIpForwardEntry2   = modiphlpapi.NewProc("DeleteIpForwardEntry2")
-	procNotifyIpInterfaceChange = modiphlpapi.NewProc("NotifyIpInterfaceChange")
+	procGetAdaptersAddresses         = modiphlpapi.NewProc("GetAdaptersAddresses")
+	procGetIpForwardTable2           = modiphlpapi.NewProc("GetIpForwardTable2")
+	procFreeMibTable                 = modiphlpapi.NewProc("FreeMibTable")
+	procCreateIpForwardEntry2        = modiphlpapi.NewProc("CreateIpForwardEntry2")
+	procSetIpForwardEntry2           = modiphlpapi.NewProc("SetIpForwardEntry2")
+	procDeleteIpForwardEntry2        = modiphlpapi.NewProc("DeleteIpForwardEntry2")
+	procNotifyIpInterfaceChange      = modiphlpapi.NewProc("NotifyIpInterfaceChange")
+	procNotifyUnicastIpAddressChange = modiphlpapi.NewProc("NotifyUnicastIpAddressChange")
+	procNotifyRouteChange2           = modiphlpapi.NewProc("NotifyRouteChange2")
+	procCancelMibChangeNotify2       = modiphlpapi.NewProc("CancelMibChangeNotify2")
 )
-
-func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
-	r0, _, _ := syscall.Syscall(procCancelMibChangeNotify2.Addr(), 1, uintptr(NotificationHandle), 0, 0)
-	result = int32(r0)
-	return
-}
 
 func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) {
 	r0, _, _ := syscall.Syscall6(procGetAdaptersAddresses.Addr(), 5, uintptr(Family), uintptr(Flags), uintptr(Reserved), uintptr(unsafe.Pointer(AdapterAddresses)), uintptr(unsafe.Pointer(SizePointer)), 0)
@@ -90,8 +86,44 @@ func deleteIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) {
 	return
 }
 
-func notifyIpInterfaceChange(route *wtMibIpforwardRow2) (result int32) {
-	r0, _, _ := syscall.Syscall(procNotifyIpInterfaceChange.Addr(), 1, uintptr(unsafe.Pointer(route)), 0, 0)
+func notifyIpInterfaceChange(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) {
+	var _p0 uint32
+	if InitialNotification {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r0, _, _ := syscall.Syscall6(procNotifyIpInterfaceChange.Addr(), 5, uintptr(Family), uintptr(Callback), uintptr(CallerContext), uintptr(_p0), uintptr(NotificationHandle), 0)
+	result = int32(r0)
+	return
+}
+
+func notifyUnicastIpAddressChange(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) {
+	var _p0 uint32
+	if InitialNotification {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r0, _, _ := syscall.Syscall6(procNotifyUnicastIpAddressChange.Addr(), 5, uintptr(Family), uintptr(Callback), uintptr(CallerContext), uintptr(_p0), uintptr(NotificationHandle), 0)
+	result = int32(r0)
+	return
+}
+
+func notifyRouteChange2(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) {
+	var _p0 uint32
+	if InitialNotification {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r0, _, _ := syscall.Syscall6(procNotifyRouteChange2.Addr(), 5, uintptr(Family), uintptr(Callback), uintptr(CallerContext), uintptr(_p0), uintptr(NotificationHandle), 0)
+	result = int32(r0)
+	return
+}
+
+func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
+	r0, _, _ := syscall.Syscall(procCancelMibChangeNotify2.Addr(), 1, uintptr(NotificationHandle), 0, 0)
 	result = int32(r0)
 	return
 }

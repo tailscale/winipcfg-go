@@ -5,6 +5,8 @@
 
 package winipcfg
 
+import "fmt"
+
 type MibIpinterfaceRow struct {
 	//
 	// Key Structure;
@@ -73,4 +75,59 @@ type MibIpinterfaceRow struct {
 	// can be used by VPN clients to restrict Split tunnelling.
 	//
 	DisableDefaultRoutes bool
+}
+
+func (mir *MibIpinterfaceRow) String() string {
+
+	if mir == nil {
+		return ""
+	}
+
+	return fmt.Sprintf(`Family: %s
+InterfaceLuid: %d
+InterfaceIndex: %d
+MaxReassemblySize: %d
+InterfaceIdentifier: %d
+MinRouterAdvertisementInterval: %d
+MaxRouterAdvertisementInterval: %d
+AdvertisingEnabled: %v
+ForwardingEnabled: %v
+WeakHostSend: %v
+WeakHostReceive: %v
+UseAutomaticMetric: %v
+UseNeighborUnreachabilityDetection: %v
+ManagedAddressConfigurationSupported: %v
+OtherStatefulConfigurationSupported: %v
+AdvertiseDefaultRoute: %v
+RouterDiscoveryBehavior: %s
+DadTransmits: %d
+BaseReachableTime: %d
+RetransmitTime: %d
+PathMtuDiscoveryTimeout: %d
+LinkLocalAddressBehavior: %s
+LinkLocalAddressTimeout: %d
+ZoneIndices: %v
+SitePrefixLength: %d
+Metric: %d
+NlMtu: %d
+Connected: %v
+SupportsWakeUpPatterns: %v
+SupportsNeighborDiscovery: %v
+SupportsRouterDiscovery: %v
+ReachableTime: %d
+TransmitOffload:
+%s
+ReceiveOffload:
+%s
+DisableDefaultRoutes: %v
+	`, mir.Family.String(), mir.InterfaceLuid, mir.InterfaceIndex, mir.MaxReassemblySize, mir.InterfaceIdentifier,
+	mir.MinRouterAdvertisementInterval, mir.MaxRouterAdvertisementInterval, mir.AdvertisingEnabled,
+	mir.ForwardingEnabled, mir.WeakHostSend, mir.WeakHostReceive, mir.UseAutomaticMetric,
+	mir.UseNeighborUnreachabilityDetection, mir.ManagedAddressConfigurationSupported,
+	mir.OtherStatefulConfigurationSupported, mir.AdvertiseDefaultRoute, mir.RouterDiscoveryBehavior.String(),
+	mir.DadTransmits, mir.BaseReachableTime, mir.RetransmitTime, mir.PathMtuDiscoveryTimeout,
+	mir.LinkLocalAddressBehavior.String(), mir.LinkLocalAddressTimeout, mir.ZoneIndices, mir.SitePrefixLength,
+	mir.Metric, mir.NlMtu, mir.Connected, mir.SupportsWakeUpPatterns, mir.SupportsNeighborDiscovery,
+	mir.SupportsRouterDiscovery, mir.ReachableTime, toIndentedText(mir.TransmitOffload.String(), "  "),
+	toIndentedText(mir.ReceiveOffload.String(), "  "), mir.DisableDefaultRoutes)
 }

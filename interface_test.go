@@ -10,6 +10,14 @@ import (
 	"testing"
 )
 
+const (
+	printInterfaceData = false
+	existingLuid       = uint64(1689399632855040) // TODO: Set an existing LUID here
+	nonExistingLuid    = uint64(42)
+	existingIndex      = uint32(13) // TODO: Set an existing interface index here
+	nonExistingIndex   = uint32(42000000)
+)
+
 func TestGetInterfaces(t *testing.T) {
 	ifcs, err := GetInterfaces()
 
@@ -17,16 +25,15 @@ func TestGetInterfaces(t *testing.T) {
 		t.Errorf("GetInterfaces() returned error: %v", err)
 	} else if ifcs == nil {
 		t.Errorf("GetInterfaces() returned nil.")
-	} else {
+	} else if printInterfaceData {
 		fmt.Printf("GetInterfaces() returned %d items:\n", len(ifcs))
 		for _, ifc := range ifcs {
+			fmt.Println("======================== INTERFACE OUTPUT START ========================")
 			fmt.Println(ifc)
+			fmt.Println("========================= INTERFACE OUTPUT END =========================")
 		}
 	}
 }
-
-// TODO: Set an existing LUID here:
-const existingLuid uint64 = 1689399632855040
 
 func TestInterfaceFromLUIDExisting(t *testing.T) {
 	ifc, err := InterfaceFromLUID(existingLuid)
@@ -39,12 +46,12 @@ func TestInterfaceFromLUIDExisting(t *testing.T) {
 	} else if ifc.Luid != existingLuid {
 		t.Errorf("InterfaceFromLUID() returned interface with a wrong LUID. Requested: %d; returned: %d.",
 			existingLuid, ifc.Luid)
-	} else {
+	} else if printInterfaceData {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromLUID() returned corresponding interface:\n%s\n", ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
 	}
 }
-
-const nonExistingLuid uint64 = 42
 
 func TestInterfaceFromLUIDNonExisting(t *testing.T) {
 	ifc, err := InterfaceFromLUID(nonExistingLuid)
@@ -57,9 +64,6 @@ func TestInterfaceFromLUIDNonExisting(t *testing.T) {
 	}
 }
 
-// TODO: Set an existing interface index here:
-const existingIndex uint32 = 13
-
 func TestInterfaceFromIndexExisting(t *testing.T) {
 	ifc, err := InterfaceFromIndex(existingIndex)
 
@@ -71,12 +75,12 @@ func TestInterfaceFromIndexExisting(t *testing.T) {
 	} else if uint32(ifc.Index) != existingIndex {
 		t.Errorf("InterfaceFromIndex() returned interface with a wrong index. Requested: %d; returned: %d.",
 			existingIndex, ifc.Index)
-	} else {
+	} else if printInterfaceData {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromIndex() returned corresponding interface:\n%s\n", ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
 	}
 }
-
-const nonExistingIndex uint32 = 42000000
 
 func TestInterfaceFromIndexNonExisting(t *testing.T) {
 	ifc, err := InterfaceFromIndex(nonExistingIndex)
@@ -103,8 +107,10 @@ func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 	} else if ifc.FriendlyName != existingName {
 		t.Errorf("InterfaceFromFriendlyName() returned interface with a wrong name. Requested: %s; returned: %s.",
 			existingName, ifc.FriendlyName)
-	} else {
+	} else if printInterfaceData {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromFriendlyName() returned corresponding interface:\n%s\n", ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
 	}
 }
 

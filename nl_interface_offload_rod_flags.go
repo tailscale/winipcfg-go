@@ -5,6 +5,8 @@
 
 package winipcfg
 
+import "fmt"
+
 type nlInterfaceOffloadRod uint8
 
 const (
@@ -79,4 +81,17 @@ func (ior *NlInterfaceOffloadRodFlags) toWtNlInterfaceOffloadRod() wtNlInterface
 	}
 
 	return wtNlInterfaceOffloadRod(uint8Val)
+}
+
+func (iorf *NlInterfaceOffloadRodFlags) String() string {
+	return fmt.Sprintf(`NlChecksumSupported: %v        
+NlOptionsSupported: %v
+TlDatagramChecksumSupported: %v
+TlStreamChecksumSupported: %v
+TlStreamOptionsSupported: %v
+FastPathCompatible: %v
+TlLargeSendOffloadSupported: %v
+TlGiantSendOffloadSupported: %v`, iorf.NlChecksumSupported, iorf.NlOptionsSupported, iorf.TlDatagramChecksumSupported,
+		iorf.TlStreamChecksumSupported, iorf.TlStreamOptionsSupported, iorf.FastPathCompatible,
+		iorf.TlLargeSendOffloadSupported, iorf.TlGiantSendOffloadSupported)
 }

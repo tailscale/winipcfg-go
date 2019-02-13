@@ -58,7 +58,7 @@ func TestInterfaceFromLUIDNonExisting(t *testing.T) {
 }
 
 // TODO: Set an existing interface index here:
-const existingIndex uint32 = 14
+const existingIndex uint32 = 13
 
 func TestInterfaceFromIndexExisting(t *testing.T) {
 	ifc, err := InterfaceFromIndex(existingIndex)

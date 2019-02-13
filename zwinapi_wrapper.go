@@ -38,11 +38,15 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
-	modCombase  = windows.NewLazySystemDLL("Combase.dll")
 
-	procCancelMibChangeNotify2 = modiphlpapi.NewProc("CancelMibChangeNotify2")
-	procGetAdaptersAddresses   = modiphlpapi.NewProc("GetAdaptersAddresses")
-	procStringFromGUID2        = modCombase.NewProc("StringFromGUID2")
+	procCancelMibChangeNotify2  = modiphlpapi.NewProc("CancelMibChangeNotify2")
+	procGetAdaptersAddresses    = modiphlpapi.NewProc("GetAdaptersAddresses")
+	procGetIpForwardTable2      = modiphlpapi.NewProc("GetIpForwardTable2")
+	procFreeMibTable            = modiphlpapi.NewProc("FreeMibTable")
+	procCreateIpForwardEntry2   = modiphlpapi.NewProc("CreateIpForwardEntry2")
+	procSetIpForwardEntry2      = modiphlpapi.NewProc("SetIpForwardEntry2")
+	procDeleteIpForwardEntry2   = modiphlpapi.NewProc("DeleteIpForwardEntry2")
+	procNotifyIpInterfaceChange = modiphlpapi.NewProc("NotifyIpInterfaceChange")
 )
 
 func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
@@ -57,8 +61,37 @@ func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, Adapter
 	return
 }
 
-func stringFromGUID2(guid *windows.GUID, stringPointer *uint16, cchMax int) (result int) {
-	r0, _, _ := syscall.Syscall(procStringFromGUID2.Addr(), 3, uintptr(unsafe.Pointer(guid)), uintptr(unsafe.Pointer(stringPointer)), uintptr(cchMax))
-	result = int(r0)
+func getIpForwardTable2(family AddressFamily, table *wtMibIpforwardTable2) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetIpForwardTable2.Addr(), 2, uintptr(family), uintptr(unsafe.Pointer(table)), 0)
+	result = int32(r0)
+	return
+}
+
+func freeMibTable(memory uintptr) {
+	syscall.Syscall(procFreeMibTable.Addr(), 1, uintptr(memory), 0, 0)
+	return
+}
+
+func createIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) {
+	r0, _, _ := syscall.Syscall(procCreateIpForwardEntry2.Addr(), 1, uintptr(unsafe.Pointer(route)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func setIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) {
+	r0, _, _ := syscall.Syscall(procSetIpForwardEntry2.Addr(), 1, uintptr(unsafe.Pointer(route)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func deleteIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) {
+	r0, _, _ := syscall.Syscall(procDeleteIpForwardEntry2.Addr(), 1, uintptr(unsafe.Pointer(route)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func notifyIpInterfaceChange(route *wtMibIpforwardRow2) (result int32) {
+	r0, _, _ := syscall.Syscall(procNotifyIpInterfaceChange.Addr(), 1, uintptr(unsafe.Pointer(route)), 0, 0)
+	result = int32(r0)
 	return
 }

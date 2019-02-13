@@ -24,6 +24,43 @@ const (
 
 	wtIpAddressPrefix_PrefixLength_Offset = 28
 
+	wtMibIpinterfaceRow_Size = 168
+
+	wtMibIpinterfaceRow_InterfaceLuid_Offset = 8
+	wtMibIpinterfaceRow_InterfaceIndex_Offset = 16
+	wtMibIpinterfaceRow_MaxReassemblySize_Offset = 20
+	wtMibIpinterfaceRow_InterfaceIdentifier_Offset = 24
+	wtMibIpinterfaceRow_MinRouterAdvertisementInterval_Offset = 32
+	wtMibIpinterfaceRow_MaxRouterAdvertisementInterval_Offset = 36
+	wtMibIpinterfaceRow_AdvertisingEnabled_Offset = 40
+	wtMibIpinterfaceRow_ForwardingEnabled_Offset = 41
+	wtMibIpinterfaceRow_WeakHostSend_Offset = 42
+	wtMibIpinterfaceRow_WeakHostReceive_Offset = 43
+	wtMibIpinterfaceRow_UseAutomaticMetric_Offset = 44
+	wtMibIpinterfaceRow_UseNeighborUnreachabilityDetection_Offset = 45
+	wtMibIpinterfaceRow_ManagedAddressConfigurationSupported_Offset = 46
+	wtMibIpinterfaceRow_OtherStatefulConfigurationSupported_Offset = 47
+	wtMibIpinterfaceRow_AdvertiseDefaultRoute_Offset = 48
+	wtMibIpinterfaceRow_RouterDiscoveryBehavior_Offset = 52
+	wtMibIpinterfaceRow_DadTransmits_Offset = 56
+	wtMibIpinterfaceRow_BaseReachableTime_Offset = 60
+	wtMibIpinterfaceRow_RetransmitTime_Offset = 64
+	wtMibIpinterfaceRow_PathMtuDiscoveryTimeout_Offset = 68
+	wtMibIpinterfaceRow_LinkLocalAddressBehavior_Offset = 72
+	wtMibIpinterfaceRow_LinkLocalAddressTimeout_Offset = 76
+	wtMibIpinterfaceRow_ZoneIndices_Offset = 80
+	wtMibIpinterfaceRow_SitePrefixLength_Offset = 144
+	wtMibIpinterfaceRow_Metric_Offset = 148
+	wtMibIpinterfaceRow_NlMtu_Offset = 152
+	wtMibIpinterfaceRow_Connected_Offset = 156
+	wtMibIpinterfaceRow_SupportsWakeUpPatterns_Offset = 157
+	wtMibIpinterfaceRow_SupportsNeighborDiscovery_Offset = 158
+	wtMibIpinterfaceRow_SupportsRouterDiscovery_Offset = 159
+	wtMibIpinterfaceRow_ReachableTime_Offset = 160
+	wtMibIpinterfaceRow_TransmitOffload_Offset = 164
+	wtMibIpinterfaceRow_ReceiveOffload_Offset = 165
+	wtMibIpinterfaceRow_DisableDefaultRoutes_Offset = 166
+
 	wtMibIpforwardRow2_Size = 104
 
 	wtMibIpforwardRow2_InterfaceIndex_Offset       = 8

@@ -6,6 +6,7 @@
 package winipcfg
 
 import (
+	"fmt"
 	"golang.org/x/sys/windows"
 	"unsafe"
 )
@@ -78,13 +79,6 @@ func charToString(char *uint8) string {
 }
 
 func guidToString(guid windows.GUID) string {
-
-	// Buffer of length 39 should always be enough for GUID, but I'll set bigger, just in case...
-	const bufferLength = 200
-
-	buffer := make([]uint16, bufferLength, bufferLength)
-
-	stringFromGUID2(&guid, (*uint16)(unsafe.Pointer(&buffer[0])), bufferLength)
-
-	return windows.UTF16ToString(buffer)
+	return fmt.Sprintf("{%06X-%04X-%04X-%04X-%012X}", guid.Data1, guid.Data2, guid.Data3, guid.Data4[:2],
+		guid.Data4[2:])
 }

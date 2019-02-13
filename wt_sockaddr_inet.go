@@ -102,6 +102,46 @@ func (addr *wtSockaddrInet) toWtSockaddrIn6() (*wtSockaddrIn6, error) {
 	}
 }
 
+func (wtsa *wtSockaddrInet) toSockaddrInet() (*SockaddrInet, error) {
+
+	if wtsa == nil {
+		return nil, nil
+	}
+
+	if wtsa.isIPv4() {
+
+		wtsa4, _ := wtsa.toWtSockaddrIn()
+
+		sainet := SockaddrInet{
+			Family:       AF_INET,
+			Port:         wtsa4.sin_port,
+			Address:      wtsa4.sin_addr.toNetIp(),
+			IPv6FlowInfo: 0,
+			IPv6ScopeId:  0,
+		}
+
+		return &sainet, nil
+	}
+
+	if wtsa.isIPv6() {
+
+		wtsa6, _ := wtsa.toWtSockaddrIn6()
+
+		sainet := SockaddrInet{
+			Family:       AF_INET6,
+			Port:         wtsa6.sin6_port,
+			Address:      wtsa6.sin6_addr.toNetIp(),
+			IPv6FlowInfo: wtsa6.sin6_flowinfo,
+			IPv6ScopeId:  wtsa6.sin6_scope_id,
+		}
+
+		return &sainet, nil
+	}
+
+	return nil, fmt.Errorf("Family of the input argument is %s. It has to be either %s or %s",
+		wtsa.sin6_family.String(), AF_INET.String(), AF_INET6.String())
+}
+
 func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) {
 
 	ipv4 := address.To4()

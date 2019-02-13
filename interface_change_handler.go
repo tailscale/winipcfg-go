@@ -6,7 +6,6 @@
 package winipcfg
 
 import (
-	"fmt"
 	"golang.org/x/sys/windows"
 	"sync"
 	"unsafe"
@@ -137,8 +136,6 @@ func checkInterfaceChangeSubscribed() error {
 }
 
 func interfaceChanged(callerContext unsafe.Pointer, wtIfc *wtMibIpinterfaceRow, notificationType MibNotificationType) uintptr {
-
-	fmt.Println("IT WORKS!!!")
 
 	ifc := wtIfc.toMibIpinterfaceRow()
 

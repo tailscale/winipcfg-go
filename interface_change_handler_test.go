@@ -51,6 +51,3 @@ func TestRegisterUnregisterInterfaceChangeCallback(t *testing.T) {
 		t.Error("InterfaceChangeCallbackRegistered returns true although the callback is unregistered successfully.")
 	}
 }
-
-func interfaceChangeCallbackFunctionExample(ifc *MibIpinterfaceRow, notificationType MibNotificationType) {
-}

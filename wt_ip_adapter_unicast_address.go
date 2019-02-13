@@ -29,7 +29,7 @@ func (wta *wtIpAdapterUnicastAddressLh) toIpAdapterAddress(ifc Interface) (*IpAd
 		return nil, nil
 	}
 
-	sainet, err := sockaddrInetFromWtSocketAddress(&wta.Address)
+	sainet, err := (&wta.Address).toSockaddrInet()
 
 	if err != nil {
 		return nil, err

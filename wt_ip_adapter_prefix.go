@@ -36,7 +36,7 @@ func (wt *wtIpAdapterPrefixXp) toIpAdapterPrefix(ifc Interface) (*IpAdapterPrefi
 		return nil, nil
 	}
 
-	sainet, err := sockaddrInetFromWtSocketAddress(&wt.Address)
+	sainet, err := (&wt.Address).toSockaddrInet()
 
 	if err != nil {
 		return nil, err

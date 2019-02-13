@@ -22,7 +22,7 @@ type IpAdapterAddressCommonType struct {
 func ipAdapterAddressFromLengthAddress(ifc Interface, length uint32, wtsa *wtSocketAddress) (*IpAdapterAddressCommonType,
 	error) {
 
-	sainet, err := sockaddrInetFromWtSocketAddress(wtsa)
+	sainet, err := wtsa.toSockaddrInet()
 
 	if err != nil {
 		return nil, err

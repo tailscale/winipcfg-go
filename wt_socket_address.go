@@ -72,3 +72,24 @@ func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 
 	return (*wtSockaddrInet)(unsafe.Pointer(sa.lpSockaddr)), nil
 }
+
+func (wtsa *wtSocketAddress) toSockaddrInet() (*SockaddrInet, error) {
+
+	if wtsa == nil {
+		return nil, nil
+	}
+
+	wtsainet, err := wtsa.getWtSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	sainet, err := wtsainet.toSockaddrInet()
+
+	if err == nil {
+		return sainet, nil
+	} else {
+		return nil, err
+	}
+}

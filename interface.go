@@ -190,7 +190,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	ifc.GatewayAddresses = gatewayAddresses
 
-	dhcpv4s, err := sockaddrInetFromWtSocketAddress(&wtiaa.Dhcpv4Server)
+	dhcpv4s, err := (&wtiaa.Dhcpv4Server).toSockaddrInet()
 
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	ifc.Dhcpv4Server = dhcpv4s
 
-	dhcpv6s, err := sockaddrInetFromWtSocketAddress(&wtiaa.Dhcpv6Server)
+	dhcpv6s, err := (&wtiaa.Dhcpv6Server).toSockaddrInet()
 
 	if err != nil {
 		return nil, err

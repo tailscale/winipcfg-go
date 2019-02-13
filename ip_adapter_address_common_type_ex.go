@@ -18,7 +18,7 @@ type IpAdapterAddressCommonTypeEx struct {
 func ipAdapterAddressFromLengthFlagsAddress(ifc Interface, length uint32, flags uint32, wtsa *wtSocketAddress) (*IpAdapterAddressCommonTypeEx,
 	error) {
 
-	sainet, err := sockaddrInetFromWtSocketAddress(wtsa)
+	sainet, err := wtsa.toSockaddrInet()
 
 	if err != nil {
 		return nil, err

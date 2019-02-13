@@ -5,4 +5,4 @@
 
 package winipcfg
 
-//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output ziphlpapi_wrapper.go iphlpapi_wrapper.go
+//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output zwinapi_wrapper.go winapi_wrapper.go

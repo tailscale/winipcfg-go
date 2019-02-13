@@ -138,7 +138,12 @@ func checkUnicastAddressChangeSubscribed() error {
 
 func unicastAddressChanged(callerContext unsafe.Pointer, wtUar *wtMibUnicastipaddressRow, notificationType MibNotificationType) uintptr {
 
-	uar, _ := wtUar.toMibUnicastipaddressRow()
+	uar, err := wtUar.toMibUnicastipaddressRow()
+
+	if err != nil {
+		// TODO: We should at lest implement logging.
+		return 0
+	}
 
 	// go routine used to avoid blocking OS call.
 	go notifyUnicastAddressChangedCallbacks(uar, notificationType)

@@ -29,3 +29,25 @@ func (pxp *wtIpAdapterPrefixXp) nextCasted() *wtIpAdapterPrefix {
 		return (*wtIpAdapterPrefix)(unsafe.Pointer(pxp))
 	}
 }
+
+func (wt *wtIpAdapterPrefixXp) toIpAdapterPrefix(ifc Interface) (*IpAdapterPrefix, error) {
+
+	if wt == nil {
+		return nil, nil
+	}
+
+	sainet, err := sockaddrInetFromWtSocketAddress(&wt.Address)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ap := IpAdapterPrefix{PrefixLength: wt.PrefixLength}
+
+	ap.Interface = ifc
+	ap.Length = wt.Length
+	ap.Address = *sainet
+	ap.Flags = wt.Flags
+
+	return &ap, nil
+}

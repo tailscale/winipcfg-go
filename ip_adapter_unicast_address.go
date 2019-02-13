@@ -22,37 +22,6 @@ type IpAdapterUnicastAddress struct {
 	OnLinkPrefixLength uint8
 }
 
-func ipAdapterUnicastAddressFromWinType(ifc Interface, wta *wtIpAdapterUnicastAddressLh) (*IpAdapterUnicastAddress,
-	error) {
-
-	if wta == nil {
-		return nil, nil
-	}
-
-	sainet, err := sockaddrInetFromWtSocketAddress(&wta.Address)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ua := IpAdapterUnicastAddress{
-		PrefixOrigin:       wta.PrefixOrigin,
-		SuffixOrigin:       wta.SuffixOrigin,
-		DadState:           wta.DadState,
-		ValidLifetime:      wta.ValidLifetime,
-		PreferredLifetime:  wta.PreferredLifetime,
-		LeaseLifetime:      wta.LeaseLifetime,
-		OnLinkPrefixLength: wta.OnLinkPrefixLength,
-	}
-
-	ua.Interface = ifc
-	ua.Length = wta.Length
-	ua.Address = *sainet
-	ua.Flags = wta.Flags
-
-	return &ua, nil
-}
-
 func (ua *IpAdapterUnicastAddress) String() string {
 
 	if ua == nil {

@@ -19,33 +19,6 @@ type IpAdapterAddressCommonType struct {
 	Address SockaddrInet
 }
 
-func ipAdapterAddressFromWtDnsServerAddress(ifc Interface, wta *wtIpAdapterDnsServerAddressXp) (*IpAdapterAddressCommonType,
-	error) {
-	if wta == nil {
-		return nil, nil
-	} else {
-		return ipAdapterAddressFromLengthAddress(ifc, wta.Length, &wta.Address)
-	}
-}
-
-func ipAdapterAddressFromWtWinsServerAddress(ifc Interface, wta *wtIpAdapterWinsServerAddressLh) (*IpAdapterAddressCommonType,
-	error) {
-	if wta == nil {
-		return nil, nil
-	} else {
-		return ipAdapterAddressFromLengthAddress(ifc, wta.Length, &wta.Address)
-	}
-}
-
-func ipAdapterAddressFromWtGatewayAddress(ifc Interface, wta *wtIpAdapterGatewayAddressLh) (*IpAdapterAddressCommonType,
-	error) {
-	if wta == nil {
-		return nil, nil
-	} else {
-		return ipAdapterAddressFromLengthAddress(ifc, wta.Length, &wta.Address)
-	}
-}
-
 func ipAdapterAddressFromLengthAddress(ifc Interface, length uint32, wtsa *wtSocketAddress) (*IpAdapterAddressCommonType,
 	error) {
 

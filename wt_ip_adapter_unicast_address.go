@@ -22,3 +22,33 @@ type wtIpAdapterUnicastAddressLh struct {
 	LeaseLifetime uint32 // Windows type: ULONG
 	OnLinkPrefixLength uint8 // Windows type: UINT8
 }
+
+func (wta *wtIpAdapterUnicastAddressLh) toIpAdapterAddress(ifc Interface) (*IpAdapterUnicastAddress, error) {
+
+	if wta == nil {
+		return nil, nil
+	}
+
+	sainet, err := sockaddrInetFromWtSocketAddress(&wta.Address)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ua := IpAdapterUnicastAddress{
+		PrefixOrigin:       wta.PrefixOrigin,
+		SuffixOrigin:       wta.SuffixOrigin,
+		DadState:           wta.DadState,
+		ValidLifetime:      wta.ValidLifetime,
+		PreferredLifetime:  wta.PreferredLifetime,
+		LeaseLifetime:      wta.LeaseLifetime,
+		OnLinkPrefixLength: wta.OnLinkPrefixLength,
+	}
+
+	ua.Interface = ifc
+	ua.Length = wta.Length
+	ua.Address = *sainet
+	ua.Flags = wta.Flags
+
+	return &ua, nil
+}

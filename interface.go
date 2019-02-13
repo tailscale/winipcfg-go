@@ -89,7 +89,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtua := wtiaa.FirstUnicastAddress; wtua != nil; wtua = wtua.Next {
 
-		ua, err := ipAdapterUnicastAddressFromWinType(ifc, wtua)
+		ua, err := wtua.toIpAdapterAddress(ifc)
 
 		if err != nil {
 			return nil, err
@@ -104,7 +104,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtaa := wtiaa.FirstAnycastAddress; wtaa != nil; wtaa = wtaa.Next {
 
-		ua, err := ipAdapterAddressFromWtAnycastAddress(ifc, wtaa)
+		ua, err := wtaa.toIpAdapterAddress(ifc)
 
 		if err != nil {
 			return nil, err
@@ -119,7 +119,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtma := wtiaa.FirstMulticastAddress; wtma != nil; wtma = wtma.Next {
 
-		ma, err := ipAdapterAddressFromWtMulticastAddress(ifc, wtma)
+		ma, err := wtma.toIpAdapterAddress(ifc)
 
 		if err != nil {
 			return nil, err
@@ -134,7 +134,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtdsa := wtiaa.FirstDnsServerAddress; wtdsa != nil; wtdsa = wtdsa.Next {
 
-		dsa, err := ipAdapterAddressFromWtDnsServerAddress(ifc, wtdsa)
+		dsa, err := wtdsa.toIpAdapterAddress(ifc)
 
 		if err != nil {
 			return nil, err
@@ -149,7 +149,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtp := wtiaa.FirstPrefix; wtp != nil; wtp = wtp.Next {
 
-		p, err := ipAdapterPrefixFromWinType(ifc, wtp)
+		p, err := wtp.toIpAdapterPrefix(ifc)
 
 		if err != nil {
 			return nil, err
@@ -164,7 +164,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtwsa := wtiaa.FirstWinsServerAddress; wtwsa != nil; wtwsa = wtwsa.Next {
 
-		wsa, err := ipAdapterAddressFromWtWinsServerAddress(ifc, wtwsa)
+		wsa, err := wtwsa.toIpAdapterAddress(ifc)
 
 		if err != nil {
 			return nil, err
@@ -179,7 +179,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 
 	for wtga := wtiaa.FirstGatewayAddress; wtga != nil; wtga = wtga.Next {
 
-		wsa, err := ipAdapterAddressFromWtGatewayAddress(ifc, wtga)
+		wsa, err := wtga.toIpAdapterAddress(ifc)
 
 		if err != nil {
 			return nil, err

@@ -14,6 +14,7 @@ import (
 	"unsafe"
 )
 
+// Represents an interface, and it's based on Windows API type IP_ADAPTER_ADDRESSES.
 type Interface struct {
 	Luid                uint64
 	Index               uint32

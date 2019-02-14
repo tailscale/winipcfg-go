@@ -44,7 +44,8 @@ func (wt *wtIpAdapterPrefixXp) toIpAdapterPrefix(ifc Interface) (*IpAdapterPrefi
 
 	ap := IpAdapterPrefix{PrefixLength: wt.PrefixLength}
 
-	ap.Interface = ifc
+	ap.InterfaceLuid = ifc.Luid
+	ap.InterfaceIndex = ifc.Index
 	ap.Length = wt.Length
 	ap.Address = *sainet
 	ap.Flags = wt.Flags

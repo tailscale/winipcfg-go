@@ -9,7 +9,8 @@ import "fmt"
 
 type IpAdapterAddressCommonType struct {
 	// The interface the address belongs to.
-	Interface Interface
+	InterfaceLuid        uint64
+	InterfaceIndex       uint32
 
 	// TODO: Documentation missing. What is it?
 	Length uint32
@@ -27,9 +28,11 @@ func ipAdapterAddressFromLengthAddress(ifc Interface, length uint32, wtsa *wtSoc
 		return nil, err
 	}
 
-	act := IpAdapterAddressCommonType{Interface: ifc, Length: length, Address: *sainet}
-
-	return &act, nil
+	return &IpAdapterAddressCommonType{
+		InterfaceLuid: ifc.Luid,
+		InterfaceIndex: ifc.Index,
+		Length: length,
+		Address: *sainet}, nil
 }
 
 func (a *IpAdapterAddressCommonType) commonTypeAddressString() string {

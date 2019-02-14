@@ -26,7 +26,8 @@ func ipAdapterAddressFromLengthFlagsAddress(ifc Interface, length uint32, flags 
 
 	act := IpAdapterAddressCommonTypeEx{Flags: flags}
 
-	act.Interface = ifc
+	act.InterfaceLuid = ifc.Luid
+	act.InterfaceIndex = ifc.Index
 	act.Length = length
 	act.Address = *sainet
 

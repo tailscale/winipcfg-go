@@ -45,7 +45,8 @@ func (wta *wtIpAdapterUnicastAddressLh) toIpAdapterAddress(ifc Interface) (*Unic
 		OnLinkPrefixLength: wta.OnLinkPrefixLength,
 	}
 
-	ua.Interface = ifc
+	ua.InterfaceLuid = ifc.Luid
+	ua.InterfaceIndex = ifc.Index
 	ua.Length = wta.Length
 	ua.Address = *sainet
 	ua.Flags = wta.Flags

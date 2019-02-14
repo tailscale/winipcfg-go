@@ -23,7 +23,7 @@ type wtIpAdapterUnicastAddressLh struct {
 	OnLinkPrefixLength uint8  // Windows type: UINT8
 }
 
-func (wta *wtIpAdapterUnicastAddressLh) toIpAdapterAddress(ifc Interface) (*IpAdapterUnicastAddress, error) {
+func (wta *wtIpAdapterUnicastAddressLh) toIpAdapterAddress(ifc Interface) (*UnicastAddress, error) {
 
 	if wta == nil {
 		return nil, nil
@@ -35,7 +35,7 @@ func (wta *wtIpAdapterUnicastAddressLh) toIpAdapterAddress(ifc Interface) (*IpAd
 		return nil, err
 	}
 
-	ua := IpAdapterUnicastAddress{
+	ua := UnicastAddress{
 		PrefixOrigin:       wta.PrefixOrigin,
 		SuffixOrigin:       wta.SuffixOrigin,
 		DadState:           wta.DadState,

@@ -19,7 +19,7 @@ type Interface struct {
 	Index               uint32
 	AdapterName         string
 	FriendlyName        string
-	UnicastAddresses    []*IpAdapterUnicastAddress
+	UnicastAddresses    []*UnicastAddress
 	AnycastAddresses    []*IpAdapterAddressCommonTypeEx
 	MulticastAddresses  []*IpAdapterAddressCommonTypeEx
 	DnsServerAddresses  []*IpAdapterAddressCommonType
@@ -85,7 +85,7 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 		}
 	}
 
-	var unicastAddresses []*IpAdapterUnicastAddress
+	var unicastAddresses []*UnicastAddress
 
 	for wtua := wtiaa.FirstUnicastAddress; wtua != nil; wtua = wtua.Next {
 

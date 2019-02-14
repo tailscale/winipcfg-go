@@ -7,7 +7,7 @@ package winipcfg
 
 import "fmt"
 
-type IpAdapterUnicastAddress struct {
+type UnicastAddress struct {
 	// It extends IpAdapterAddressCommonTypeEx
 	IpAdapterAddressCommonTypeEx
 
@@ -21,7 +21,7 @@ type IpAdapterUnicastAddress struct {
 	OnLinkPrefixLength uint8
 }
 
-func (ua *IpAdapterUnicastAddress) String() string {
+func (ua *UnicastAddress) String() string {
 
 	if ua == nil {
 		return ""

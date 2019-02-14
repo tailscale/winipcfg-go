@@ -11,11 +11,14 @@ import (
 )
 
 const (
-	printInterfaceData = false
-	existingLuid       = uint64(1689399632855040) // TODO: Set an existing LUID here
-	nonExistingLuid    = uint64(42)
-	existingIndex      = uint32(13) // TODO: Set an existing interface index here
-	nonExistingIndex   = uint32(42000000)
+	printInterfaceData   = false
+	existingLuid         = uint64(1689399632855040) // TODO: Set an existing LUID here
+	nonExistingLuid      = uint64(42)
+	existingIndex        = uint32(13) // TODO: Set an existing interface index here
+	nonExistingIndex     = uint32(42000000)
+	existingName         = "LAN" // TODO: Set an existing interface name here
+	nonExistingName      = "NON-EXISTING-NAME"
+	printInterfaceRoutes = true
 )
 
 func TestGetInterfaces(t *testing.T) {
@@ -93,9 +96,6 @@ func TestInterfaceFromIndexNonExisting(t *testing.T) {
 	}
 }
 
-// TODO: Set an existing interface name here:
-const existingName string = "LAN"
-
 func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 	ifc, err := InterfaceFromFriendlyName(existingName)
 
@@ -114,8 +114,6 @@ func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 	}
 }
 
-const nonExistingName string = "NON-EXISTING-NAME"
-
 func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 	ifc, err := InterfaceFromFriendlyName(nonExistingName)
 
@@ -124,5 +122,47 @@ func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 	} else if ifc != nil {
 		t.Errorf("InterfaceFromFriendlyName() returned an interface with name=%s, although requested name was %s.",
 			ifc.FriendlyName, nonExistingName)
+	}
+}
+
+func TestInterface_GetRoutes(t *testing.T) {
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetRoutes() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.GetRoutes() testing cannot be performed.")
+		return
+	}
+
+	routes, err := ifc.GetRoutes(AF_UNSPEC)
+
+	if err != nil {
+		t.Errorf("Interface.GetRoutes() returned an error: %v", err)
+		return
+	}
+
+	if routes == nil || len(routes) < 1 {
+		t.Error("Interface.GetRoutes() returned nil or empty slice.")
+		return
+	}
+
+	for _, route := range routes {
+		if route.InterfaceLuid != ifc.Luid {
+			t.Errorf("Interface.GetRoutes() retuned a route with a wrong LUID. Interface.Luid: %d; Route.InterfaceLuid: %d.",
+				ifc.Luid, route.InterfaceLuid)
+		}
+	}
+
+	if printInterfaceRoutes {
+		for _, route := range routes {
+			fmt.Println("========================== ROUTE OUTPUT START ==========================")
+			fmt.Println(route)
+			fmt.Println("=========================== ROUTE OUTPUT END ===========================")
+		}
 	}
 }

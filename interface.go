@@ -398,7 +398,11 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 //func (iface *Interface) FlushAddresses() error
 //func (iface *Interface) AddAddresses(addresses []net.IP) error
 //func (iface *Interface) SetAddresses(addresses []net.IP) error
-//
+
+func (iface *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
+	return getRoutes(family, iface)
+}
+
 //// splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
 //// and ::/0 into ::/1 and 8000::/1.
 //func (iface *Interface) FlushRoutes() error

@@ -57,13 +57,13 @@ func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, Adapter
 	return
 }
 
-func getIpForwardTable2(family AddressFamily, table *wtMibIpforwardTable2) (result int32) {
-	r0, _, _ := syscall.Syscall(procGetIpForwardTable2.Addr(), 2, uintptr(family), uintptr(unsafe.Pointer(table)), 0)
+func getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetIpForwardTable2.Addr(), 2, uintptr(family), uintptr(table), 0)
 	result = int32(r0)
 	return
 }
 
-func freeMibTable(memory uintptr) {
+func freeMibTable(memory unsafe.Pointer) {
 	syscall.Syscall(procFreeMibTable.Addr(), 1, uintptr(memory), 0, 0)
 	return
 }

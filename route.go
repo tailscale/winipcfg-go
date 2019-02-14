@@ -5,7 +5,11 @@
 
 package winipcfg
 
-import "fmt"
+import (
+	"fmt"
+	"golang.org/x/sys/windows"
+	"unsafe"
+)
 
 type Route struct {
 	InterfaceLuid        uint64
@@ -23,6 +27,48 @@ type Route struct {
 	Immortal             bool
 	Age                  uint32
 	Origin               NlRouteOrigin
+}
+
+func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
+
+	var pTable *wtMibIpforwardTable2 = nil
+
+	result := getIpForwardTable2(family, unsafe.Pointer(&pTable))
+
+	if pTable != nil {
+		defer freeMibTable(unsafe.Pointer(pTable))
+	}
+
+	if result != 0 {
+		return nil, windows.Errno(result)
+	}
+
+	routes := make([]*Route, 0)
+
+	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
+	rowSize := uintptr(wtMibIpforwardRow2_Size) // Shold be equal to unsafe.Sizeof(pTable.Table[0])
+
+	for i := uint32(0); i < pTable.NumEntries; i++ {
+
+		wtr := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize * uintptr(i)))
+
+		if ifc == nil || wtr.InterfaceLuid == ifc.Luid {
+
+			route, err := wtr.toRoute()
+
+			if err != nil {
+				return nil, err
+			}
+
+			routes = append(routes, route)
+		}
+	}
+
+	return routes, nil
+}
+
+func GetRoutes(family AddressFamily) ([]*Route, error) {
+	return getRoutes(family, nil)
 }
 
 func (r *Route) String() string {

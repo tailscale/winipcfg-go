@@ -9,10 +9,10 @@ package winipcfg
 //sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
-//sys	getIpForwardTable2(family AddressFamily, table *wtMibIpforwardTable2) (result int32) = iphlpapi.GetIpForwardTable2
+//sys	getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) = iphlpapi.GetIpForwardTable2
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
-//sys	freeMibTable(memory uintptr) = iphlpapi.FreeMibTable
+//sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2
 //sys	createIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) = iphlpapi.CreateIpForwardEntry2

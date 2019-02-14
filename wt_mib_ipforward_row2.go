@@ -36,3 +36,40 @@ type wtMibIpforwardRow2 struct {
 	Age    uint32 // Windows type: ULONG
 	Origin NlRouteOrigin
 }
+
+func (wtr *wtMibIpforwardRow2) toRoute() (*Route, error) {
+
+	if wtr == nil {
+		return nil, nil
+	}
+
+	iap, err := wtr.DestinationPrefix.toIpAddressPrefix()
+
+	if err != nil {
+		return nil, err
+	}
+
+	sainet, err := wtr.NextHop.toSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Route{
+		InterfaceLuid:        wtr.InterfaceLuid,
+		InterfaceIndex:       wtr.InterfaceIndex,
+		DestinationPrefix:    *iap,
+		NextHop:              *sainet,
+		SitePrefixLength:     wtr.SitePrefixLength,
+		ValidLifetime:        wtr.ValidLifetime,
+		PreferredLifetime:    wtr.PreferredLifetime,
+		Metric:               wtr.Metric,
+		Protocol:             wtr.Protocol,
+		Loopback:             wtr.Loopback != 0,
+		AutoconfigureAddress: wtr.AutoconfigureAddress != 0,
+		Publish:              wtr.Publish != 0,
+		Immortal:             wtr.Immortal != 0,
+		Age:                  wtr.Age,
+		Origin:               wtr.Origin,
+	}, nil
+}

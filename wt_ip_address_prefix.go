@@ -14,6 +14,21 @@ type wtIpAddressPrefix struct {
 	PrefixLength uint8 // Windows type: UINT8
 }
 
+func (wtap *wtIpAddressPrefix) toIpAddressPrefix() (*IpAddressPrefix, error) {
+
+	if wtap == nil {
+		return nil, nil
+	}
+
+	sainet, err := wtap.Prefix.toSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &IpAddressPrefix{Prefix: *sainet, PrefixLength: wtap.PrefixLength}, nil
+}
+
 func (addrPfx *wtIpAddressPrefix) String() string {
 	return fmt.Sprintf("Prefix: [%s]; PrefixLength: %d", addrPfx.Prefix.String(), addrPfx.PrefixLength)
 }

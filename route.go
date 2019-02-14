@@ -46,7 +46,7 @@ func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
 	routes := make([]*Route, 0)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
-	rowSize := uintptr(wtMibIpforwardRow2_Size) // Shold be equal to unsafe.Sizeof(pTable.Table[0])
+	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
 

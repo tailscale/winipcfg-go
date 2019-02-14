@@ -6,12 +6,6 @@
 package winipcfg
 
 const (
-	windowsGuid_Size = 16
-
-	windowsGuid_Data2_Offset = 4
-	windowsGuid_Data3_Offset = 6
-	windowsGuid_Data4_Offset = 8
-
 	wtIn6Addr_Size = 16
 
 	wtInAddr_Size = 4
@@ -95,6 +89,10 @@ const (
 	wtMibUnicastipaddressRow_DadState_Offset           = 64
 	wtMibUnicastipaddressRow_ScopeId_Offset            = 68
 	wtMibUnicastipaddressRow_CreationTimeStamp_Offset  = 72
+
+	wtMibUnicastipaddressTable_Size = 88
+
+	wtMibUnicastipaddressTable_Table_Offset = 8
 
 	wtSockaddrIn_Size = 16
 

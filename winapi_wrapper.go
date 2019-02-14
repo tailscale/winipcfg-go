@@ -5,14 +5,27 @@
 
 package winipcfg
 
+// IP address - related functions
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses
 //sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses
 
-// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
-//sys	getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) = iphlpapi.GetIpForwardTable2
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable
+//sys	getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetUnicastIpAddressTable
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
 //sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry
+//sys	createUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.CreateUnicastIpAddressEntry
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry
+//sys	deleteUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.DeleteUnicastIpAddressEntry
+
+// Routing - related functions
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
+//sys	getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) = iphlpapi.GetIpForwardTable2
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2
 //sys	createIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) = iphlpapi.CreateIpForwardEntry2
@@ -22,6 +35,8 @@ package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2
 //sys	deleteIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) = iphlpapi.DeleteIpForwardEntry2
+
+// Notifications - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-notifyipinterfacechange
 //sys	notifyIpInterfaceChange(Family AddressFamily, Callback uintptr, CallerContext uintptr, InitialNotification bool, NotificationHandle unsafe.Pointer) (result int32) = iphlpapi.NotifyIpInterfaceChange

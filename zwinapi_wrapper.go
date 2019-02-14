@@ -40,8 +40,11 @@ var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
 
 	procGetAdaptersAddresses         = modiphlpapi.NewProc("GetAdaptersAddresses")
-	procGetIpForwardTable2           = modiphlpapi.NewProc("GetIpForwardTable2")
+	procGetUnicastIpAddressTable     = modiphlpapi.NewProc("GetUnicastIpAddressTable")
 	procFreeMibTable                 = modiphlpapi.NewProc("FreeMibTable")
+	procCreateUnicastIpAddressEntry  = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
+	procDeleteUnicastIpAddressEntry  = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
+	procGetIpForwardTable2           = modiphlpapi.NewProc("GetIpForwardTable2")
 	procCreateIpForwardEntry2        = modiphlpapi.NewProc("CreateIpForwardEntry2")
 	procSetIpForwardEntry2           = modiphlpapi.NewProc("SetIpForwardEntry2")
 	procDeleteIpForwardEntry2        = modiphlpapi.NewProc("DeleteIpForwardEntry2")
@@ -57,14 +60,32 @@ func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, Adapter
 	return
 }
 
-func getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) {
-	r0, _, _ := syscall.Syscall(procGetIpForwardTable2.Addr(), 2, uintptr(family), uintptr(table), 0)
+func getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetUnicastIpAddressTable.Addr(), 2, uintptr(Family), uintptr(Table), 0)
 	result = int32(r0)
 	return
 }
 
 func freeMibTable(memory unsafe.Pointer) {
 	syscall.Syscall(procFreeMibTable.Addr(), 1, uintptr(memory), 0, 0)
+	return
+}
+
+func createUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procCreateUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func deleteUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procDeleteUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetIpForwardTable2.Addr(), 2, uintptr(family), uintptr(table), 0)
+	result = int32(r0)
 	return
 }
 

@@ -5,7 +5,9 @@
 
 package winipcfg
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type UnicastAddress struct {
 	// It extends IpAdapterAddressCommonTypeEx

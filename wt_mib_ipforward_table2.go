@@ -24,7 +24,7 @@ func (mit *wtMibIpforwardTable2) toSlice() []wtMibIpforwardRow2 {
 	rowSize := unsafe.Sizeof(mit.Table[0])
 
 	for i := uint32(0); i < numberOfRows; i++ {
-		rows[i] = *(*wtMibIpforwardRow2)(unsafe.Pointer(cTablePointer + rowSize * uintptr(i)))
+		rows[i] = *(*wtMibIpforwardRow2)(unsafe.Pointer(cTablePointer + rowSize*uintptr(i)))
 	}
 
 	return rows

@@ -84,6 +84,11 @@ func (ior *NlInterfaceOffloadRodFlags) toWtNlInterfaceOffloadRod() wtNlInterface
 }
 
 func (iorf *NlInterfaceOffloadRodFlags) String() string {
+
+	if iorf == nil {
+		return ""
+	}
+
 	return fmt.Sprintf(`NlChecksumSupported: %v        
 NlOptionsSupported: %v
 TlDatagramChecksumSupported: %v

@@ -8,7 +8,6 @@ package winipcfg
 import "fmt"
 
 type IpAdapterPrefix struct {
-
 	// It extends IpAdapterAddressCommonTypeEx
 	IpAdapterAddressCommonTypeEx
 
@@ -17,5 +16,9 @@ type IpAdapterPrefix struct {
 }
 
 func (ap *IpAdapterPrefix) String() string {
-	return fmt.Sprintf("%s/%d", ap.commonTypeExAddressString(), ap.PrefixLength)
+	if ap == nil {
+		return ""
+	} else {
+		return fmt.Sprintf("%s/%d", ap.commonTypeExAddressString(), ap.PrefixLength)
+	}
 }

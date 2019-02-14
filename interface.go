@@ -469,7 +469,7 @@ Ipv6IfIndex: %d
 ZoneIndices: %v
 Prefixes:
 `, ifc.DnsSuffix, ifc.Description, ifc.PhysicalAddress.String(), ifc.Flags, ifc.Mtu, ifc.IfType.String(),
-ifc.OperStatus.String(), ifc.Ipv6IfIndex, ifc.ZoneIndices)
+		ifc.OperStatus.String(), ifc.Ipv6IfIndex, ifc.ZoneIndices)
 
 	for _, p := range ifc.Prefixes {
 		result += fmt.Sprintf("\t%s\n", p.String())
@@ -499,7 +499,7 @@ Dhcpv6Server: %s
 Dhcpv6ClientDuid: %v
 Dhcpv6Iaid: %d
 `, ifc.Ipv4Metric, ifc.Ipv6Metric, ifc.Dhcpv4Server.String(), ifc.CompartmentId, guidToString(ifc.NetworkGuid),
-ifc.ConnectionType.String(), ifc.TunnelType.String(), ifc.Dhcpv6Server.String(), ifc.Dhcpv6ClientDuid, ifc.Dhcpv6Iaid)
+		ifc.ConnectionType.String(), ifc.TunnelType.String(), ifc.Dhcpv6Server.String(), ifc.Dhcpv6ClientDuid, ifc.Dhcpv6Iaid)
 
 	result += "DnsSuffixes:\n"
 

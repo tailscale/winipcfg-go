@@ -40,6 +40,6 @@ DadState: %s
 ScopeId: %d
 CreationTimeStamp: %d
 `, uar.Address.String(), uar.OnLinkPrefixLength, uar.InterfaceLuid, uar.InterfaceIndex, uar.PrefixOrigin.String(),
-uar.SuffixOrigin.String(), uar.ValidLifetime, uar.PreferredLifetime, uar.SkipAsSource, uar.DadState.String(),
-uar.ScopeId, uar.CreationTimeStamp)
+		uar.SuffixOrigin.String(), uar.ValidLifetime, uar.PreferredLifetime, uar.SkipAsSource, uar.DadState.String(),
+		uar.ScopeId, uar.CreationTimeStamp)
 }

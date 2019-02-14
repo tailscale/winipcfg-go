@@ -8,17 +8,16 @@ package winipcfg
 import "fmt"
 
 type IpAdapterUnicastAddress struct {
-
 	// It extends IpAdapterAddressCommonTypeEx
 	IpAdapterAddressCommonTypeEx
 
 	PrefixOrigin IpPrefixOrigin
 	SuffixOrigin IpSuffixOrigin
-	DadState IpDadState
+	DadState     IpDadState
 
-	ValidLifetime uint32
-	PreferredLifetime uint32
-	LeaseLifetime uint32
+	ValidLifetime      uint32
+	PreferredLifetime  uint32
+	LeaseLifetime      uint32
 	OnLinkPrefixLength uint8
 }
 

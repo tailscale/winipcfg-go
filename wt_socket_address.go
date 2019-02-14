@@ -13,7 +13,7 @@ import (
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2def/ns-ws2def-_socket_address
 // SOCKET_ADDRESS defined in ws2def.h
 type wtSocketAddress struct {
-	lpSockaddr *wtSockaddr
+	lpSockaddr      *wtSockaddr
 	iSockaddrLength int32 // Windows type: INT
 }
 

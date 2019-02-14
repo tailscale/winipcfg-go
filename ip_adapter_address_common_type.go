@@ -8,7 +8,6 @@ package winipcfg
 import "fmt"
 
 type IpAdapterAddressCommonType struct {
-
 	// The interface the address belongs to.
 	Interface Interface
 

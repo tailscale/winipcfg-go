@@ -19,13 +19,25 @@ const (
 type wtIpAdapterAddresses wtIpAdapterAddressesLh
 
 func (aa *wtIpAdapterAddresses) nextCasted() *wtIpAdapterAddresses {
-	return (*wtIpAdapterAddresses) (unsafe.Pointer(aa.Next))
+	if aa == nil {
+		return nil
+	} else {
+		return (*wtIpAdapterAddresses)(unsafe.Pointer(aa.Next))
+	}
 }
 
 func (aa *wtIpAdapterAddresses) getAdapterName() string {
-	return charToString(aa.AdapterName)
+	if aa == nil {
+		return ""
+	} else {
+		return charToString(aa.AdapterName)
+	}
 }
 
 func (aa *wtIpAdapterAddresses) getFriendlyName() string {
-	return wcharToString(aa.FriendlyName)
+	if aa == nil {
+		return ""
+	} else {
+		return wcharToString(aa.FriendlyName)
+	}
 }

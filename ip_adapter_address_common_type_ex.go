@@ -8,7 +8,7 @@ package winipcfg
 import "fmt"
 
 type IpAdapterAddressCommonTypeEx struct {
-
+	// It extends IpAdapterAddressCommonType
 	IpAdapterAddressCommonType
 
 	// TODO: Documentation missing. What is it?

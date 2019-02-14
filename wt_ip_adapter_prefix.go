@@ -10,10 +10,10 @@ import "unsafe"
 // https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_prefix_xp
 // IP_ADAPTER_PREFIX_XP defined in iptypes.h
 type wtIpAdapterPrefixXp struct {
-	Length uint32 // Windows type: ULONG
-	Flags uint32 // Windows type: DWORD
-	Next *wtIpAdapterPrefixXp
-	Address wtSocketAddress
+	Length       uint32 // Windows type: ULONG
+	Flags        uint32 // Windows type: DWORD
+	Next         *wtIpAdapterPrefixXp
+	Address      wtSocketAddress
 	PrefixLength uint32 // Windows type: ULONG
 }
 

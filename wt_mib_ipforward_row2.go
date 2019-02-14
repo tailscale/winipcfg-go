@@ -19,20 +19,20 @@ type wtMibIpforwardRow2 struct {
 	//
 	// Read-Write Fields.
 	//
-	SitePrefixLength uint8 // Windows type: UCHAR
-	ValidLifetime uint32 // Windows type: ULONG
+	SitePrefixLength  uint8  // Windows type: UCHAR
+	ValidLifetime     uint32 // Windows type: ULONG
 	PreferredLifetime uint32 // Windows type: ULONG
-	Metric uint32 // Windows type: ULONG
-	Protocol NlRouteProtocol
+	Metric            uint32 // Windows type: ULONG
+	Protocol          NlRouteProtocol
 
-	Loopback uint8 // Windows type: BOOLEAN
+	Loopback             uint8 // Windows type: BOOLEAN
 	AutoconfigureAddress uint8 // Windows type: BOOLEAN
-	Publish uint8 // Windows type: BOOLEAN
-	Immortal uint8 // Windows type: BOOLEAN
+	Publish              uint8 // Windows type: BOOLEAN
+	Immortal             uint8 // Windows type: BOOLEAN
 
 	//
 	// Read-Only Fields.
 	//
-	Age uint32 // Windows type: ULONG
+	Age    uint32 // Windows type: ULONG
 	Origin NlRouteOrigin
 }

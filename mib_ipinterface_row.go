@@ -121,13 +121,13 @@ ReceiveOffload:
 %s
 DisableDefaultRoutes: %v
 	`, mir.Family.String(), mir.InterfaceLuid, mir.InterfaceIndex, mir.MaxReassemblySize, mir.InterfaceIdentifier,
-	mir.MinRouterAdvertisementInterval, mir.MaxRouterAdvertisementInterval, mir.AdvertisingEnabled,
-	mir.ForwardingEnabled, mir.WeakHostSend, mir.WeakHostReceive, mir.UseAutomaticMetric,
-	mir.UseNeighborUnreachabilityDetection, mir.ManagedAddressConfigurationSupported,
-	mir.OtherStatefulConfigurationSupported, mir.AdvertiseDefaultRoute, mir.RouterDiscoveryBehavior.String(),
-	mir.DadTransmits, mir.BaseReachableTime, mir.RetransmitTime, mir.PathMtuDiscoveryTimeout,
-	mir.LinkLocalAddressBehavior.String(), mir.LinkLocalAddressTimeout, mir.ZoneIndices, mir.SitePrefixLength,
-	mir.Metric, mir.NlMtu, mir.Connected, mir.SupportsWakeUpPatterns, mir.SupportsNeighborDiscovery,
-	mir.SupportsRouterDiscovery, mir.ReachableTime, toIndentedText(mir.TransmitOffload.String(), "  "),
-	toIndentedText(mir.ReceiveOffload.String(), "  "), mir.DisableDefaultRoutes)
+		mir.MinRouterAdvertisementInterval, mir.MaxRouterAdvertisementInterval, mir.AdvertisingEnabled,
+		mir.ForwardingEnabled, mir.WeakHostSend, mir.WeakHostReceive, mir.UseAutomaticMetric,
+		mir.UseNeighborUnreachabilityDetection, mir.ManagedAddressConfigurationSupported,
+		mir.OtherStatefulConfigurationSupported, mir.AdvertiseDefaultRoute, mir.RouterDiscoveryBehavior.String(),
+		mir.DadTransmits, mir.BaseReachableTime, mir.RetransmitTime, mir.PathMtuDiscoveryTimeout,
+		mir.LinkLocalAddressBehavior.String(), mir.LinkLocalAddressTimeout, mir.ZoneIndices, mir.SitePrefixLength,
+		mir.Metric, mir.NlMtu, mir.Connected, mir.SupportsWakeUpPatterns, mir.SupportsNeighborDiscovery,
+		mir.SupportsRouterDiscovery, mir.ReachableTime, toIndentedText(mir.TransmitOffload.String(), "  "),
+		toIndentedText(mir.ReceiveOffload.String(), "  "), mir.DisableDefaultRoutes)
 }

@@ -15,7 +15,7 @@ import (
 // SOCKADDR_IN defined in ws2def.h
 type wtSockaddrIn struct {
 	sin_family AddressFamily
-	sin_port   uint16 // USHORT flattened to uint16
+	sin_port   uint16 // Windows type: USHORT
 	sin_addr   wtInAddr
 	sin_zero   [8]uint8 // Windows type: [8]CHAR
 }
@@ -24,9 +24,9 @@ type wtSockaddrIn struct {
 func NewWtSockaddrIn() *wtSockaddrIn {
 	return &wtSockaddrIn{
 		sin_family: AF_INET,
-		sin_port: 0,
-		sin_addr: *NewWtInAddr(),
-		sin_zero: [8]uint8{0, 0, 0, 0, 0, 0, 0, 0}}
+		sin_port:   0,
+		sin_addr:   *NewWtInAddr(),
+		sin_zero:   [8]uint8{0, 0, 0, 0, 0, 0, 0, 0}}
 }
 
 func (addr *wtSockaddrIn) String() string {
@@ -40,13 +40,13 @@ type wtSockaddrIn6Lh struct {
 	// AF_INET6.
 	sin6_family AddressFamily
 	// Transport level port number.
-	sin6_port uint16 // USHORT flattened to uint16
+	sin6_port uint16 // Windows type: USHORT
 	// IPv6 flow information.
-	sin6_flowinfo uint32 // ULONG flattened to uint32
+	sin6_flowinfo uint32 // Windows type: ULONG
 	// IPv6 address.
 	sin6_addr wtIn6Addr
 	// Set of interfaces for a scope.
-	sin6_scope_id uint32 // ULONG flattened to uint32
+	sin6_scope_id uint32 // Windows type: ULONG
 }
 
 func (addr *wtSockaddrIn6Lh) String() string {
@@ -65,11 +65,19 @@ type wtSockaddrIn6 wtSockaddrIn6Lh
 type wtSockaddrInet wtSockaddrIn6
 
 func (addr *wtSockaddrInet) isIPv4() bool {
-	return addr.sin6_family == AF_INET;
+	if addr == nil {
+		return false
+	} else {
+		return addr.sin6_family == AF_INET;
+	}
 }
 
 func (addr *wtSockaddrInet) isIPv6() bool {
-	return addr.sin6_family == AF_INET6;
+	if addr == nil {
+		return false
+	} else {
+		return addr.sin6_family == AF_INET6;
+	}
 }
 
 func (addr *wtSockaddrInet) toWtSockaddrIn() (*wtSockaddrIn, error) {
@@ -174,6 +182,10 @@ func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) 
 
 func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) {
 
+	if sin == nil {
+		return
+	}
+
 	in_addr, _ := netIpToWtInAddr(ipv4)
 
 	sin4 := (*wtSockaddrIn)(unsafe.Pointer(sin))
@@ -187,7 +199,9 @@ func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) {
 }
 
 func (addr *wtSockaddrInet) String() string {
-	if addr.isIPv4() {
+	if addr == nil {
+		return ""
+	} else if addr.isIPv4() {
 		ipv4, _ := addr.toWtSockaddrIn()
 		return ipv4.String()
 	} else {

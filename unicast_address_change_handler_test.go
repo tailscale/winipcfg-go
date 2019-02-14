@@ -11,11 +11,11 @@ import (
 )
 
 // Example callback
-var unicastAddressChangeCallbackExample UnicastAddressChangeCallback = func (uar *MibUnicastipaddressRow, notificationType MibNotificationType) {
+var unicastAddressChangeCallbackExample UnicastAddressChangeCallback = func (uar *UnicastAddressData, notificationType MibNotificationType) {
 
 	fmt.Printf(`======================== UNICAST ADDRESS CHANGED START ========================
 MibNotificationType: %s
-MibUnicastipaddressRow:
+UnicastAddressData:
 %s
 ========================= UNICAST ADDRESS CHANGED END =========================
 `, notificationType.String(), toIndentedText(uar.String(), "  "))

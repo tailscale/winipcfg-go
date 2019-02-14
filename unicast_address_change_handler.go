@@ -12,7 +12,7 @@ import (
 )
 
 // Defines function that can be used as a callback.
-type UnicastAddressChangeCallback func(uar *MibUnicastipaddressRow, notificationType MibNotificationType)
+type UnicastAddressChangeCallback func(uar *UnicastAddressData, notificationType MibNotificationType)
 
 var (
 	unicastAddressChangeMutex     = sync.Mutex{}
@@ -151,7 +151,7 @@ func unicastAddressChanged(callerContext unsafe.Pointer, wtUar *wtMibUnicastipad
 	return 0
 }
 
-func notifyUnicastAddressChangedCallbacks(uar *MibUnicastipaddressRow, notificationType MibNotificationType) {
+func notifyUnicastAddressChangedCallbacks(uar *UnicastAddressData, notificationType MibNotificationType) {
 
 	unicastAddressChangeMutex.Lock()
 	defer unicastAddressChangeMutex.Unlock()

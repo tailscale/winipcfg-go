@@ -5,7 +5,7 @@
 
 package winipcfg
 
-func (wtua *wtMibUnicastipaddressRow) toMibUnicastipaddressRow() (*MibUnicastipaddressRow, error) {
+func (wtua *wtMibUnicastipaddressRow) toMibUnicastipaddressRow() (*UnicastAddressData, error) {
 
 	if wtua == nil {
 		return nil, nil
@@ -17,7 +17,7 @@ func (wtua *wtMibUnicastipaddressRow) toMibUnicastipaddressRow() (*MibUnicastipa
 		return nil, err
 	}
 
-	return &MibUnicastipaddressRow{
+	return &UnicastAddressData{
 		Address:            *sai,
 		InterfaceLuid:      wtua.InterfaceLuid,
 		InterfaceIndex:     wtua.InterfaceIndex,

@@ -11,7 +11,7 @@ import (
 	"unsafe"
 )
 
-type MibUnicastipaddressRow struct {
+type UnicastAddressData struct {
 	Address            SockaddrInet
 	InterfaceLuid      uint64
 	InterfaceIndex     uint32
@@ -26,7 +26,7 @@ type MibUnicastipaddressRow struct {
 	CreationTimeStamp  int64
 }
 
-func GetUnicastAddresses(family AddressFamily) ([]*MibUnicastipaddressRow, error) {
+func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 
 	var pTable *wtMibUnicastipaddressTable = nil
 
@@ -40,7 +40,7 @@ func GetUnicastAddresses(family AddressFamily) ([]*MibUnicastipaddressRow, error
 		return nil, windows.Errno(result)
 	}
 
-	addresses := make([]*MibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
+	addresses := make([]*UnicastAddressData, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibUnicastipaddressRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
@@ -61,7 +61,7 @@ func GetUnicastAddresses(family AddressFamily) ([]*MibUnicastipaddressRow, error
 	return addresses, nil
 }
 
-func (uar *MibUnicastipaddressRow) String() string {
+func (uar *UnicastAddressData) String() string {
 
 	if uar == nil {
 		return ""

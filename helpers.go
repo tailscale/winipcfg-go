@@ -92,3 +92,15 @@ func toIndentedText(text, indent string) string {
 
 	return indent + indented
 }
+
+func uint8ToBool(val uint8) bool {
+	return val != 0
+}
+
+func boolToUint8(val bool) uint8 {
+	if val {
+		return 1
+	} else {
+		return 0
+	}
+}

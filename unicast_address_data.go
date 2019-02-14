@@ -26,6 +26,34 @@ type UnicastAddressData struct {
 	CreationTimeStamp  int64
 }
 
+func (uad *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastipaddressRow, error) {
+
+	if uad == nil {
+		return nil, nil
+	}
+
+	wtsai, err := uad.Address.toWtSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &wtMibUnicastipaddressRow{
+		Address:            *wtsai,
+		InterfaceLuid:      uad.InterfaceLuid,
+		InterfaceIndex:     uad.InterfaceIndex,
+		PrefixOrigin:       uad.PrefixOrigin,
+		SuffixOrigin:       uad.SuffixOrigin,
+		ValidLifetime:      uad.ValidLifetime,
+		PreferredLifetime:  uad.PreferredLifetime,
+		OnLinkPrefixLength: uad.OnLinkPrefixLength,
+		SkipAsSource:       boolToUint8(uad.SkipAsSource),
+		DadState:           uad.DadState,
+		ScopeId:            uad.ScopeId,
+		CreationTimeStamp:  uad.CreationTimeStamp,
+	}, nil
+}
+
 func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 
 	var pTable *wtMibUnicastipaddressTable = nil
@@ -47,7 +75,7 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
 
-		wta := (*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize * uintptr(i)))
+		wta := (*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 
 		address, err := wta.toMibUnicastipaddressRow()
 
@@ -60,6 +88,10 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 
 	return addresses, nil
 }
+
+//func CreateUnicastAddress(address UnicastAddressData) error {
+//
+//}
 
 func (uar *UnicastAddressData) String() string {
 

@@ -38,7 +38,8 @@ func (addr *wtIn6Addr) toNetIp() net.IP {
 		byte(addr.Byte[12]),
 		byte(addr.Byte[13]),
 		byte(addr.Byte[14]),
-		byte(addr.Byte[15]), }
+		byte(addr.Byte[15]),
+	}
 }
 
 func netIpToWtIn6Addr(ip net.IP) (*wtIn6Addr, error) {

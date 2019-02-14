@@ -158,8 +158,12 @@ func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) 
 
 	if ipv4 != nil {
 		// address is IPv4
-		result.fillAsWtSockaddrIn(ipv4, port)
-		result.sin6_family = AF_INET
+		err := result.fillAsWtSockaddrIn(ipv4, port)
+
+		if err != nil {
+			return nil, err
+		}
+
 		return result, nil
 	}
 
@@ -180,13 +184,17 @@ func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) 
 	return result, nil
 }
 
-func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) {
+func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) error {
 
 	if sin == nil {
-		return
+		return nil
 	}
 
-	in_addr, _ := netIpToWtInAddr(ipv4)
+	in_addr, err := netIpToWtInAddr(ipv4)
+
+	if err != nil {
+		return err
+	}
 
 	sin4 := (*wtSockaddrIn)(unsafe.Pointer(sin))
 	sin4.sin_family = AF_INET
@@ -196,6 +204,8 @@ func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) {
 	for i := 0; i < 8; i++ {
 		sin4.sin_zero[i] = 0
 	}
+
+	return nil
 }
 
 func (addr *wtSockaddrInet) String() string {

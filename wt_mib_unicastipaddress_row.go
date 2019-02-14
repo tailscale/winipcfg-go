@@ -26,7 +26,7 @@ func (wtua *wtMibUnicastipaddressRow) toMibUnicastipaddressRow() (*UnicastAddres
 		ValidLifetime:      wtua.ValidLifetime,
 		PreferredLifetime:  wtua.PreferredLifetime,
 		OnLinkPrefixLength: wtua.OnLinkPrefixLength,
-		SkipAsSource:       wtua.SkipAsSource != 0,
+		SkipAsSource:       uint8ToBool(wtua.SkipAsSource),
 		DadState:           wtua.DadState,
 		ScopeId:            wtua.ScopeId,
 		CreationTimeStamp:  wtua.CreationTimeStamp,

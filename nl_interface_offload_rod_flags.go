@@ -33,14 +33,14 @@ type NlInterfaceOffloadRodFlags struct {
 
 func (wtior wtNlInterfaceOffloadRod) toNlInterfaceOffloadRodFlags() *NlInterfaceOffloadRodFlags {
 	return &NlInterfaceOffloadRodFlags{
-		NlChecksumSupported:         uint8(wtior)&uint8(nlChecksumSupported) != 0,
-		NlOptionsSupported:          uint8(wtior)&uint8(nlOptionsSupported) != 0,
-		TlDatagramChecksumSupported: uint8(wtior)&uint8(tlDatagramChecksumSupported) != 0,
-		TlStreamChecksumSupported:   uint8(wtior)&uint8(tlStreamChecksumSupported) != 0,
-		TlStreamOptionsSupported:    uint8(wtior)&uint8(tlStreamOptionsSupported) != 0,
-		FastPathCompatible:          uint8(wtior)&uint8(fastPathCompatible) != 0,
-		TlLargeSendOffloadSupported: uint8(wtior)&uint8(tlLargeSendOffloadSupported) != 0,
-		TlGiantSendOffloadSupported: uint8(wtior)&uint8(tlGiantSendOffloadSupported) != 0,
+		NlChecksumSupported:         uint8ToBool(uint8(wtior)&uint8(nlChecksumSupported)),
+		NlOptionsSupported:          uint8ToBool(uint8(wtior)&uint8(nlOptionsSupported)),
+		TlDatagramChecksumSupported: uint8ToBool(uint8(wtior)&uint8(tlDatagramChecksumSupported)),
+		TlStreamChecksumSupported:   uint8ToBool(uint8(wtior)&uint8(tlStreamChecksumSupported)),
+		TlStreamOptionsSupported:    uint8ToBool(uint8(wtior)&uint8(tlStreamOptionsSupported)),
+		FastPathCompatible:          uint8ToBool(uint8(wtior)&uint8(fastPathCompatible)),
+		TlLargeSendOffloadSupported: uint8ToBool(uint8(wtior)&uint8(tlLargeSendOffloadSupported)),
+		TlGiantSendOffloadSupported: uint8ToBool(uint8(wtior)&uint8(tlGiantSendOffloadSupported)),
 	}
 }
 

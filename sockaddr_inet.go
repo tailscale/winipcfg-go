@@ -8,11 +8,11 @@ package winipcfg
 import (
 	"fmt"
 	"net"
+	"unsafe"
 )
 
 // Specifies transport address and port.
 type SockaddrInet struct {
-
 	// Can be AF_INET (for IPv4) or AF_INET6 (for IPv6).
 	Family AddressFamily
 
@@ -29,6 +29,64 @@ type SockaddrInet struct {
 
 	// Set of interfaces for a scope. NOTE: This field should be used only with IPv4 addresses.
 	IPv6ScopeId uint32
+}
+
+func (sainet *SockaddrInet) toWtSockaddrInet() (*wtSockaddrInet, error) {
+
+	if sainet == nil {
+		return nil, nil
+	}
+
+	wtsainet, err := createWtSockaddrInet(sainet.Address, sainet.Port)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if wtsainet.sin6_family != sainet.Family {
+		switch sainet.Family {
+		case AF_INET:
+			return nil,
+				fmt.Errorf("SockaddrInet.Family value of the input is AF_INET, but it looks that SockaddrInet.Address contains IPv6 address.")
+		case AF_INET6:
+			return nil,
+			fmt.Errorf("SockaddrInet.Family value of the input is AF_INET6, but it looks that SockaddrInet.Address contains IPv4 address.")
+		default:
+			return nil,
+			fmt.Errorf("Input SockaddrInet cannot be converted because its SockaddrInet.Family value %s. Allowed values are AF_INET and AF_INET6.",
+				sainet.Family.String())
+		}
+	}
+
+	if sainet.Family == AF_INET6 {
+		wtsainet.sin6_flowinfo = sainet.IPv6FlowInfo
+		wtsainet.sin6_scope_id = sainet.IPv6ScopeId
+	}
+
+	return wtsainet, nil
+}
+
+func (sainet *SockaddrInet) toWtSocketAddress() (*wtSocketAddress, error) {
+
+	if sainet == nil {
+		return nil, nil
+	}
+
+	wtsainet, err := sainet.toWtSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	wtsa := wtSocketAddress{lpSockaddr: (*wtSockaddr)(unsafe.Pointer(&wtsainet))}
+
+	if sainet.Family == AF_INET {
+		wtsa.iSockaddrLength = wtSockaddrIn_Size
+	} else {
+		wtsa.iSockaddrLength = wtSockaddrIn6Lh_Size
+	}
+
+	return &wtsa, nil
 }
 
 func (sainet *SockaddrInet) String() string {

@@ -138,7 +138,7 @@ func checkUnicastAddressChangeSubscribed() error {
 
 func unicastAddressChanged(callerContext unsafe.Pointer, wtUar *wtMibUnicastipaddressRow, notificationType MibNotificationType) uintptr {
 
-	uar, err := wtUar.toMibUnicastipaddressRow()
+	uar, err := wtUar.toUnicastAddressData()
 
 	if err != nil {
 		// TODO: We should at lest implement logging.

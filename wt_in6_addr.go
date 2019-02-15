@@ -42,18 +42,51 @@ func (addr *wtIn6Addr) toNetIp() net.IP {
 	}
 }
 
+// Compares two wtIn6Addr structs for equality. Note that the function will return false if either of structs is nil,
+// even if the other is also nil.
+func (addr *wtIn6Addr) equivalentTo(other *wtIn6Addr) bool {
+	if addr == nil || other == nil {
+		return false
+	}
+
+	for i := 0; i < 16; i++ {
+		if addr.Byte[i] != other.Byte[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (addr *wtIn6Addr) matches(ip net.IP) bool {
+
+	if addr == nil {
+		return false
+	}
+
+	if len(ip) != net.IPv6len || ip.To4() != nil {
+		return false
+	}
+
+	for i := 0; i < 16; i++ {
+		if addr.Byte[i] != ip[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 func netIpToWtIn6Addr(ip net.IP) (*wtIn6Addr, error) {
 
-	ip6 := ip.To16()
-
-	if ip6 == nil {
-		return nil, fmt.Errorf("Input IP isn't a valid IPv6 address.")
+	if len(ip) != net.IPv6len || ip.To4() != nil {
+		return nil, fmt.Errorf("netIpToWtIn6Addr() requires IPv6 addresses")
 	}
 
 	in6_addr := wtIn6Addr{}
 
 	for i := 0; i < 16; i++ {
-		in6_addr.Byte[i] = ip6[i]
+		in6_addr.Byte[i] = ip[i]
 	}
 
 	return &in6_addr, nil

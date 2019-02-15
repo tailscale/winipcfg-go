@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"net"
 	"unsafe"
 )
 
@@ -54,7 +55,7 @@ func (uad *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastipaddr
 	}, nil
 }
 
-func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
+func getWtMibUnicastipaddressRows(family AddressFamily) ([]*wtMibUnicastipaddressRow, error) {
 
 	var pTable *wtMibUnicastipaddressTable = nil
 
@@ -68,30 +69,92 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 		return nil, windows.Errno(result)
 	}
 
-	addresses := make([]*UnicastAddressData, pTable.NumEntries, pTable.NumEntries)
+	addresses := make([]*wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibUnicastipaddressRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
-
-		wta := (*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
-
-		address, err := wta.toMibUnicastipaddressRow()
-
-		if err != nil {
-			return nil, err
-		}
-
-		addresses[i] = address
+		addresses[i] = (*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 	}
 
 	return addresses, nil
 }
 
-//func CreateUnicastAddress(address UnicastAddressData) error {
-//
-//}
+func getMatchingUnicastAddress(luid uint64, ip net.IP) (*UnicastAddressData, error) {
+
+	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wta := range wtas {
+		if wta.InterfaceLuid == luid && wta.Address.matches(ip) {
+
+			address, err := wta.toUnicastAddressData()
+
+			if err == nil {
+				return address, nil
+			} else {
+				return nil, err
+			}
+		}
+	}
+
+	return nil, err
+}
+
+func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
+
+	wtas, err := getWtMibUnicastipaddressRows(family)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if wtas == nil {
+		return nil, nil
+	}
+
+	count := len(wtas)
+
+	addresses := make([]*UnicastAddressData, count, count)
+
+	for idx, wta := range wtas {
+
+		address, err := wta.toUnicastAddressData()
+
+		if err != nil {
+			return nil, err
+		}
+
+		addresses[idx] = address
+	}
+
+	return addresses, nil
+}
+
+func CreateUnicastAddress(address *UnicastAddressData) error {
+
+	if address == nil {
+		return fmt.Errorf("input argument is nil")
+	}
+
+	wta, err := address.toWtMibUnicastipaddressRow()
+
+	if err != nil {
+		return err
+	}
+
+	result := createUnicastIpAddressEntry(wta)
+
+	if result == 0 {
+		return nil
+	} else {
+		return windows.Errno(result)
+	}
+}
 
 func (uar *UnicastAddressData) String() string {
 

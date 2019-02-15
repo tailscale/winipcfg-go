@@ -23,6 +23,31 @@ func NewWtInAddr() *wtInAddr {
 	return &wtInAddr{0, 0, 0, 0}
 }
 
+// Compares two wtInAddr structs for equality. Note that the function will return false if either of structs is nil,
+// even if the other is also nil.
+func (addr *wtInAddr) equivalentTo(other *wtInAddr) bool {
+	if addr == nil || other == nil {
+		return false
+	} else {
+		return addr.s_b1 == other.s_b1 && addr.s_b2 == other.s_b2 && addr.s_b3 == other.s_b3 && addr.s_b4 == other.s_b4
+	}
+}
+
+func (addr *wtInAddr) matches(ip net.IP) bool {
+
+	if addr == nil {
+		return false
+	}
+
+	ip4 := ip.To4()
+
+	if ip4 == nil {
+		return false
+	}
+
+	return ip4[0] == addr.s_b1 && ip4[1] == addr.s_b2 && ip4[2] == addr.s_b3 && ip4[3] == addr.s_b4
+}
+
 func (addr *wtInAddr) toNetIp() net.IP {
 	return net.IPv4(byte(addr.s_b1), byte(addr.s_b2), byte(addr.s_b3), byte(addr.s_b4))
 }

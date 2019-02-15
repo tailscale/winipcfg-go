@@ -26,7 +26,44 @@ func NewWtSockaddrIn() *wtSockaddrIn {
 		sin_family: AF_INET,
 		sin_port:   0,
 		sin_addr:   *NewWtInAddr(),
-		sin_zero:   [8]uint8{0, 0, 0, 0, 0, 0, 0, 0}}
+		sin_zero:   [8]uint8{0, 0, 0, 0, 0, 0, 0, 0},
+	}
+}
+
+// Compares two wtSockaddrIn structs for equality. Note that function will return false if:
+// - any of structs is nil, even if the other struct is also nil;
+// - any of structs has its family other than AF_INET, even if the other also has the same family and all other fields
+// equal.
+func (addr *wtSockaddrIn) equivalentTo(other *wtSockaddrIn) bool {
+
+	if addr == nil || other == nil {
+		return false
+	}
+
+	if addr.sin_family != AF_INET || other.sin_family != AF_INET {
+		return false
+	}
+
+	return addr.sin_port == other.sin_port && addr.sin_addr.equivalentTo(&other.sin_addr)
+}
+
+func (addr *wtSockaddrIn) matches(ip net.IP) bool {
+
+	if addr == nil {
+		return false
+	}
+
+	if addr.sin_family != AF_INET {
+		return false
+	}
+
+	ip4 := ip.To4()
+
+	if ip4 == nil {
+		return false
+	}
+
+	return addr.sin_addr.matches(ip4)
 }
 
 func (addr *wtSockaddrIn) String() string {
@@ -49,6 +86,46 @@ type wtSockaddrIn6Lh struct {
 	sin6_scope_id uint32 // Windows type: ULONG
 }
 
+// Compares two wtSockaddrIn6Lh structs for equality. Note that function will return false if:
+// - any of structs is nil, even if the other struct is also nil;
+// - any of structs has its family other than wtSockaddrIn6Lh, even if the other also has the same family and all other
+// fields equal.
+func (addr *wtSockaddrIn6Lh) equivalentTo(other *wtSockaddrIn6Lh) bool {
+
+	if addr == nil || other == nil {
+		return false
+	}
+
+	if addr.sin6_family != AF_INET6 || other.sin6_family != AF_INET6 {
+		return false
+	}
+
+	return addr.sin6_port == other.sin6_port && addr.sin6_flowinfo == other.sin6_flowinfo &&
+		addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equivalentTo(&other.sin6_addr)
+}
+
+func (addr *wtSockaddrIn6Lh) matches(ip net.IP) bool {
+
+	if addr == nil {
+		return false
+	}
+
+	if addr.sin6_family != AF_INET6 {
+		return false
+	}
+
+	if len(ip) != net.IPv6len {
+		return false
+	}
+
+	if ip.To4() != nil {
+		// IPv4 cannot match with wtSockaddrIn6Lh
+		return false
+	}
+
+	return addr.sin6_addr.matches(ip)
+}
+
 func (addr *wtSockaddrIn6Lh) String() string {
 	return fmt.Sprintf("sin6_family: %s; sin6_port: %d; sin6_flowinfo: %d; sin6_addr: [%s]; sin6_scope_id: %d",
 		addr.sin6_family.String(), addr.sin6_port, addr.sin6_flowinfo, addr.sin6_addr.toNetIp().String(),
@@ -60,9 +137,27 @@ type wtSockaddrIn6 wtSockaddrIn6Lh
 
 /*
 * According to https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-_sockaddr_inet
-* SOCKADDR_INET is a usnion of several types, and I'll use the largest among them (SOCKADDR_IN6) instead.
+* SOCKADDR_INET is a union of several types, and I'll use the largest among them (SOCKADDR_IN6) instead.
  */
 type wtSockaddrInet wtSockaddrIn6
+
+func (addr *wtSockaddrInet) matches(ip net.IP) bool {
+
+	if addr == nil {
+		return false
+	}
+
+	switch addr.sin6_family {
+	case AF_INET:
+		addr4 := (*wtSockaddrIn)(unsafe.Pointer(addr))
+		return addr4.matches(ip)
+	case AF_INET6:
+		addr6 := (*wtSockaddrIn6Lh)(unsafe.Pointer(addr))
+		return addr6.matches(ip)
+	default:
+		return false
+	}
+}
 
 func (addr *wtSockaddrInet) isIPv4() bool {
 	if addr == nil {
@@ -80,6 +175,33 @@ func (addr *wtSockaddrInet) isIPv6() bool {
 	}
 }
 
+// Compares two wtSockaddrInet structs for equality. Note that function will return false if:
+// - any of structs is nil, even if the other struct is also nil;
+// - any of structs has its family other than AF_INET and AF_INET6, even if the other also has the same family and all
+// other fields equal.
+func (addr *wtSockaddrInet) equivalentTo(other *wtSockaddrInet) bool {
+
+	if addr == nil || other == nil {
+		return false
+	}
+
+	if addr.sin6_family != other.sin6_family {
+		return false
+	}
+
+	switch addr.sin6_family {
+	case AF_INET:
+		first := (*wtSockaddrIn)(unsafe.Pointer(addr))
+		second := (*wtSockaddrIn)(unsafe.Pointer(other))
+		return first.equivalentTo(second)
+	case AF_INET6:
+		return addr.sin6_port == other.sin6_port && addr.sin6_flowinfo == other.sin6_flowinfo &&
+			addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equivalentTo(&other.sin6_addr)
+	default:
+		return false
+	}
+}
+
 func (addr *wtSockaddrInet) toWtSockaddrIn() (*wtSockaddrIn, error) {
 
 	if addr == nil {
@@ -89,9 +211,7 @@ func (addr *wtSockaddrInet) toWtSockaddrIn() (*wtSockaddrIn, error) {
 	if addr.isIPv4() {
 		return (*wtSockaddrIn)(unsafe.Pointer(addr)), nil
 	} else {
-		return nil,
-			fmt.Errorf("Only wtSockaddrInet values with sin6_family = %s can be converted to wtSockaddrIn. In this case sin6_family is %s.",
-				AF_INET.String(), addr.sin6_family.String())
+		return nil, fmt.Errorf("toWtSockaddrIn() requires IPv4 input arguments")
 	}
 }
 
@@ -104,9 +224,7 @@ func (addr *wtSockaddrInet) toWtSockaddrIn6() (*wtSockaddrIn6, error) {
 	if addr.isIPv6() {
 		return (*wtSockaddrIn6)(unsafe.Pointer(addr)), nil
 	} else {
-		return nil,
-			fmt.Errorf("Only wtSockaddrInet values with sin6_family = %s can be converted to wtSockaddrIn6. In this case sin6_family is %s.",
-				AF_INET6.String(), addr.sin6_family.String())
+		return nil, fmt.Errorf("toWtSockaddrIn6() requires IPv6 input arguments")
 	}
 }
 
@@ -146,8 +264,7 @@ func (wtsa *wtSockaddrInet) toSockaddrInet() (*SockaddrInet, error) {
 		return &sainet, nil
 	}
 
-	return nil, fmt.Errorf("Family of the input argument is %s. It has to be either %s or %s",
-		wtsa.sin6_family.String(), AF_INET.String(), AF_INET6.String())
+	return nil, fmt.Errorf("toSockaddrInet() requires IPv4 or IPv6 input argument")
 }
 
 func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) {
@@ -170,7 +287,7 @@ func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) 
 	ipv6 := address.To16()
 
 	if ipv6 == nil {
-		return nil, fmt.Errorf("Input parameter doesn't represent a valid IP address.")
+		return nil, fmt.Errorf("createWtSockaddrInet() input argument doesn't represent a valid IP address")
 	}
 
 	in6_addr, _ := netIpToWtIn6Addr(ipv6)

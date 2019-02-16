@@ -31,6 +31,56 @@ type SockaddrInet struct {
 	IPv6ScopeId uint32
 }
 
+func (sainet *SockaddrInet) equivalentTo(other *SockaddrInet) bool {
+
+	if sainet == nil || other == nil {
+		return false
+	}
+
+	switch sainet.Family {
+	case AF_INET:
+		return other.Family == AF_INET && sainet.Port == other.Port && sainet.Address.Equal(other.Address)
+	case AF_INET6:
+		return other.Family == AF_INET6 && sainet.Port == other.Port && sainet.IPv6FlowInfo == other.IPv6FlowInfo &&
+			sainet.IPv6ScopeId == other.IPv6ScopeId && sainet.Address.Equal(other.Address)
+	default:
+		// We don't bother to compare invalid addresses.
+		return false
+	}
+}
+
+func createSockaddrInet(ip net.IP) (*SockaddrInet, error) {
+
+	sainet := SockaddrInet{
+		Port: 0,
+		Address: ip,
+		IPv6FlowInfo: 0,
+		IPv6ScopeId: 0,
+	}
+
+	ip4 := ip.To4()
+
+	if ip4 != nil {
+
+		sainet.Family = AF_INET
+		sainet.Address = ip4
+
+		return &sainet, nil
+	}
+
+	ip6 := ip.To16()
+
+	if ip6 != nil {
+
+		sainet.Family = AF_INET6
+		sainet.Address = ip6
+
+		return &sainet, nil
+	}
+
+	return nil, fmt.Errorf("createSockaddrInet() - invalid input IP")
+}
+
 func (sainet *SockaddrInet) toWtSockaddrInet() (*wtSockaddrInet, error) {
 
 	if sainet == nil {

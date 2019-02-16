@@ -47,7 +47,7 @@ func (addr *wtSockaddrIn) equivalentTo(other *wtSockaddrIn) bool {
 	return addr.sin_port == other.sin_port && addr.sin_addr.equivalentTo(&other.sin_addr)
 }
 
-func (addr *wtSockaddrIn) matches(ip net.IP) bool {
+func (addr *wtSockaddrIn) matches(ip *net.IP) bool {
 
 	if addr == nil {
 		return false
@@ -104,7 +104,7 @@ func (addr *wtSockaddrIn6Lh) equivalentTo(other *wtSockaddrIn6Lh) bool {
 		addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equivalentTo(&other.sin6_addr)
 }
 
-func (addr *wtSockaddrIn6Lh) matches(ip net.IP) bool {
+func (addr *wtSockaddrIn6Lh) matches(ip *net.IP) bool {
 
 	if addr == nil {
 		return false
@@ -114,7 +114,7 @@ func (addr *wtSockaddrIn6Lh) matches(ip net.IP) bool {
 		return false
 	}
 
-	if len(ip) != net.IPv6len {
+	if len(*ip) != net.IPv6len {
 		return false
 	}
 
@@ -141,7 +141,7 @@ type wtSockaddrIn6 wtSockaddrIn6Lh
  */
 type wtSockaddrInet wtSockaddrIn6
 
-func (addr *wtSockaddrInet) matches(ip net.IP) bool {
+func (addr *wtSockaddrInet) matches(ip *net.IP) bool {
 
 	if addr == nil {
 		return false

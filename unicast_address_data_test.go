@@ -10,14 +10,14 @@ import (
 	"testing"
 )
 
-const printUnicastAddresses = true
+const printUnicastAddresses = false
 
 func TestGetUnicastAddresses(t *testing.T) {
 
 	addresses, err := GetUnicastAddresses(AF_UNSPEC)
 
 	if err != nil {
-		t.Errorf("GetUnicastAddresses() returned an error: %v.", err)
+		t.Errorf("GetUnicastAddresses() returned an error: %v", err)
 		return
 	}
 

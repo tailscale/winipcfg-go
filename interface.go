@@ -387,20 +387,179 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 	return nil, nil
 }
 
+// Refreshes the interface by loading all it again from Windows.
+func (ifc *Interface) Refresh() error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.Refresh() - receiver argument Interface is nil")
+	}
+
+	ifcnew, err := InterfaceFromLUID(ifc.Luid)
+
+	if err != nil {
+		return err
+	}
+
+	if ifcnew == nil {
+		return fmt.Errorf("Interface.Refresh() - InterfaceFromLUID() returned nil")
+	}
+
+	*ifc = *ifcnew
+
+	return nil
+}
+
+func (ifc *Interface) GetMatchingUnicastAddressData(ip *net.IP) (*UnicastAddressData, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.GetMatchingUnicastAddressData() - receiver Interface argument is nil")
+	}
+
+	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wta := range wtas {
+		if wta.InterfaceLuid == ifc.Luid && wta.Address.matches(ip) {
+
+			address, err := wta.toUnicastAddressData()
+
+			if err == nil {
+				return address, nil
+			} else {
+				return nil, err
+			}
+		}
+	}
+
+	return nil, err
+}
+
 // TODO: Check interfaceTable method from 'net' module, interface_windows.go file - it may be useful...
 
 //// Sets up the interface to be totally blank, with no settings. If the user has
 //// subsequently edited the interface particulars or added/removed parts using
 //// the "Properties" view, this wipes out those changes.
 //func (iface *Interface) FlushInterface() error
-//
-//// Flush removes all, Add adds, Set flushes then adds.
-//func (iface *Interface) FlushAddresses() error
-//func (iface *Interface) AddAddresses(addresses []net.IP) error
-//func (iface *Interface) SetAddresses(addresses []net.IP) error
 
-func (iface *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
-	return getRoutes(family, iface)
+// Flush removes all, Add adds, Set flushes then adds.
+
+// Deletes all interface's unicast addresses.
+func (ifc *Interface) FlushAddresses() error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.FlushAddresses() - input argument is nil")
+	}
+
+	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
+
+	if err != nil {
+		return err;
+	}
+
+	for _, wta := range wtas {
+		if wta.InterfaceLuid == ifc.Luid {
+
+			err = wta.delete()
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	_ = ifc.Refresh()
+
+	return nil
+}
+
+func (ifc *Interface) AddAddresses(addresses []*IpWithPrefixLength) ([]*UnicastAddressData, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.AddAddresses() - input argument is nil")
+	}
+
+	count := len(addresses)
+
+	uas := make([]*UnicastAddressData, count, count)
+
+	for idx, ippl := range addresses {
+
+		addr, err := createUnicastAddressData(ifc, ippl)
+
+		if err != nil {
+			return nil, err
+		}
+
+		uas[idx] = addr
+	}
+
+	for _, ua := range uas {
+
+		err := ua.Add()
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_ = ifc.Refresh()
+
+	return uas, nil
+}
+
+func (ifc *Interface) SetAddresses(addresses []*IpWithPrefixLength) ([]*UnicastAddressData, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.AddAddresses() - receiver Interface argument is nil")
+	}
+
+	err := ifc.FlushAddresses()
+
+	if err != nil {
+		return nil, err
+	}
+
+	uads, err := ifc.AddAddresses(addresses)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_ = ifc.Refresh()
+
+	return uads, nil
+}
+
+func (ifc *Interface) RemoveAddress(ip *net.IP) error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.AddAddresses() - receiver Interface argument is nil")
+	}
+
+	addr, err := getMatchingWtMibUnicastipaddressRow(ifc.Luid, ip)
+
+	if err != nil {
+		return err
+	}
+
+	if addr == nil {
+		return fmt.Errorf("address not found")
+	}
+
+	err = addr.delete()
+
+	if err == nil {
+		_ = ifc.Refresh()
+	}
+
+	return err
+}
+
+func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
+	return getRoutes(family, ifc)
 }
 
 //// splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,

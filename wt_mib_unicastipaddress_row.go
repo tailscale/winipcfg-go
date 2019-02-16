@@ -5,6 +5,39 @@
 
 package winipcfg
 
+import (
+	"fmt"
+	"golang.org/x/sys/windows"
+	"net"
+	"unsafe"
+)
+
+func getWtMibUnicastipaddressRows(family AddressFamily) ([]*wtMibUnicastipaddressRow, error) {
+
+	var pTable *wtMibUnicastipaddressTable = nil
+
+	result := getUnicastIpAddressTable(family, unsafe.Pointer(&pTable))
+
+	if pTable != nil {
+		defer freeMibTable(unsafe.Pointer(pTable))
+	}
+
+	if result != 0 {
+		return nil, windows.Errno(result)
+	}
+
+	addresses := make([]*wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
+
+	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
+	rowSize := uintptr(wtMibUnicastipaddressRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
+
+	for i := uint32(0); i < pTable.NumEntries; i++ {
+		addresses[i] = (*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+	}
+
+	return addresses, nil
+}
+
 func (wtua *wtMibUnicastipaddressRow) toUnicastAddressData() (*UnicastAddressData, error) {
 
 	if wtua == nil {
@@ -18,7 +51,7 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastAddressData() (*UnicastAddressDat
 	}
 
 	return &UnicastAddressData{
-		Address:            *sai,
+		Address:            sai,
 		InterfaceLuid:      wtua.InterfaceLuid,
 		InterfaceIndex:     wtua.InterfaceIndex,
 		PrefixOrigin:       wtua.PrefixOrigin,
@@ -31,4 +64,51 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastAddressData() (*UnicastAddressDat
 		ScopeId:            wtua.ScopeId,
 		CreationTimeStamp:  wtua.CreationTimeStamp,
 	}, nil
+}
+
+func getMatchingWtMibUnicastipaddressRow(luid uint64, ip *net.IP) (*wtMibUnicastipaddressRow, error) {
+
+	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wta := range wtas {
+		if wta.InterfaceLuid == luid && wta.Address.matches(ip) {
+			return wta, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (wtua *wtMibUnicastipaddressRow) add() error {
+
+	if wtua == nil {
+		return fmt.Errorf("wtMibUnicastipaddressRow.add() - input argument is nil")
+	}
+
+	result := createUnicastIpAddressEntry(wtua)
+
+	if result == 0 {
+		return nil
+	} else {
+		return windows.Errno(result)
+	}
+}
+
+func (wtua *wtMibUnicastipaddressRow) delete() error {
+
+	if wtua == nil {
+		return fmt.Errorf("wtMibUnicastipaddressRow.delete() - input argument is nil")
+	}
+
+	result := deleteUnicastIpAddressEntry(wtua)
+
+	if result == 0 {
+		return nil
+	} else {
+		return windows.Errno(result)
+	}
 }

@@ -58,18 +58,18 @@ func (addr *wtIn6Addr) equivalentTo(other *wtIn6Addr) bool {
 	return true
 }
 
-func (addr *wtIn6Addr) matches(ip net.IP) bool {
+func (addr *wtIn6Addr) matches(ip *net.IP) bool {
 
 	if addr == nil {
 		return false
 	}
 
-	if len(ip) != net.IPv6len || ip.To4() != nil {
+	if len(*ip) != net.IPv6len || ip.To4() != nil {
 		return false
 	}
 
 	for i := 0; i < 16; i++ {
-		if addr.Byte[i] != ip[i] {
+		if addr.Byte[i] != (*ip)[i] {
 			return false
 		}
 	}

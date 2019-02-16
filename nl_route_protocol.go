@@ -35,9 +35,9 @@ const (
 	//
 	// Windows-specific definitions.
 	//
-	NT_AUTOSTATIC        NlRouteProtocol = 10002
-	NT_STATIC            NlRouteProtocol = 10006
-	NT_STATIC_NON_DOD    NlRouteProtocol = 10007
+	NT_AUTOSTATIC     NlRouteProtocol = 10002
+	NT_STATIC         NlRouteProtocol = 10006
+	NT_STATIC_NON_DOD NlRouteProtocol = 10007
 )
 
 func (protocol NlRouteProtocol) String() string {

@@ -11,7 +11,7 @@ import (
 )
 
 // Example callback
-var interfaceChangeCallbackExample InterfaceChangeCallback = func (ifc *MibIpinterfaceRow, notificationType MibNotificationType) {
+var interfaceChangeCallbackExample InterfaceChangeCallback = func(ifc *MibIpinterfaceRow, notificationType MibNotificationType) {
 
 	fmt.Printf(`=========================== INTERFACE CHANGED START ===========================
 MibNotificationType: %s
@@ -25,29 +25,29 @@ MibIpinterfaceRow:
 func TestRegisterUnregisterInterfaceChangeCallback(t *testing.T) {
 
 	if InterfaceChangeCallbackRegistered(&interfaceChangeCallbackExample) {
-		t.Error("InterfaceChangeCallbackRegistered returns true although nothing is registered.")
+		t.Error("InterfaceChangeCallbackRegistered() returned true although nothing is registered.")
 		return;
 	}
 
 	err := RegisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
 
 	if err != nil {
-		t.Errorf("RegisterInterfaceChangeCallback returned error: %v", err)
+		t.Errorf("RegisterInterfaceChangeCallback() returned error: %v", err)
 		return;
 	}
 
 	if !InterfaceChangeCallbackRegistered(&interfaceChangeCallbackExample) {
-		t.Error("InterfaceChangeCallbackRegistered returns false although a callback is registered successfully.")
+		t.Error("InterfaceChangeCallbackRegistered() returned false although a callback is registered successfully.")
 	}
 
 	err = UnregisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
 
 	if err != nil {
-		t.Errorf("UnregisterInterfaceChangeCallback returned error: %v", err)
+		t.Errorf("UnregisterInterfaceChangeCallback() returned error: %v", err)
 		return;
 	}
 
 	if InterfaceChangeCallbackRegistered(&interfaceChangeCallbackExample) {
-		t.Error("InterfaceChangeCallbackRegistered returns true although the callback is unregistered successfully.")
+		t.Error("InterfaceChangeCallbackRegistered() returned true although the callback is unregistered successfully.")
 	}
 }

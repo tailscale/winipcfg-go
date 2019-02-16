@@ -18,10 +18,10 @@ const (
 	// Use link locals only if no other addresses.
 	// (default for IPv4).
 	// Legacy mapping: IPAutoconfigurationEnabled.
-	LinkLocalDelayed   NlLinkLocalAddressBehavior = 1
+	LinkLocalDelayed NlLinkLocalAddressBehavior = 1
 
 	// Always use link locals (default for IPv6).
-	LinkLocalAlwaysOn  NlLinkLocalAddressBehavior = 2
+	LinkLocalAlwaysOn NlLinkLocalAddressBehavior = 2
 
 	LinkLocalUnchanged NlLinkLocalAddressBehavior = -1
 )

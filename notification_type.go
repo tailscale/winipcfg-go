@@ -19,15 +19,15 @@ const (
 	//
 	// Addition.
 	//
-	MibAddInstance           MibNotificationType = 1
+	MibAddInstance MibNotificationType = 1
 	//
 	// Deletion.
 	//
-	MibDeleteInstance        MibNotificationType = 2
+	MibDeleteInstance MibNotificationType = 2
 	//
 	// Initial notification.
 	//
-	MibInitialNotification   MibNotificationType = 3
+	MibInitialNotification MibNotificationType = 3
 )
 
 func (mnt MibNotificationType) String() string {

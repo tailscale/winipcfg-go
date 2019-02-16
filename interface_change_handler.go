@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"os"
 	"sync"
 	"unsafe"
 )
@@ -63,10 +64,10 @@ func UnregisterInterfaceChangeCallback(callback *InterfaceChangeCallback) error 
 		}
 	} else if index == 0 {
 		interfaceChangeCallbacks = interfaceChangeCallbacks[1:]
-	} else if index == count - 1 {
+	} else if index == count-1 {
 		interfaceChangeCallbacks = interfaceChangeCallbacks[:index]
 	} else {
-		interfaceChangeCallbacks = append(interfaceChangeCallbacks[:index], interfaceChangeCallbacks[index + 1:]...)
+		interfaceChangeCallbacks = append(interfaceChangeCallbacks[:index], interfaceChangeCallbacks[index+1:]...)
 	}
 
 	return nil
@@ -115,7 +116,7 @@ func checkInterfaceChangeSubscribed() error {
 				false, unsafe.Pointer(&interfaceChangeHandle))
 
 			if result != 0 {
-				return windows.Errno(result)
+				return os.NewSyscallError("iphlpapi.NotifyIpInterfaceChange", windows.Errno(result))
 			}
 		}
 	} else {
@@ -125,7 +126,7 @@ func checkInterfaceChangeSubscribed() error {
 			result := cancelMibChangeNotify2(interfaceChangeHandle)
 
 			if result != 0 {
-				return windows.Errno(result)
+				return os.NewSyscallError("iphlpapi.CancelMibChangeNotify2", windows.Errno(result))
 			}
 
 			interfaceChangeHandle = uintptr(0)

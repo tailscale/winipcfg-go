@@ -25,29 +25,29 @@ UnicastAddressData:
 func TestRegisterUnregisterUnicastAddressChangeCallback(t *testing.T) {
 
 	if UnicastAddressChangeCallbackRegistered(&unicastAddressChangeCallbackExample) {
-		t.Error("UnicastAddressChangeCallbackRegistered returns true although nothing is registered.")
+		t.Error("UnicastAddressChangeCallbackRegistered() returned true although nothing is registered.")
 		return;
 	}
 
 	err := RegisterUnicastAddressChangeCallback(&unicastAddressChangeCallbackExample)
 
 	if err != nil {
-		t.Errorf("RegisterUnicastAddressChangeCallback returned error: %v", err)
+		t.Errorf("RegisterUnicastAddressChangeCallback() returned error: %v", err)
 		return;
 	}
 
 	if !UnicastAddressChangeCallbackRegistered(&unicastAddressChangeCallbackExample) {
-		t.Error("UnicastAddressChangeCallbackRegistered returns false although a callback is registered successfully.")
+		t.Error("UnicastAddressChangeCallbackRegistered() returned false although a callback is registered successfully.")
 	}
 
 	err = UnregisterUnicastAddressChangeCallback(&unicastAddressChangeCallbackExample)
 
 	if err != nil {
-		t.Errorf("UnregisterUnicastAddressChangeCallback returned error: %v", err)
+		t.Errorf("UnregisterUnicastAddressChangeCallback() returned error: %v", err)
 		return;
 	}
 
 	if UnicastAddressChangeCallbackRegistered(&unicastAddressChangeCallbackExample) {
-		t.Error("UnicastAddressChangeCallbackRegistered returns true although the callback is unregistered successfully.")
+		t.Error("UnicastAddressChangeCallbackRegistered() returned true although the callback is unregistered successfully.")
 	}
 }

@@ -50,7 +50,7 @@ func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
 
-		wtr := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize * uintptr(i)))
+		wtr := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 
 		if ifc == nil || wtr.InterfaceLuid == ifc.Luid {
 

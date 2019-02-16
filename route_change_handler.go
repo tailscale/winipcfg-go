@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"os"
 	"sync"
 	"unsafe"
 )
@@ -115,7 +116,7 @@ func checkRouteChangeSubscribed() error {
 				false, unsafe.Pointer(&routeChangeHandle))
 
 			if result != 0 {
-				return windows.Errno(result)
+				return os.NewSyscallError("iphlpapi.NotifyRouteChange2", windows.Errno(result))
 			}
 		}
 	} else {
@@ -125,7 +126,7 @@ func checkRouteChangeSubscribed() error {
 			result := cancelMibChangeNotify2(routeChangeHandle)
 
 			if result != 0 {
-				return windows.Errno(result)
+				return os.NewSyscallError("iphlpapi.CancelMibChangeNotify2", windows.Errno(result))
 			}
 
 			routeChangeHandle = uintptr(0)

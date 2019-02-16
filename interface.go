@@ -9,9 +9,6 @@ import (
 	"fmt"
 	"golang.org/x/sys/windows"
 	"net"
-	"os"
-	"syscall"
-	"unsafe"
 )
 
 // Represents an interface, and it's based on Windows API type IP_ADAPTER_ADDRESSES.
@@ -225,47 +222,6 @@ func interfaceFromWtIpAdapterAddresses(wtiaa *wtIpAdapterAddresses) (*Interface,
 	ifc.DnsSuffixes = dnsSuffixes
 
 	return &ifc, nil
-}
-
-// Based on function with the same name in 'net' module, in file interface_windows.go
-func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
-
-	var b []byte
-
-	size := uint32(15000) // recommended initial size
-
-	for {
-
-		b = make([]byte, size)
-
-		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
-			(*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
-
-		if result == 0 {
-
-			if size == 0 {
-				return nil, nil
-			}
-
-			break
-		}
-
-		if result != uint32(syscall.ERROR_BUFFER_OVERFLOW) {
-			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
-		}
-
-		if size <= uint32(len(b)) {
-			return nil, os.NewSyscallError("getadaptersaddresses", syscall.Errno(result))
-		}
-	}
-
-	var wtiaas []*wtIpAdapterAddresses
-
-	for wtiaa := (*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])); wtiaa != nil; wtiaa = wtiaa.nextCasted() {
-		wtiaas = append(wtiaas, wtiaa)
-	}
-
-	return wtiaas, nil
 }
 
 func GetInterfaces() ([]*Interface, error) {
@@ -513,7 +469,7 @@ func (ifc *Interface) AddAddresses(addresses []*IpWithPrefixLength) ([]*UnicastA
 func (ifc *Interface) SetAddresses(addresses []*IpWithPrefixLength) ([]*UnicastAddressData, error) {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.AddAddresses() - receiver Interface argument is nil")
+		return nil, fmt.Errorf("Interface.SetAddresses() - receiver Interface argument is nil")
 	}
 
 	err := ifc.FlushAddresses()
@@ -536,7 +492,7 @@ func (ifc *Interface) SetAddresses(addresses []*IpWithPrefixLength) ([]*UnicastA
 func (ifc *Interface) RemoveAddress(ip *net.IP) error {
 
 	if ifc == nil {
-		return fmt.Errorf("Interface.AddAddresses() - receiver Interface argument is nil")
+		return fmt.Errorf("Interface.RemoveAddress() - receiver Interface argument is nil")
 	}
 
 	addr, err := getMatchingWtMibUnicastipaddressRow(ifc.Luid, ip)

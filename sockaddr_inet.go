@@ -52,10 +52,10 @@ func (sainet *SockaddrInet) equivalentTo(other *SockaddrInet) bool {
 func createSockaddrInet(ip net.IP) (*SockaddrInet, error) {
 
 	sainet := SockaddrInet{
-		Port: 0,
-		Address: ip,
+		Port:         0,
+		Address:      ip,
 		IPv6FlowInfo: 0,
-		IPv6ScopeId: 0,
+		IPv6ScopeId:  0,
 	}
 
 	ip4 := ip.To4()
@@ -97,14 +97,14 @@ func (sainet *SockaddrInet) toWtSockaddrInet() (*wtSockaddrInet, error) {
 		switch sainet.Family {
 		case AF_INET:
 			return nil,
-				fmt.Errorf("SockaddrInet.Family value of the input is AF_INET, but it looks that SockaddrInet.Address contains IPv6 address.")
+				fmt.Errorf("toWtSockaddrInet() - receiver argument family is AF_INET but its address isn't IPv4")
 		case AF_INET6:
 			return nil,
-			fmt.Errorf("SockaddrInet.Family value of the input is AF_INET6, but it looks that SockaddrInet.Address contains IPv4 address.")
+				fmt.Errorf("toWtSockaddrInet() - receiver argument family is AF_INET6 but its address isn't IPv6")
 		default:
 			return nil,
-			fmt.Errorf("Input SockaddrInet cannot be converted because its SockaddrInet.Family value %s. Allowed values are AF_INET and AF_INET6.",
-				sainet.Family.String())
+				fmt.Errorf("toWtSockaddrInet() - receiver argument family is %s but it has to be AF_INET or AF_INET6",
+					sainet.Family.String())
 		}
 	}
 

@@ -56,15 +56,15 @@ func createUnicastAddressData(ifc *Interface, ippl *IpWithPrefixLength) (*Unicas
 
 	// TODO: Check field values set here.
 	return &UnicastAddressData{
-		Address: sainet,
-		InterfaceLuid: ifc.Luid,
-		InterfaceIndex: ifc.Index,
-		PrefixOrigin: IpPrefixOriginManual,
-		SuffixOrigin: IpSuffixOriginManual,
-		ValidLifetime: 0,
-		PreferredLifetime: 0,
+		Address:            sainet,
+		InterfaceLuid:      ifc.Luid,
+		InterfaceIndex:     ifc.Index,
+		PrefixOrigin:       IpPrefixOriginManual,
+		SuffixOrigin:       IpSuffixOriginManual,
+		ValidLifetime:      0,
+		PreferredLifetime:  0,
 		OnLinkPrefixLength: ippl.PrefixLength,
-		SkipAsSource: false,
+		SkipAsSource:       false,
 	}, nil
 }
 
@@ -151,13 +151,15 @@ func (address *UnicastAddressData) Add() error {
 		fmt.Println("Yep, it changes!!!")
 	}
 
+	*address = *uachanged
+
 	return nil
 }
 
 func (address *UnicastAddressData) Delete() error {
 
 	if address == nil {
-		return fmt.Errorf("UnicastAddressData.Delete() - input argument is nil")
+		return fmt.Errorf("UnicastAddressData.Delete() - receiver argument is nil")
 	}
 
 	wta, err := address.toWtMibUnicastipaddressRow()

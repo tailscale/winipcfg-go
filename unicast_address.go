@@ -24,7 +24,6 @@ type UnicastAddress struct {
 }
 
 func (ua *UnicastAddress) String() string {
-
 	if ua == nil {
 		return ""
 	} else {

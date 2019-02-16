@@ -11,7 +11,7 @@ import (
 )
 
 // Example callback
-var routeChangeCallbackExample RouteChangeCallback = func (route *Route, notificationType MibNotificationType) {
+var routeChangeCallbackExample RouteChangeCallback = func(route *Route, notificationType MibNotificationType) {
 
 	fmt.Printf(`============================= ROUTE CHANGED START =============================
 MibNotificationType: %s
@@ -25,29 +25,29 @@ Route:
 func TestRegisterUnregisterRouteChangeCallback(t *testing.T) {
 
 	if RouteChangeCallbackRegistered(&routeChangeCallbackExample) {
-		t.Error("RouteChangeCallbackRegistered returns true although nothing is registered.")
+		t.Error("RouteChangeCallbackRegistered() returned true although nothing is registered.")
 		return;
 	}
 
 	err := RegisterRouteChangeCallback(&routeChangeCallbackExample)
 
 	if err != nil {
-		t.Errorf("RegisterRouteChangeCallback returned error: %v", err)
+		t.Errorf("RegisterRouteChangeCallback() returned error: %v", err)
 		return;
 	}
 
 	if !RouteChangeCallbackRegistered(&routeChangeCallbackExample) {
-		t.Error("RouteChangeCallbackRegistered returns false although a callback is registered successfully.")
+		t.Error("RouteChangeCallbackRegistered() returned false although a callback is registered successfully.")
 	}
 
 	err = UnregisterRouteChangeCallback(&routeChangeCallbackExample)
 
 	if err != nil {
-		t.Errorf("UnregisterRouteChangeCallback returned error: %v", err)
+		t.Errorf("UnregisterRouteChangeCallback() returned error: %v", err)
 		return;
 	}
 
 	if RouteChangeCallbackRegistered(&routeChangeCallbackExample) {
-		t.Error("RouteChangeCallbackRegistered returns true although the callback is unregistered successfully.")
+		t.Error("RouteChangeCallbackRegistered() returned true although the callback is unregistered successfully.")
 	}
 }

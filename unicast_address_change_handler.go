@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"os"
 	"sync"
 	"unsafe"
 )
@@ -63,11 +64,11 @@ func UnregisterUnicastAddressChangeCallback(callback *UnicastAddressChangeCallba
 		}
 	} else if index == 0 {
 		unicastAddressChangeCallbacks = unicastAddressChangeCallbacks[1:]
-	} else if index == count - 1 {
+	} else if index == count-1 {
 		unicastAddressChangeCallbacks = unicastAddressChangeCallbacks[:index]
 	} else {
 		unicastAddressChangeCallbacks = append(unicastAddressChangeCallbacks[:index],
-			unicastAddressChangeCallbacks[index + 1:]...)
+			unicastAddressChangeCallbacks[index+1:]...)
 	}
 
 	return nil
@@ -116,7 +117,7 @@ func checkUnicastAddressChangeSubscribed() error {
 				false, unsafe.Pointer(&unicastAddressChangeHandle))
 
 			if result != 0 {
-				return windows.Errno(result)
+				return os.NewSyscallError("iphlpapi.NotifyUnicastIpAddressChange", windows.Errno(result))
 			}
 		}
 	} else {
@@ -126,7 +127,7 @@ func checkUnicastAddressChangeSubscribed() error {
 			result := cancelMibChangeNotify2(unicastAddressChangeHandle)
 
 			if result != 0 {
-				return windows.Errno(result)
+				return os.NewSyscallError("iphlpapi.CancelMibChangeNotify2", windows.Errno(result))
 			}
 
 			unicastAddressChangeHandle = uintptr(0)

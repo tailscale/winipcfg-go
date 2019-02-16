@@ -31,6 +31,7 @@ var (
 )
 
 func TestGetInterfaces(t *testing.T) {
+
 	ifcs, err := GetInterfaces()
 
 	if err != nil {
@@ -48,6 +49,7 @@ func TestGetInterfaces(t *testing.T) {
 }
 
 func TestInterfaceFromLUIDExisting(t *testing.T) {
+
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
@@ -66,6 +68,7 @@ func TestInterfaceFromLUIDExisting(t *testing.T) {
 }
 
 func TestInterfaceFromLUIDNonExisting(t *testing.T) {
+
 	ifc, err := InterfaceFromLUID(unexistingLuid)
 
 	if err != nil {
@@ -77,6 +80,7 @@ func TestInterfaceFromLUIDNonExisting(t *testing.T) {
 }
 
 func TestInterfaceFromIndexExisting(t *testing.T) {
+
 	ifc, err := InterfaceFromIndex(existingIndex)
 
 	if err != nil {
@@ -95,6 +99,7 @@ func TestInterfaceFromIndexExisting(t *testing.T) {
 }
 
 func TestInterfaceFromIndexNonExisting(t *testing.T) {
+
 	ifc, err := InterfaceFromIndex(unexistingIndex)
 
 	if err != nil {
@@ -106,6 +111,7 @@ func TestInterfaceFromIndexNonExisting(t *testing.T) {
 }
 
 func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
+
 	ifc, err := InterfaceFromFriendlyName(existingInterfaceName)
 
 	if err != nil {
@@ -124,6 +130,7 @@ func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 }
 
 func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
+
 	ifc, err := InterfaceFromFriendlyName(unexistingInterfaceName)
 
 	if err != nil {
@@ -135,6 +142,7 @@ func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 }
 
 func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
+
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
@@ -185,7 +193,7 @@ func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
 
-	if count + 1 != len(ifc.UnicastAddresses) {
+	if count+1 != len(ifc.UnicastAddresses) {
 		t.Errorf("Number of unicast addresses before adding is %d, while number after adding is %d.", count,
 			len(ifc.UnicastAddresses))
 	}
@@ -219,6 +227,7 @@ func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
 }
 
 func TestInterface_GetRoutes(t *testing.T) {
+
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {

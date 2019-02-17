@@ -84,15 +84,34 @@ func getMatchingWtMibUnicastipaddressRow(luid uint64, ip *net.IP) (*wtMibUnicast
 	return nil, nil
 }
 
-func (wtua *wtMibUnicastipaddressRow) add() error {
+func addWtMibUnicastipaddressRow(ifc *Interface, ipnet *net.IPNet) error {
 
-	if wtua == nil {
-		return fmt.Errorf("wtMibUnicastipaddressRow.add() - input argument is nil")
+	if ifc == nil || ipnet == nil {
+		return fmt.Errorf("addWtMibUnicastipaddressRow() - some of the input arguments is nil")
 	}
 
-	fmt.Printf("wtMibUnicastipaddressRow add:\n%s\n", wtua.String())
+	wtsa, err := createWtSockaddrInet(ipnet.IP, 0)
 
-	result := createUnicastIpAddressEntry(wtua)
+	if err != nil {
+		return err
+	}
+
+	row := wtMibUnicastipaddressRow{}
+
+	_ = initializeUnicastIpAddressEntry(&row)
+
+	//fmt.Printf("wtMibUnicastipaddressRow initialized to:\n%s\n", row.String())
+
+	ones, _ := ipnet.Mask.Size()
+
+	row.InterfaceLuid = ifc.Luid
+	row.InterfaceIndex = ifc.Index
+	row.Address = *wtsa
+	row.OnLinkPrefixLength = uint8(ones)
+
+	//fmt.Printf("wtMibUnicastipaddressRow to add:\n%s\n", row.String())
+
+	result := createUnicastIpAddressEntry(&row)
 
 	if result == 0 {
 		return nil
@@ -116,10 +135,24 @@ func (wtua *wtMibUnicastipaddressRow) delete() error {
 	}
 }
 
+func (wtua *wtMibUnicastipaddressRow) equal(other *wtMibUnicastipaddressRow) bool {
+
+	if wtua == nil || other == nil {
+		return false
+	}
+
+	return wtua.InterfaceLuid == other.InterfaceLuid && wtua.InterfaceIndex == other.InterfaceIndex &&
+		wtua.PrefixOrigin == other.PrefixOrigin && wtua.SuffixOrigin == other.SuffixOrigin &&
+		wtua.ValidLifetime == other.ValidLifetime && wtua.PreferredLifetime == other.PreferredLifetime &&
+		wtua.OnLinkPrefixLength == other.OnLinkPrefixLength && wtua.SkipAsSource == other.SkipAsSource &&
+		wtua.DadState == other.DadState && wtua.ScopeId == other.ScopeId &&
+		wtua.CreationTimeStamp == other.CreationTimeStamp && wtua.Address.equal(&other.Address)
+}
+
 func (wtua *wtMibUnicastipaddressRow) String() string {
 
 	if wtua == nil {
-		return ""
+		return "<nil>"
 	}
 
 	return fmt.Sprintf(`Address: [%s]/%d

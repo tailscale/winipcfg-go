@@ -37,7 +37,7 @@ func ipAdapterAddressFromLengthFlagsAddress(ifc Interface, length uint32, flags 
 func (a *IpAdapterAddressCommonTypeEx) commonTypeExAddressString() string {
 
 	if a == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return fmt.Sprintf("Flags: %d; %s", a.Flags, a.commonTypeAddressString())
 	}

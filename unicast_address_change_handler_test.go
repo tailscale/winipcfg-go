@@ -7,19 +7,14 @@ package winipcfg
 
 import (
 	"fmt"
+	"net"
 	"testing"
 )
 
 // Example callback
-var unicastAddressChangeCallbackExample UnicastAddressChangeCallback = func (uar *UnicastAddressData, notificationType MibNotificationType) {
-
-	fmt.Printf(`======================== UNICAST ADDRESS CHANGED START ========================
-MibNotificationType: %s
-UnicastAddressData:
-%s
-========================= UNICAST ADDRESS CHANGED END =========================
-`, notificationType.String(), toIndentedText(uar.String(), "  "))
-
+var unicastAddressChangeCallbackExample UnicastAddressChangeCallback = func (notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP) {
+	fmt.Printf("UNICAST ADDRESS CHANGED! MibNotificationType: %s; interface LUID: %d; IP: %s\n",
+		notificationType.String(), interfaceLuid, ip.String())
 }
 
 func TestRegisterUnregisterUnicastAddressChangeCallback(t *testing.T) {

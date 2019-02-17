@@ -14,7 +14,7 @@ type IpAddressPrefix struct {
 
 func (ap *IpAddressPrefix) String() string {
 	if ap == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return fmt.Sprintf("%s/%d", ap.Prefix.String(), ap.PrefixLength)
 	}

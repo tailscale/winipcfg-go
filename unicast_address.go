@@ -25,7 +25,7 @@ type UnicastAddress struct {
 
 func (ua *UnicastAddress) String() string {
 	if ua == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return fmt.Sprintf("%s/%d; PrefixOrigin: %s; SuffixOrigin: %s; DadState: %s; ValidLifetime: %d; PreferredLifetime: %d; LeaseLifetime: %d",
 			ua.commonTypeExAddressString(), ua.OnLinkPrefixLength, ua.PrefixOrigin.String(), ua.SuffixOrigin.String(),

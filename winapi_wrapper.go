@@ -16,6 +16,9 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
 //sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeunicastipaddressentry
+//sys	initializeUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.InitializeUnicastIpAddressEntry
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry
 //sys	createUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.CreateUnicastIpAddressEntry
 

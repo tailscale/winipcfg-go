@@ -178,15 +178,10 @@ func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
 
 	count := len(ifc.UnicastAddresses)
 
-	addrs, err := ifc.AddAddresses([]*net.IPNet{&unexistingIpAddresToAdd})
+	err = ifc.AddAddresses([]*net.IPNet{&unexistingIpAddresToAdd})
 
 	if err != nil {
 		t.Errorf("Interface.AddAddresses() returned an error: %v", err)
-		return
-	}
-
-	if addrs == nil {
-		t.Errorf("Interface.AddAddresses() returned nil.")
 		return
 	}
 

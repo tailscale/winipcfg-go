@@ -10,14 +10,6 @@ import (
 	"net"
 )
 
-const (
-	newAddressPrefixOrigin      = IpPrefixOriginManual
-	newAddressSuffixOrigin      = IpSuffixOriginManual
-	newAddressValidLifetime     = 4294967295
-	newAddressPreferredLifetime = 4294967295
-	newAddressSkipAsSource      = false
-)
-
 type UnicastAddressData struct {
 	Address            *SockaddrInet
 	InterfaceLuid      uint64
@@ -45,38 +37,6 @@ func (address *UnicastAddressData) equivalentTo(other *UnicastAddressData) bool 
 		address.OnLinkPrefixLength == other.OnLinkPrefixLength && address.SkipAsSource == other.SkipAsSource &&
 		address.DadState == other.DadState && address.ScopeId == other.ScopeId &&
 		address.CreationTimeStamp == other.CreationTimeStamp && address.Address.equivalentTo(other.Address)
-}
-
-func createUnicastAddressData(ifc *Interface, ipnet *net.IPNet) (*UnicastAddressData, error) {
-
-	if ifc == nil {
-		return nil, fmt.Errorf("createUnicastAddressData() - input Interface is nil")
-	}
-
-	if ipnet == nil {
-		return nil, fmt.Errorf("createUnicastAddressData() - input IpWithPrefixLength is nil")
-	}
-
-	sainet, err := createSockaddrInet(ipnet.IP)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ones, _ := ipnet.Mask.Size()
-
-	// TODO: Check field values set here.
-	return &UnicastAddressData{
-		Address:            sainet,
-		InterfaceLuid:      ifc.Luid,
-		InterfaceIndex:     ifc.Index,
-		PrefixOrigin:       newAddressPrefixOrigin,
-		SuffixOrigin:       newAddressSuffixOrigin,
-		ValidLifetime:      newAddressValidLifetime,
-		PreferredLifetime:  newAddressPreferredLifetime,
-		OnLinkPrefixLength: uint8(ones),
-		SkipAsSource:       newAddressSkipAsSource,
-	}, nil
 }
 
 func (address *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastipaddressRow, error) {
@@ -137,40 +97,35 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 	return addresses, nil
 }
 
-func (address *UnicastAddressData) Add() error {
+func GetMatchingUnicastAddressData(interfaceLuid uint64, ip *net.IP) (*UnicastAddressData, error) {
 
-	if address == nil {
-		return fmt.Errorf("UnicastAddressData.Add() - input argument is nil")
+	if ip == nil {
+		return nil, fmt.Errorf("GetMatchingUnicastAddressData() - input ip is nil")
 	}
 
-	wta, err := address.toWtMibUnicastipaddressRow()
+	row, err := getMatchingWtMibUnicastipaddressRow(interfaceLuid, ip)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = wta.add()
+	if row == nil {
+		return nil, nil
+	}
+
+	uad, err := row.toUnicastAddressData()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// TODO: Not sure if CreateUnicastIpAddressEntry makes any changes to the input MIB_UNICASTIPADDRESS_ROW struct, but if it does the remaining code will back-propagate these changes.
-	uachanged, _ := wta.toUnicastAddressData()
-
-	if !address.equivalentTo(uachanged) {
-		fmt.Println("Yep, it changes!!!")
-	}
-
-	*address = *uachanged
-
-	return nil
+	return uad, nil
 }
 
 func (address *UnicastAddressData) Delete() error {
 
-	if address == nil {
-		return fmt.Errorf("UnicastAddressData.Delete() - receiver argument is nil")
+	if address == nil || address.Address == nil {
+		return fmt.Errorf("UnicastAddressData.Delete() - receiver argument or its Address field is nil")
 	}
 
 	wta, err := address.toWtMibUnicastipaddressRow()
@@ -179,13 +134,25 @@ func (address *UnicastAddressData) Delete() error {
 		return err
 	}
 
-	return wta.delete()
+	rows, err := getWtMibUnicastipaddressRows(address.Address.Family)
+
+	if err != nil {
+		return err
+	}
+
+	for _, row := range rows {
+		if row.equal(wta) {
+			return row.delete()
+		}
+	}
+
+	return fmt.Errorf("UnicastAddressData.Delete() - address not found")
 }
 
 func (address *UnicastAddressData) String() string {
 
 	if address == nil {
-		return ""
+		return "<nil>"
 	}
 
 	return fmt.Sprintf(`Address: [%s]/%d

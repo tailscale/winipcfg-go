@@ -44,7 +44,7 @@ func (addr *wtIn6Addr) toNetIp() net.IP {
 
 // Compares two wtIn6Addr structs for equality. Note that the function will return false if either of structs is nil,
 // even if the other is also nil.
-func (addr *wtIn6Addr) equivalentTo(other *wtIn6Addr) bool {
+func (addr *wtIn6Addr) equal(other *wtIn6Addr) bool {
 
 	if addr == nil || other == nil {
 		return false

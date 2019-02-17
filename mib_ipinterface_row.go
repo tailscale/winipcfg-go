@@ -80,7 +80,7 @@ type MibIpinterfaceRow struct {
 func (mir *MibIpinterfaceRow) String() string {
 
 	if mir == nil {
-		return ""
+		return "<nil>"
 	}
 
 	return fmt.Sprintf(`Family: %s

@@ -34,7 +34,7 @@ func NewWtSockaddrIn() *wtSockaddrIn {
 // - any of structs is nil, even if the other struct is also nil;
 // - any of structs has its family other than AF_INET, even if the other also has the same family and all other fields
 // equal.
-func (addr *wtSockaddrIn) equivalentTo(other *wtSockaddrIn) bool {
+func (addr *wtSockaddrIn) equal(other *wtSockaddrIn) bool {
 
 	if addr == nil || other == nil {
 		return false
@@ -44,7 +44,7 @@ func (addr *wtSockaddrIn) equivalentTo(other *wtSockaddrIn) bool {
 		return false
 	}
 
-	return addr.sin_port == other.sin_port && addr.sin_addr.equivalentTo(&other.sin_addr)
+	return addr.sin_port == other.sin_port && addr.sin_addr.equal(&other.sin_addr)
 }
 
 func (addr *wtSockaddrIn) matches(ip *net.IP) bool {
@@ -101,7 +101,7 @@ func (addr *wtSockaddrIn6Lh) equivalentTo(other *wtSockaddrIn6Lh) bool {
 	}
 
 	return addr.sin6_port == other.sin6_port && addr.sin6_flowinfo == other.sin6_flowinfo &&
-		addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equivalentTo(&other.sin6_addr)
+		addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equal(&other.sin6_addr)
 }
 
 func (addr *wtSockaddrIn6Lh) matches(ip *net.IP) bool {
@@ -179,7 +179,7 @@ func (addr *wtSockaddrInet) isIPv6() bool {
 // - any of structs is nil, even if the other struct is also nil;
 // - any of structs has its family other than AF_INET and AF_INET6, even if the other also has the same family and all
 // other fields equal.
-func (addr *wtSockaddrInet) equivalentTo(other *wtSockaddrInet) bool {
+func (addr *wtSockaddrInet) equal(other *wtSockaddrInet) bool {
 
 	if addr == nil || other == nil {
 		return false
@@ -193,10 +193,10 @@ func (addr *wtSockaddrInet) equivalentTo(other *wtSockaddrInet) bool {
 	case AF_INET:
 		first := (*wtSockaddrIn)(unsafe.Pointer(addr))
 		second := (*wtSockaddrIn)(unsafe.Pointer(other))
-		return first.equivalentTo(second)
+		return first.equal(second)
 	case AF_INET6:
 		return addr.sin6_port == other.sin6_port && addr.sin6_flowinfo == other.sin6_flowinfo &&
-			addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equivalentTo(&other.sin6_addr)
+			addr.sin6_scope_id == other.sin6_scope_id && addr.sin6_addr.equal(&other.sin6_addr)
 	default:
 		return false
 	}
@@ -327,7 +327,7 @@ func (sin *wtSockaddrInet) fillAsWtSockaddrIn(ipv4 net.IP, port uint16) error {
 
 func (addr *wtSockaddrInet) String() string {
 	if addr == nil {
-		return ""
+		return "<nil>"
 	} else if addr.isIPv4() {
 
 		ipv4, err := addr.toWtSockaddrIn()

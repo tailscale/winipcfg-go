@@ -142,7 +142,7 @@ func (sainet *SockaddrInet) toWtSocketAddress() (*wtSocketAddress, error) {
 func (sainet *SockaddrInet) String() string {
 
 	if sainet == nil {
-		return ""
+		return "<nil>"
 	}
 
 	result := fmt.Sprintf("%s:%d", sainet.Address.String(), sainet.Port)

@@ -39,19 +39,20 @@ func errnoErr(e syscall.Errno) error {
 var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
 
-	procGetAdaptersAddresses         = modiphlpapi.NewProc("GetAdaptersAddresses")
-	procGetUnicastIpAddressTable     = modiphlpapi.NewProc("GetUnicastIpAddressTable")
-	procFreeMibTable                 = modiphlpapi.NewProc("FreeMibTable")
-	procCreateUnicastIpAddressEntry  = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
-	procDeleteUnicastIpAddressEntry  = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
-	procGetIpForwardTable2           = modiphlpapi.NewProc("GetIpForwardTable2")
-	procCreateIpForwardEntry2        = modiphlpapi.NewProc("CreateIpForwardEntry2")
-	procSetIpForwardEntry2           = modiphlpapi.NewProc("SetIpForwardEntry2")
-	procDeleteIpForwardEntry2        = modiphlpapi.NewProc("DeleteIpForwardEntry2")
-	procNotifyIpInterfaceChange      = modiphlpapi.NewProc("NotifyIpInterfaceChange")
-	procNotifyUnicastIpAddressChange = modiphlpapi.NewProc("NotifyUnicastIpAddressChange")
-	procNotifyRouteChange2           = modiphlpapi.NewProc("NotifyRouteChange2")
-	procCancelMibChangeNotify2       = modiphlpapi.NewProc("CancelMibChangeNotify2")
+	procGetAdaptersAddresses            = modiphlpapi.NewProc("GetAdaptersAddresses")
+	procGetUnicastIpAddressTable        = modiphlpapi.NewProc("GetUnicastIpAddressTable")
+	procFreeMibTable                    = modiphlpapi.NewProc("FreeMibTable")
+	procInitializeUnicastIpAddressEntry = modiphlpapi.NewProc("InitializeUnicastIpAddressEntry")
+	procCreateUnicastIpAddressEntry     = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
+	procDeleteUnicastIpAddressEntry     = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
+	procGetIpForwardTable2              = modiphlpapi.NewProc("GetIpForwardTable2")
+	procCreateIpForwardEntry2           = modiphlpapi.NewProc("CreateIpForwardEntry2")
+	procSetIpForwardEntry2              = modiphlpapi.NewProc("SetIpForwardEntry2")
+	procDeleteIpForwardEntry2           = modiphlpapi.NewProc("DeleteIpForwardEntry2")
+	procNotifyIpInterfaceChange         = modiphlpapi.NewProc("NotifyIpInterfaceChange")
+	procNotifyUnicastIpAddressChange    = modiphlpapi.NewProc("NotifyUnicastIpAddressChange")
+	procNotifyRouteChange2              = modiphlpapi.NewProc("NotifyRouteChange2")
+	procCancelMibChangeNotify2          = modiphlpapi.NewProc("CancelMibChangeNotify2")
 )
 
 func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) {
@@ -68,6 +69,12 @@ func getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (resul
 
 func freeMibTable(memory unsafe.Pointer) {
 	syscall.Syscall(procFreeMibTable.Addr(), 1, uintptr(memory), 0, 0)
+	return
+}
+
+func initializeUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procInitializeUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
 	return
 }
 

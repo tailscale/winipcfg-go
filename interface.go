@@ -431,62 +431,47 @@ func (ifc *Interface) FlushAddresses() error {
 	return nil
 }
 
-func (ifc *Interface) AddAddresses(addresses []*net.IPNet) ([]*UnicastAddressData, error) {
+func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.AddAddresses() - input argument is nil")
+		return fmt.Errorf("Interface.AddAddresses() - input argument is nil")
 	}
 
-	count := len(addresses)
+	for _, ipnet := range addresses {
+		if ipnet != nil {
 
-	uas := make([]*UnicastAddressData, count, count)
+			err := addWtMibUnicastipaddressRow(ifc, ipnet)
 
-	for idx, ipnet := range addresses {
-
-		addr, err := createUnicastAddressData(ifc, ipnet)
-
-		if err != nil {
-			return nil, err
-		}
-
-		uas[idx] = addr
-	}
-
-	for _, ua := range uas {
-
-		err := ua.Add()
-
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	_ = ifc.Refresh()
 
-	return uas, nil
+	return nil
 }
 
-func (ifc *Interface) SetAddresses(addresses []*net.IPNet) ([]*UnicastAddressData, error) {
+func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.SetAddresses() - receiver Interface argument is nil")
+		return fmt.Errorf("Interface.SetAddresses() - receiver Interface argument is nil")
 	}
 
 	err := ifc.FlushAddresses()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	uads, err := ifc.AddAddresses(addresses)
+	err = ifc.AddAddresses(addresses)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	_ = ifc.Refresh()
-
-	return uads, nil
+	return nil
 }
 
 func (ifc *Interface) RemoveAddress(ip *net.IP) error {

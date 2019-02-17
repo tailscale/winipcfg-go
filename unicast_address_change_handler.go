@@ -7,13 +7,14 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"net"
 	"os"
 	"sync"
 	"unsafe"
 )
 
 // Defines function that can be used as a callback.
-type UnicastAddressChangeCallback func(uar *UnicastAddressData, notificationType MibNotificationType)
+type UnicastAddressChangeCallback func(notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP)
 
 var (
 	unicastAddressChangeMutex     = sync.Mutex{}
@@ -139,25 +140,32 @@ func checkUnicastAddressChangeSubscribed() error {
 
 func unicastAddressChanged(callerContext unsafe.Pointer, wtUar *wtMibUnicastipaddressRow, notificationType MibNotificationType) uintptr {
 
-	uar, err := wtUar.toUnicastAddressData()
+	interfaceLuid := uint64(0)
+	var ip net.IP = nil
 
-	if err != nil {
-		// TODO: We should at lest implement logging.
-		return 0
+	if wtUar != nil {
+
+		interfaceLuid = wtUar.InterfaceLuid
+
+		sainet, err := wtUar.Address.toSockaddrInet()
+
+		if err == nil && sainet != nil {
+			ip = sainet.Address
+		}
 	}
 
 	// go routine used to avoid blocking OS call.
-	go notifyUnicastAddressChangedCallbacks(uar, notificationType)
+	go notifyUnicastAddressChangedCallbacks(notificationType, interfaceLuid, &ip)
 
 	return 0
 }
 
-func notifyUnicastAddressChangedCallbacks(uar *UnicastAddressData, notificationType MibNotificationType) {
+func notifyUnicastAddressChangedCallbacks(notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP) {
 
 	unicastAddressChangeMutex.Lock()
 	defer unicastAddressChangeMutex.Unlock()
 
 	for _, c := range unicastAddressChangeCallbacks {
-		(*c)(uar, notificationType)
+		(*c)(notificationType, interfaceLuid, ip)
 	}
 }

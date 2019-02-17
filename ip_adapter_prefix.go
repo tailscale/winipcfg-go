@@ -17,7 +17,7 @@ type IpAdapterPrefix struct {
 
 func (ap *IpAdapterPrefix) String() string {
 	if ap == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return fmt.Sprintf("%s/%d", ap.commonTypeExAddressString(), ap.PrefixLength)
 	}

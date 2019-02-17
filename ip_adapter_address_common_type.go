@@ -37,7 +37,7 @@ func ipAdapterAddressFromLengthAddress(ifc Interface, length uint32, wtsa *wtSoc
 
 func (a *IpAdapterAddressCommonType) commonTypeAddressString() string {
 	if a == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return fmt.Sprintf("Length: %d; Address: [%s]", a.Length, a.Address.String())
 	}

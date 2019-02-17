@@ -25,7 +25,7 @@ func NewWtInAddr() *wtInAddr {
 
 // Compares two wtInAddr structs for equality. Note that the function will return false if either of structs is nil,
 // even if the other is also nil.
-func (addr *wtInAddr) equivalentTo(other *wtInAddr) bool {
+func (addr *wtInAddr) equal(other *wtInAddr) bool {
 	if addr == nil || other == nil {
 		return false
 	} else {

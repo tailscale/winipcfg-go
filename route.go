@@ -75,7 +75,7 @@ func GetRoutes(family AddressFamily) ([]*Route, error) {
 func (r *Route) String() string {
 
 	if r == nil {
-		return ""
+		return "<nil>"
 	}
 
 	return fmt.Sprintf(`

@@ -71,7 +71,7 @@ func (aa *wtIpAdapterAddresses) nextCasted() *wtIpAdapterAddresses {
 
 func (aa *wtIpAdapterAddresses) getAdapterName() string {
 	if aa == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return charToString(aa.AdapterName)
 	}
@@ -79,7 +79,7 @@ func (aa *wtIpAdapterAddresses) getAdapterName() string {
 
 func (aa *wtIpAdapterAddresses) getFriendlyName() string {
 	if aa == nil {
-		return ""
+		return "<nil>"
 	} else {
 		return wcharToString(aa.FriendlyName)
 	}

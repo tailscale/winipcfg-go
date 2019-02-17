@@ -202,10 +202,10 @@ func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
 			unexistingIpAddresToAdd.IP.String())
 	}
 
-	err = ifc.RemoveAddress(&unexistingIpAddresToAdd.IP)
+	err = ifc.DeleteAddress(&unexistingIpAddresToAdd.IP)
 
 	if err != nil {
-		t.Errorf("Interface.RemoveAddress() returned an error: %v", err)
+		t.Errorf("Interface.DeleteAddress() returned an error: %v", err)
 	}
 
 	// Giving some time to callbacks.

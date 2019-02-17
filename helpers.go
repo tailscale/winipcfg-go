@@ -104,3 +104,14 @@ func boolToUint8(val bool) uint8 {
 		return 0
 	}
 }
+
+func allZeroBytes(bytes []byte) bool {
+
+	for _, b := range bytes {
+		if b != 0 {
+			return false
+		}
+	}
+
+	return true
+}

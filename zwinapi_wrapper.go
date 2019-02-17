@@ -46,6 +46,7 @@ var (
 	procCreateUnicastIpAddressEntry     = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
 	procDeleteUnicastIpAddressEntry     = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
 	procGetIpForwardTable2              = modiphlpapi.NewProc("GetIpForwardTable2")
+	procInitializeIpForwardEntry        = modiphlpapi.NewProc("InitializeIpForwardEntry")
 	procCreateIpForwardEntry2           = modiphlpapi.NewProc("CreateIpForwardEntry2")
 	procSetIpForwardEntry2              = modiphlpapi.NewProc("SetIpForwardEntry2")
 	procDeleteIpForwardEntry2           = modiphlpapi.NewProc("DeleteIpForwardEntry2")
@@ -92,6 +93,12 @@ func deleteUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
 
 func getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) {
 	r0, _, _ := syscall.Syscall(procGetIpForwardTable2.Addr(), 2, uintptr(family), uintptr(table), 0)
+	result = int32(r0)
+	return
+}
+
+func initializeIpForwardEntry(route *wtMibIpforwardRow2) (result int32) {
+	r0, _, _ := syscall.Syscall(procInitializeIpForwardEntry.Addr(), 1, uintptr(unsafe.Pointer(route)), 0, 0)
 	result = int32(r0)
 	return
 }

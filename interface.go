@@ -474,10 +474,10 @@ func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 	return nil
 }
 
-func (ifc *Interface) RemoveAddress(ip *net.IP) error {
+func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 
 	if ifc == nil {
-		return fmt.Errorf("Interface.RemoveAddress() - receiver Interface argument is nil")
+		return fmt.Errorf("Interface.DeleteAddress() - receiver Interface argument is nil")
 	}
 
 	addr, err := getMatchingWtMibUnicastipaddressRow(ifc.Luid, ip)
@@ -503,10 +503,121 @@ func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
 	return getRoutes(family, ifc)
 }
 
-//// splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
-//// and ::/0 into ::/1 and 8000::/1.
-//func (iface *Interface) FlushRoutes() error
-//func (iface *Interface) AddRoutes(routes []net.IPNet, splitDefault bool) error
+// splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
+// and ::/0 into ::/1 and 8000::/1.
+
+func (ifc *Interface) FlushRoutes() error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.FlushRoutes() - receiver argument is nil")
+	}
+
+	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
+
+	if err != nil {
+		return err
+	}
+
+	for _, row := range rows {
+
+		err = row.delete()
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Adds route. Note that routeData can be changed if splitting takes place.
+func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.AddRoute() - receiver argument is nil")
+	}
+
+	if routeData == nil {
+		return fmt.Errorf("Interface.AddRoute() - input RouteData argument is nil")
+	}
+
+	if splitDefault {
+
+		ones, bits := routeData.Destination.Mask.Size()
+
+		if bits < 1 {
+			return fmt.Errorf("Interface.AddRoute() - invalid destination (bits = %d)", bits)
+		}
+
+		if ones == 0 {
+			// Destination prefix length is 0, so it may be splittable
+			dest4 := routeData.Destination.IP.To4()
+
+			if dest4 == nil {
+				// IPv6 destination
+				dest6 := routeData.Destination.IP.To16()
+
+				if dest6 == nil {
+					return fmt.Errorf("Interface.AddRoute() - invalid destination (len = %d)",
+						len(routeData.Destination.IP))
+				}
+
+				if allZeroBytes(dest6) {
+					// It is 0::/0, so we should split
+					routeData.Destination.Mask = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 0::/1
+
+					err := addWtMibIpforwardRow2(ifc, routeData)
+
+					if err != nil {
+						return err
+					}
+
+					routeData.Destination.IP[0] = 128 // It's now 8000::/1
+
+					return addWtMibIpforwardRow2(ifc, routeData)
+				}
+
+			} else {
+				// IPv4 destination
+				if allZeroBytes(dest4) {
+					// It is 0.0.0.0/0, so we should split
+					routeData.Destination.Mask = []byte{128, 0, 0, 0} // It's now 0.0.0.0/1
+
+					err := addWtMibIpforwardRow2(ifc, routeData)
+
+					if err != nil {
+						return err
+					}
+
+					routeData.Destination.IP[0] = 128 // It's now 128.0.0.0/1
+
+					return addWtMibIpforwardRow2(ifc, routeData)
+				}
+			}
+		}
+	}
+
+	return addWtMibIpforwardRow2(ifc, routeData)
+}
+
+func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.AddRoutes() - receiver argument is nil")
+	}
+
+	for _, rd := range routesData {
+
+		err := ifc.AddRoute(rd, splitDefault)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 //func (iface *Interface) SetRoutes(routes []net.IPNet, splitDefault bool) error
 //
 //func (iface *Interface) FlushDNS() error

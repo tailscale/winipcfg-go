@@ -267,7 +267,7 @@ func (wtsa *wtSockaddrInet) toSockaddrInet() (*SockaddrInet, error) {
 	return nil, fmt.Errorf("toSockaddrInet() requires IPv4 or IPv6 input argument")
 }
 
-func createWtSockaddrInet(address net.IP, port uint16) (*wtSockaddrInet, error) {
+func createWtSockaddrInet(address *net.IP, port uint16) (*wtSockaddrInet, error) {
 
 	ipv4 := address.To4()
 

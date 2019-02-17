@@ -87,7 +87,7 @@ func (sainet *SockaddrInet) toWtSockaddrInet() (*wtSockaddrInet, error) {
 		return nil, nil
 	}
 
-	wtsainet, err := createWtSockaddrInet(sainet.Address, sainet.Port)
+	wtsainet, err := createWtSockaddrInet(&sainet.Address, sainet.Port)
 
 	if err != nil {
 		return nil, err

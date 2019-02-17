@@ -30,6 +30,9 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2
 //sys	getIpForwardTable2(family AddressFamily, table unsafe.Pointer) (result int32) = iphlpapi.GetIpForwardTable2
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeipforwardentry
+//sys	initializeIpForwardEntry(route *wtMibIpforwardRow2) (result int32) = iphlpapi.InitializeIpForwardEntry
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2
 //sys	createIpForwardEntry2(route *wtMibIpforwardRow2) (result int32) = iphlpapi.CreateIpForwardEntry2
 

@@ -90,7 +90,7 @@ func addWtMibUnicastipaddressRow(ifc *Interface, ipnet *net.IPNet) error {
 		return fmt.Errorf("addWtMibUnicastipaddressRow() - some of the input arguments is nil")
 	}
 
-	wtsa, err := createWtSockaddrInet(ipnet.IP, 0)
+	wtsa, err := createWtSockaddrInet(&ipnet.IP, 0)
 
 	if err != nil {
 		return err

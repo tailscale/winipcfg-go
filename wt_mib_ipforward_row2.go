@@ -5,6 +5,13 @@
 
 package winipcfg
 
+import (
+	"fmt"
+	"golang.org/x/sys/windows"
+	"os"
+	"unsafe"
+)
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipforward_row2
 // MIB_IPFORWARD_ROW2 defined in netioapi.h
 type wtMibIpforwardRow2 struct {
@@ -37,39 +44,152 @@ type wtMibIpforwardRow2 struct {
 	Origin NlRouteOrigin
 }
 
-func (wtr *wtMibIpforwardRow2) toRoute() (*Route, error) {
+func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]*wtMibIpforwardRow2, error) {
 
-	if wtr == nil {
+	var pTable *wtMibIpforwardTable2 = nil
+
+	result := getIpForwardTable2(family, unsafe.Pointer(&pTable))
+
+	if pTable != nil {
+		defer freeMibTable(unsafe.Pointer(pTable))
+	}
+
+	if result != 0 {
+		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
+	}
+
+	rows := make([]*wtMibIpforwardRow2, 0)
+
+	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
+	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
+
+	for i := uint32(0); i < pTable.NumEntries; i++ {
+
+		row := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+
+		if ifc == nil || row.InterfaceLuid == ifc.Luid {
+			rows = append(rows, row)
+		}
+	}
+
+	return rows, nil
+}
+
+func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
+
+	if ifc == nil || routeData == nil {
+		return fmt.Errorf("addWtMibIpforwardRow2() - some of the input arguments is nil")
+	}
+
+	wtdest, err := createWtIpAddressPrefix(&routeData.Destination)
+
+	if err != nil {
+		return err
+	}
+
+	wtsaNextHop, err := createWtSockaddrInet(&routeData.NextHop, 0)
+
+	if err != nil {
+		return err
+	}
+
+	row := wtMibIpforwardRow2{}
+
+	_ = initializeIpForwardEntry(&row)
+
+	fmt.Printf("wtMibIpforwardRow2 initialized to:\n%s\n", row.String())
+
+	row.InterfaceLuid = ifc.Luid
+	row.InterfaceIndex = ifc.Index
+	row.DestinationPrefix = *wtdest
+	row.NextHop = *wtsaNextHop
+	row.Metric = routeData.Metric
+
+	fmt.Printf("wtMibIpforwardRow2 to add:\n%s\n", row.String())
+
+	result := createIpForwardEntry2(&row)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.createIpForwardEntry2", windows.Errno(result))
+	}
+}
+
+func (r *wtMibIpforwardRow2) delete() error {
+
+	if r == nil {
+		return fmt.Errorf("wtMibIpforwardRow2.delete() - receiver argument is nil")
+	}
+
+	result := deleteIpForwardEntry2(r)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.DeleteIpForwardEntry2", windows.Errno(result))
+	}
+}
+
+func (r *wtMibIpforwardRow2) toRoute() (*Route, error) {
+
+	if r == nil {
 		return nil, nil
 	}
 
-	iap, err := wtr.DestinationPrefix.toIpAddressPrefix()
+	iap, err := r.DestinationPrefix.toIpAddressPrefix()
 
 	if err != nil {
 		return nil, err
 	}
 
-	sainet, err := wtr.NextHop.toSockaddrInet()
+	sainet, err := r.NextHop.toSockaddrInet()
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &Route{
-		InterfaceLuid:        wtr.InterfaceLuid,
-		InterfaceIndex:       wtr.InterfaceIndex,
+		InterfaceLuid:        r.InterfaceLuid,
+		InterfaceIndex:       r.InterfaceIndex,
 		DestinationPrefix:    *iap,
 		NextHop:              *sainet,
-		SitePrefixLength:     wtr.SitePrefixLength,
-		ValidLifetime:        wtr.ValidLifetime,
-		PreferredLifetime:    wtr.PreferredLifetime,
-		Metric:               wtr.Metric,
-		Protocol:             wtr.Protocol,
-		Loopback:             uint8ToBool(wtr.Loopback),
-		AutoconfigureAddress: uint8ToBool(wtr.AutoconfigureAddress),
-		Publish:              uint8ToBool(wtr.Publish),
-		Immortal:             uint8ToBool(wtr.Immortal),
-		Age:                  wtr.Age,
-		Origin:               wtr.Origin,
+		SitePrefixLength:     r.SitePrefixLength,
+		ValidLifetime:        r.ValidLifetime,
+		PreferredLifetime:    r.PreferredLifetime,
+		Metric:               r.Metric,
+		Protocol:             r.Protocol,
+		Loopback:             uint8ToBool(r.Loopback),
+		AutoconfigureAddress: uint8ToBool(r.AutoconfigureAddress),
+		Publish:              uint8ToBool(r.Publish),
+		Immortal:             uint8ToBool(r.Immortal),
+		Age:                  r.Age,
+		Origin:               r.Origin,
 	}, nil
+}
+
+func (r *wtMibIpforwardRow2) String() string {
+
+	if r == nil {
+		return "<nil>"
+	}
+
+	return fmt.Sprintf(`InterfaceLuid: %d
+InterfaceIndex: %d
+DestinationPrefix: %s
+NextHop: %s
+SitePrefixLength: %d
+ValidLifetime: %d
+PreferredLifetime: %d
+Metric: %d
+Protocol: %s
+Loopback: %d
+AutoconfigureAddress: %d
+Publish: %d
+Immortal: %d
+Age: %d
+Origin: %s
+`, r.InterfaceLuid, r.InterfaceIndex, r.DestinationPrefix.String(), r.NextHop.String(), r.SitePrefixLength,
+		r.ValidLifetime, r.PreferredLifetime, r.Metric, r.Protocol.String(), r.Loopback, r.AutoconfigureAddress,
+		r.Publish, r.Immortal, r.Age, r.Origin.String())
 }

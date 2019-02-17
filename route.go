@@ -7,9 +7,6 @@ package winipcfg
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
-	"os"
-	"unsafe"
 )
 
 type Route struct {
@@ -32,37 +29,25 @@ type Route struct {
 
 func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
 
-	var pTable *wtMibIpforwardTable2 = nil
+	rows, err := getWtMibIpforwardRow2s(family, ifc)
 
-	result := getIpForwardTable2(family, unsafe.Pointer(&pTable))
-
-	if pTable != nil {
-		defer freeMibTable(unsafe.Pointer(pTable))
+	if err != nil {
+		return nil, err
 	}
 
-	if result != 0 {
-		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
-	}
+	length := len(rows)
 
-	routes := make([]*Route, 0)
+	routes := make([]*Route, length, length)
 
-	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
-	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
+	for idx, row := range rows {
 
-	for i := uint32(0); i < pTable.NumEntries; i++ {
+		route, err := row.toRoute()
 
-		wtr := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
-
-		if ifc == nil || wtr.InterfaceLuid == ifc.Luid {
-
-			route, err := wtr.toRoute()
-
-			if err != nil {
-				return nil, err
-			}
-
-			routes = append(routes, route)
+		if err != nil {
+			return nil, err
 		}
+
+		routes[idx] = route
 	}
 
 	return routes, nil

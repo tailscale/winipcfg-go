@@ -329,10 +329,23 @@ func (addr *wtSockaddrInet) String() string {
 	if addr == nil {
 		return ""
 	} else if addr.isIPv4() {
-		ipv4, _ := addr.toWtSockaddrIn()
+
+		ipv4, err := addr.toWtSockaddrIn()
+
+		if err != nil {
+			return fmt.Sprintf("Invalid receiver argument: %v", err)
+		}
+
 		return ipv4.String()
+
 	} else {
-		ipv6 := wtSockaddrIn6Lh(*addr)
-		return (&ipv6).String()
+
+		ipv6, err := addr.toWtSockaddrIn6()
+
+		if err != nil {
+			return fmt.Sprintf("Invalid receiver argument: %v", err)
+		}
+
+		return ((*wtSockaddrIn6Lh)(unsafe.Pointer(ipv6))).String()
 	}
 }

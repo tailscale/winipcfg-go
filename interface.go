@@ -412,7 +412,7 @@ func (ifc *Interface) FlushAddresses() error {
 	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
 	for _, wta := range wtas {
@@ -431,7 +431,7 @@ func (ifc *Interface) FlushAddresses() error {
 	return nil
 }
 
-func (ifc *Interface) AddAddresses(addresses []*IpWithPrefixLength) ([]*UnicastAddressData, error) {
+func (ifc *Interface) AddAddresses(addresses []*net.IPNet) ([]*UnicastAddressData, error) {
 
 	if ifc == nil {
 		return nil, fmt.Errorf("Interface.AddAddresses() - input argument is nil")
@@ -441,9 +441,9 @@ func (ifc *Interface) AddAddresses(addresses []*IpWithPrefixLength) ([]*UnicastA
 
 	uas := make([]*UnicastAddressData, count, count)
 
-	for idx, ippl := range addresses {
+	for idx, ipnet := range addresses {
 
-		addr, err := createUnicastAddressData(ifc, ippl)
+		addr, err := createUnicastAddressData(ifc, ipnet)
 
 		if err != nil {
 			return nil, err
@@ -466,7 +466,7 @@ func (ifc *Interface) AddAddresses(addresses []*IpWithPrefixLength) ([]*UnicastA
 	return uas, nil
 }
 
-func (ifc *Interface) SetAddresses(addresses []*IpWithPrefixLength) ([]*UnicastAddressData, error) {
+func (ifc *Interface) SetAddresses(addresses []*net.IPNet) ([]*UnicastAddressData, error) {
 
 	if ifc == nil {
 		return nil, fmt.Errorf("Interface.SetAddresses() - receiver Interface argument is nil")

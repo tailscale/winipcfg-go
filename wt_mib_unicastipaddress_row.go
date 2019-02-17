@@ -90,6 +90,8 @@ func (wtua *wtMibUnicastipaddressRow) add() error {
 		return fmt.Errorf("wtMibUnicastipaddressRow.add() - input argument is nil")
 	}
 
+	fmt.Printf("wtMibUnicastipaddressRow add:\n%s\n", wtua.String())
+
 	result := createUnicastIpAddressEntry(wtua)
 
 	if result == 0 {
@@ -112,4 +114,26 @@ func (wtua *wtMibUnicastipaddressRow) delete() error {
 	} else {
 		return os.NewSyscallError("iphlpapi.DeleteUnicastIpAddressEntry", windows.Errno(result))
 	}
+}
+
+func (wtua *wtMibUnicastipaddressRow) String() string {
+
+	if wtua == nil {
+		return ""
+	}
+
+	return fmt.Sprintf(`Address: [%s]/%d
+InterfaceLuid: %d
+InterfaceIndex: %d
+PrefixOrigin: %s
+SuffixOrigin: %s
+ValidLifetime: %d
+PreferredLifetime: %d
+SkipAsSource: %d
+DadState: %s
+ScopeId: %d
+CreationTimeStamp: %d
+`, wtua.Address.String(), wtua.OnLinkPrefixLength, wtua.InterfaceLuid, wtua.InterfaceIndex, wtua.PrefixOrigin.String(),
+wtua.SuffixOrigin.String(), wtua.ValidLifetime, wtua.PreferredLifetime, wtua.SkipAsSource, wtua.DadState.String(),
+wtua.SkipAsSource, wtua.CreationTimeStamp)
 }

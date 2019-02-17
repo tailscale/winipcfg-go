@@ -7,6 +7,15 @@ package winipcfg
 
 import (
 	"fmt"
+	"net"
+)
+
+const (
+	newAddressPrefixOrigin      = IpPrefixOriginManual
+	newAddressSuffixOrigin      = IpSuffixOriginManual
+	newAddressValidLifetime     = 4294967295
+	newAddressPreferredLifetime = 4294967295
+	newAddressSkipAsSource      = false
 )
 
 type UnicastAddressData struct {
@@ -38,33 +47,35 @@ func (address *UnicastAddressData) equivalentTo(other *UnicastAddressData) bool 
 		address.CreationTimeStamp == other.CreationTimeStamp && address.Address.equivalentTo(other.Address)
 }
 
-func createUnicastAddressData(ifc *Interface, ippl *IpWithPrefixLength) (*UnicastAddressData, error) {
+func createUnicastAddressData(ifc *Interface, ipnet *net.IPNet) (*UnicastAddressData, error) {
 
 	if ifc == nil {
 		return nil, fmt.Errorf("createUnicastAddressData() - input Interface is nil")
 	}
 
-	if ippl == nil {
+	if ipnet == nil {
 		return nil, fmt.Errorf("createUnicastAddressData() - input IpWithPrefixLength is nil")
 	}
 
-	sainet, err := createSockaddrInet(ippl.IP)
+	sainet, err := createSockaddrInet(ipnet.IP)
 
 	if err != nil {
 		return nil, err
 	}
+
+	ones, _ := ipnet.Mask.Size()
 
 	// TODO: Check field values set here.
 	return &UnicastAddressData{
 		Address:            sainet,
 		InterfaceLuid:      ifc.Luid,
 		InterfaceIndex:     ifc.Index,
-		PrefixOrigin:       IpPrefixOriginManual,
-		SuffixOrigin:       IpSuffixOriginManual,
-		ValidLifetime:      0,
-		PreferredLifetime:  0,
-		OnLinkPrefixLength: ippl.PrefixLength,
-		SkipAsSource:       false,
+		PrefixOrigin:       newAddressPrefixOrigin,
+		SuffixOrigin:       newAddressSuffixOrigin,
+		ValidLifetime:      newAddressValidLifetime,
+		PreferredLifetime:  newAddressPreferredLifetime,
+		OnLinkPrefixLength: uint8(ones),
+		SkipAsSource:       newAddressSkipAsSource,
 	}, nil
 }
 

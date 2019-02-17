@@ -24,9 +24,9 @@ const (
 )
 
 var (
-	unexistingIpAddresToAdd = IpWithPrefixLength{
-		IP:           net.IP{172, 16, 1, 111},
-		PrefixLength: 24,
+	unexistingIpAddresToAdd = net.IPNet{
+		IP:   net.IP{172, 16, 1, 114},
+		Mask: net.IPMask{255, 255, 255, 0},
 	}
 )
 
@@ -178,7 +178,7 @@ func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
 
 	count := len(ifc.UnicastAddresses)
 
-	addrs, err := ifc.AddAddresses([]*IpWithPrefixLength{&unexistingIpAddresToAdd})
+	addrs, err := ifc.AddAddresses([]*net.IPNet{&unexistingIpAddresToAdd})
 
 	if err != nil {
 		t.Errorf("Interface.AddAddresses() returned an error: %v", err)

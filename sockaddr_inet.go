@@ -31,7 +31,7 @@ type SockaddrInet struct {
 	IPv6ScopeId uint32
 }
 
-func (sainet *SockaddrInet) equivalentTo(other *SockaddrInet) bool {
+func (sainet *SockaddrInet) equal(other *SockaddrInet) bool {
 
 	if sainet == nil || other == nil {
 		return false

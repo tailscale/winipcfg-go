@@ -25,7 +25,7 @@ type UnicastAddressData struct {
 	CreationTimeStamp  int64
 }
 
-func (address *UnicastAddressData) equivalentTo(other *UnicastAddressData) bool {
+func (address *UnicastAddressData) equal(other *UnicastAddressData) bool {
 
 	if address == nil || other == nil {
 		return false
@@ -36,7 +36,7 @@ func (address *UnicastAddressData) equivalentTo(other *UnicastAddressData) bool 
 		address.ValidLifetime == other.ValidLifetime && address.PreferredLifetime == other.PreferredLifetime &&
 		address.OnLinkPrefixLength == other.OnLinkPrefixLength && address.SkipAsSource == other.SkipAsSource &&
 		address.DadState == other.DadState && address.ScopeId == other.ScopeId &&
-		address.CreationTimeStamp == other.CreationTimeStamp && address.Address.equivalentTo(other.Address)
+		address.CreationTimeStamp == other.CreationTimeStamp && address.Address.equal(other.Address)
 }
 
 func (address *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastipaddressRow, error) {

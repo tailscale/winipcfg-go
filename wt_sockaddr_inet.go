@@ -90,7 +90,7 @@ type wtSockaddrIn6Lh struct {
 // - any of structs is nil, even if the other struct is also nil;
 // - any of structs has its family other than wtSockaddrIn6Lh, even if the other also has the same family and all other
 // fields equal.
-func (addr *wtSockaddrIn6Lh) equivalentTo(other *wtSockaddrIn6Lh) bool {
+func (addr *wtSockaddrIn6Lh) equal(other *wtSockaddrIn6Lh) bool {
 
 	if addr == nil || other == nil {
 		return false

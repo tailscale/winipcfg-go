@@ -14,7 +14,7 @@ import (
 // Defined in iptypes.h
 const (
 	MAX_ADAPTER_ADDRESS_LENGTH = 8
-	MAX_DHCPV6_DUID_LENGTH = 130
+	MAX_DHCPV6_DUID_LENGTH     = 130
 )
 
 // IP_ADAPTER_ADDRESSES defined in iptypes.h

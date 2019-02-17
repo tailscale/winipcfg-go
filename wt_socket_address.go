@@ -36,7 +36,7 @@ func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 			return nil, nil
 		} else {
 			return nil, fmt.Errorf(
-				"Should not happen ever! wtSocketAddress.lpSockaddr is nil, although wtSocketAddress.iSockaddrLength is %d (0 expected).",
+				"getWtSockaddrInet() - unexpected: lpSockaddr is nil while although iSockaddrLength is %d (0 expected)",
 				sa.iSockaddrLength)
 		}
 	}
@@ -48,7 +48,7 @@ func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 		// TODO: Remove this check once it's confirmed that it works OK.
 		if sa.iSockaddrLength != wtSockaddrIn_Size {
 			return nil,
-				fmt.Errorf("wtSocketAddress.lpSockaddr.sa_family is %s, but wtSocketAddress.iSockaddrLength is %d (%d expected).",
+				fmt.Errorf("getWtSockaddrInet() - lpSockaddr.sa_family is %s but iSockaddrLength is %d (%d expected)",
 					AF_INET.String(), sa.iSockaddrLength, wtSockaddrIn_Size)
 		}
 
@@ -59,15 +59,14 @@ func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 		// TODO: Remove this check once it's confirmed that it works OK.
 		if sa.iSockaddrLength != wtSockaddrIn6Lh_Size {
 			return nil,
-				fmt.Errorf("wtSocketAddress.lpSockaddr.sa_family is %s, but wtSocketAddress.iSockaddrLength is %d (%d expected).",
+				fmt.Errorf("getWtSockaddrInet() - lpSockaddr.sa_family is %s but iSockaddrLength is %d (%d expected)",
 					AF_INET6.String(), sa.iSockaddrLength, wtSockaddrIn6Lh_Size)
 		}
 
 		break
 
 	default:
-		return nil, fmt.Errorf("Input argument cannot be converted to wtSockaddrInet because its family is %s.",
-			sa.lpSockaddr.sa_family.String())
+		return nil, fmt.Errorf("getWtSockaddrInet() - receiver's argument family has to be AF_INET or AF_INET6")
 	}
 
 	return (*wtSockaddrInet)(unsafe.Pointer(sa.lpSockaddr)), nil

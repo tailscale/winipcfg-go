@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"golang.org/x/sys/windows"
 	"net"
+	"os"
 	"unsafe"
 )
 
@@ -23,7 +24,7 @@ func getWtMibUnicastipaddressRows(family AddressFamily) ([]*wtMibUnicastipaddres
 	}
 
 	if result != 0 {
-		return nil, windows.Errno(result)
+		return nil, os.NewSyscallError("iphlpapi.GetUnicastIpAddressTable", windows.Errno(result))
 	}
 
 	addresses := make([]*wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
@@ -94,7 +95,7 @@ func (wtua *wtMibUnicastipaddressRow) add() error {
 	if result == 0 {
 		return nil
 	} else {
-		return windows.Errno(result)
+		return os.NewSyscallError("iphlpapi.CreateUnicastIpAddressEntry", windows.Errno(result))
 	}
 }
 
@@ -109,6 +110,6 @@ func (wtua *wtMibUnicastipaddressRow) delete() error {
 	if result == 0 {
 		return nil
 	} else {
-		return windows.Errno(result)
+		return os.NewSyscallError("iphlpapi.DeleteUnicastIpAddressEntry", windows.Errno(result))
 	}
 }

@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"os"
 	"unsafe"
 )
 
@@ -40,7 +41,7 @@ func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
 	}
 
 	if result != 0 {
-		return nil, windows.Errno(result)
+		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
 	}
 
 	routes := make([]*Route, 0)

@@ -572,7 +572,7 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 						return err
 					}
 
-					routeData.Destination.IP[0] = 128 // It's now 8000::/1
+					routeData.Destination.IP = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 8000::/1
 
 					return addWtMibIpforwardRow2(ifc, routeData)
 				}
@@ -589,7 +589,7 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 						return err
 					}
 
-					routeData.Destination.IP[0] = 128 // It's now 128.0.0.0/1
+					routeData.Destination.IP = []byte{128, 0, 0, 0} // It's now 128.0.0.0/1
 
 					return addWtMibIpforwardRow2(ifc, routeData)
 				}
@@ -618,8 +618,48 @@ func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) erro
 	return nil
 }
 
-//func (iface *Interface) SetRoutes(routes []net.IPNet, splitDefault bool) error
-//
+func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.SetRoutes() - receiver argument is nil")
+	}
+
+	err := ifc.FlushRoutes()
+
+	if err != nil {
+		return err
+	}
+
+	return ifc.AddRoutes(routesData, splitDefault)
+}
+
+func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
+
+	if ifc == nil {
+		return fmt.Errorf("Interface.DeleteRoute() - receiver argument is nil")
+	}
+
+	if destination == nil {
+		return fmt.Errorf("Interface.DeleteRoute() - 'destination' input argument is nil")
+	}
+
+	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
+
+	if err != nil {
+		return err
+	}
+
+	ones, _ := destination.Mask.Size()
+
+	for _, row := range rows {
+		if row.DestinationPrefix.PrefixLength == uint8(ones) && row.DestinationPrefix.Prefix.matches(&destination.IP) {
+			return row.delete()
+		}
+	}
+
+	return fmt.Errorf("Interface.DeleteRoute() - matching route not found")
+}
+
 //func (iface *Interface) FlushDNS() error
 //func (iface *Interface) AddDNS(dnses []net.IP) error
 //func (iface *Interface) SetDNS(dnses []net.IP) error

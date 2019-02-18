@@ -53,5 +53,5 @@ func (wtap *wtIpAddressPrefix) toIpAddressPrefix() (*IpAddressPrefix, error) {
 }
 
 func (addrPfx *wtIpAddressPrefix) String() string {
-	return fmt.Sprintf("Prefix: [%s]; PrefixLength: %d", addrPfx.Prefix.String(), addrPfx.PrefixLength)
+	return fmt.Sprintf("[%s]/%d", addrPfx.Prefix.String(), addrPfx.PrefixLength)
 }

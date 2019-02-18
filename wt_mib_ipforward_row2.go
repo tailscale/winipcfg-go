@@ -44,7 +44,7 @@ type wtMibIpforwardRow2 struct {
 	Origin NlRouteOrigin
 }
 
-func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]*wtMibIpforwardRow2, error) {
+func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]wtMibIpforwardRow2, error) {
 
 	var pTable *wtMibIpforwardTable2 = nil
 
@@ -58,7 +58,7 @@ func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]*wtMibIpfor
 		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
 	}
 
-	rows := make([]*wtMibIpforwardRow2, 0)
+	rows := make([]wtMibIpforwardRow2, 0)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
@@ -68,7 +68,7 @@ func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]*wtMibIpfor
 		row := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 
 		if ifc == nil || row.InterfaceLuid == ifc.Luid {
-			rows = append(rows, row)
+			rows = append(rows, *row)
 		}
 	}
 

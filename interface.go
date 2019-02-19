@@ -674,6 +674,23 @@ func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 	}
 }
 
+func (ifc *Interface) GetNetworkAdapterConfiguration() (*NetworkAdapterConfiguration, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.GetNetworkAdapterConfiguration() - receiver argument is nil")
+	}
+
+	nac, err := getNetworkAdaptersConfigurations(ifc)
+
+	if err != nil {
+		return nil, err
+	} else if nac == nil {
+		return nil, fmt.Errorf("GetNetworkAdapterConfiguration() - interface not found")
+	} else {
+		return nac.(*NetworkAdapterConfiguration), nil
+	}
+}
+
 //func (iface *Interface) FlushDNS() error
 //func (iface *Interface) AddDNS(dnses []net.IP) error
 //func (iface *Interface) SetDNS(dnses []net.IP) error

@@ -6,6 +6,7 @@ import (
 	"github.com/go-ole/go-ole"
 	"github.com/go-ole/go-ole/oleutil"
 	"net"
+	"strings"
 )
 
 type GatewayCost struct {
@@ -179,7 +180,7 @@ func getOlePropertyValueUint32Array(item *ole.IDispatch, propertyName string) ([
 	return strs, nil
 }
 
-func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapterConfiguration, error) {
+func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId string) (*NetworkAdapterConfiguration, error) {
 
 	if itemRaw == nil {
 		return nil, nil
@@ -188,9 +189,21 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapt
 	item := itemRaw.ToIDispatch()
 	defer item.Release()
 
-	nac := NetworkAdapterConfiguration{}
+	val, err := oleutil.GetProperty(item, "SettingID")
 
-	val, err := oleutil.GetProperty(item, "Caption")
+	if err != nil {
+		return nil, err
+	}
+
+	sid := val.ToString()
+
+	if settingId != "" && settingId != strings.ToUpper(strings.TrimSpace(val.ToString())) {
+		return nil, nil
+	}
+
+	nac := NetworkAdapterConfiguration{ SettingID: sid }
+
+	val, err = oleutil.GetProperty(item, "Caption")
 
 	if err != nil {
 		return nil, err
@@ -205,14 +218,6 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapt
 	}
 
 	nac.Description = val.ToString()
-
-	val, err = oleutil.GetProperty(item, "SettingID")
-
-	if err != nil {
-		return nil, err
-	}
-
-	nac.SettingID = val.ToString()
 
 	val, err = oleutil.GetProperty(item, "ArpAlwaysSourceRoute")
 
@@ -739,7 +744,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapt
 	return &nac, nil
 }
 
-func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) {
+func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 
 	// init COM, oh yeah
 	err := ole.CoInitialize(0)
@@ -795,7 +800,15 @@ func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) 
 
 	count := int(countVar.Val)
 
-	nacs := make([]*NetworkAdapterConfiguration, count, count)
+	var nacs []*NetworkAdapterConfiguration
+
+	adapterName := ""
+
+	if ifc == nil {
+		nacs = make([]*NetworkAdapterConfiguration, count, count)
+	} else {
+		adapterName = strings.ToUpper(strings.TrimSpace(ifc.AdapterName))
+	}
 
 	for i := 0; i < count; i++ {
 		// item is a SWbemObject, but really a Win32_NetworkAdapterConfiguration
@@ -805,16 +818,37 @@ func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) 
 			return nil, err
 		}
 
-		nac, err := itemRawToNetworkAdaptersConfigurations(itemRaw)
+		nac, err := itemRawToNetworkAdaptersConfigurations(itemRaw, adapterName)
 
 		if err != nil {
 			return nil, err
 		}
 
-		nacs[i] = nac
+		if nac != nil {
+			if ifc == nil {
+				nacs[i] = nac
+			} else {
+				return nac, nil
+			}
+		}
 	}
 
-	return nacs, nil
+	if ifc == nil {
+		return nacs, nil
+	} else {
+		return nil, fmt.Errorf("getNetworkAdaptersConfigurations() - interface not found")
+	}
+}
+
+func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) {
+
+	nacs, err := getNetworkAdaptersConfigurations(nil)
+
+	if err == nil {
+		return nacs.([]*NetworkAdapterConfiguration), nil
+	} else {
+		return nil, err
+	}
 }
 
 func (nac *NetworkAdapterConfiguration) String() string {

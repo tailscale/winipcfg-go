@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const printNetworkAdaptersConfigurations = true
+const printNetworkAdaptersConfigurations = false
 
 func TestGetNetworkAdaptersConfigurations(t *testing.T) {
 

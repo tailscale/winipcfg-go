@@ -220,8 +220,6 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapt
 		return nil, err
 	}
 
-	//fmt.Printf("ArpAlwaysSourceRoute: %v; %v; %v; %s\n", val, val.Value(), val.Val, val.ToString())
-
 	nac.ArpAlwaysSourceRoute = val.Val != 0
 
 	val, err = oleutil.GetProperty(item, "ArpUseEtherSNAP")
@@ -834,12 +832,20 @@ ArpAlwaysSourceRoute: %v
 ArpUseEtherSNAP: %v
 DatabasePath: %s
 DeadGWDetectEnabled: %v
-DefaultIPGateway:
-`, nac.Caption, nac.Description, nac.SettingID, nac.ArpAlwaysSourceRoute, nac.ArpUseEtherSNAP, nac.DatabasePath,
-		nac.DeadGWDetectEnabled))
+DefaultIPGateway:`, nac.Caption, nac.Description, nac.SettingID, nac.ArpAlwaysSourceRoute, nac.ArpUseEtherSNAP,
+nac.DatabasePath, nac.DeadGWDetectEnabled))
 
-	for _, item := range nac.DefaultIPGateway {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
+	if nac.DefaultIPGateway == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.DefaultIPGateway) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.DefaultIPGateway {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
+		}
 	}
 
 	buffer.WriteString(fmt.Sprintf(`DefaultTOS: %d
@@ -849,21 +855,37 @@ DHCPLeaseExpires: %v
 DHCPLeaseObtained: %v
 DHCPServer: %s
 DNSDomain: %s
-DNSDomainSuffixSearchOrder:
-`, nac.DefaultTOS, nac.DefaultTTL, nac.DHCPEnabled, nac.DHCPLeaseExpires, nac.DHCPLeaseObtained, nac.DHCPServer,
-		nac.DNSDomain))
+DNSDomainSuffixSearchOrder:`, nac.DefaultTOS, nac.DefaultTTL, nac.DHCPEnabled, nac.DHCPLeaseExpires,
+nac.DHCPLeaseObtained, nac.DHCPServer, nac.DNSDomain))
 
-	for _, item := range nac.DNSDomainSuffixSearchOrder {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+	if nac.DNSDomainSuffixSearchOrder == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.DNSDomainSuffixSearchOrder) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.DNSDomainSuffixSearchOrder {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		}
 	}
 
 	buffer.WriteString(fmt.Sprintf(`DNSEnabledForWINSResolution: %v
 DNSHostName: %s
-DNSServerSearchOrder:
-`, nac.DNSEnabledForWINSResolution, nac.DNSHostName))
+DNSServerSearchOrder:`, nac.DNSEnabledForWINSResolution, nac.DNSHostName))
 
-	for _, item := range nac.DNSServerSearchOrder {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+	if nac.DNSServerSearchOrder == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.DNSServerSearchOrder) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.DNSServerSearchOrder {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		}
 	}
 
 	buffer.WriteString(fmt.Sprintf(`DomainDNSRegistrationEnabled: %v
@@ -872,51 +894,102 @@ FullDNSRegistrationEnabled: %v
 IGMPLevel: %d
 Index: %d
 InterfaceIndex: %d
-IPAddress:
-`, nac.DomainDNSRegistrationEnabled, nac.ForwardBufferMemory, nac.FullDNSRegistrationEnabled, nac.IGMPLevel, nac.Index,
-		nac.InterfaceIndex))
+IPAddress:`, nac.DomainDNSRegistrationEnabled, nac.ForwardBufferMemory, nac.FullDNSRegistrationEnabled, nac.IGMPLevel,
+nac.Index, nac.InterfaceIndex))
 
-	for _, item := range nac.IPAddress {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
+	if nac.IPAddress == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.IPAddress) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.IPAddress {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
+		}
 	}
 
 	buffer.WriteString(fmt.Sprintf(`IPConnectionMetric: %d
 IPEnabled: %v
 IPFilterSecurityEnabled: %v
 IPPortSecurityEnabled: %v
-IPSecPermitIPProtocols:
-`, nac.IPConnectionMetric, nac.IPEnabled, nac.IPFilterSecurityEnabled, nac.IPPortSecurityEnabled))
+IPSecPermitIPProtocols:`, nac.IPConnectionMetric, nac.IPEnabled, nac.IPFilterSecurityEnabled, nac.IPPortSecurityEnabled))
 
-	for _, item := range nac.IPSecPermitIPProtocols {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+	if nac.IPSecPermitIPProtocols == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.IPSecPermitIPProtocols) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.IPSecPermitIPProtocols {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		}
 	}
 
-	buffer.WriteString("IPSecPermitTCPPorts:\n")
+	buffer.WriteString("IPSecPermitTCPPorts:")
 
-	for _, item := range nac.IPSecPermitTCPPorts {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+	if nac.IPSecPermitTCPPorts == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.IPSecPermitTCPPorts) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.IPSecPermitTCPPorts {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		}
 	}
 
-	buffer.WriteString("IPSecPermitUDPPorts:\n")
+	buffer.WriteString("IPSecPermitUDPPorts:")
 
-	for _, item := range nac.IPSecPermitUDPPorts {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+	if nac.IPSecPermitUDPPorts == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.IPSecPermitUDPPorts) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.IPSecPermitUDPPorts {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		}
 	}
 
 	buffer.WriteString(fmt.Sprintf(`IPUseZeroBroadcast: %v
 IPXAddress: %s
 IPXEnabled: %v
-IPXFrameType:
-`, nac.IPUseZeroBroadcast, nac.IPXAddress, nac.IPXEnabled))
+IPXFrameType:`, nac.IPUseZeroBroadcast, nac.IPXAddress, nac.IPXEnabled))
 
-	for _, item := range nac.IPXFrameType {
-		buffer.WriteString(fmt.Sprintf("    %d\n", item))
+	if nac.IPXFrameType == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.IPXFrameType) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.IPXFrameType {
+			buffer.WriteString(fmt.Sprintf("    %d\n", item))
+		}
 	}
 
-	buffer.WriteString(fmt.Sprintf("IPXMediaType: %d\nIPXNetworkNumber:\n", nac.IPXMediaType))
+	buffer.WriteString(fmt.Sprintf("IPXMediaType: %d\nIPXNetworkNumber:", nac.IPXMediaType))
 
-	for _, item := range nac.IPXNetworkNumber {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+	if nac.IPXNetworkNumber == nil {
+		buffer.WriteString(" <nil>\n")
+	} else if len(nac.IPXNetworkNumber) < 1 {
+		buffer.WriteString(" <empty>\n")
+	} else {
+
+		buffer.WriteString("\n")
+
+		for _, item := range nac.IPXNetworkNumber {
+			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		}
 	}
 
 	buffer.WriteString(fmt.Sprintf(`IPXVirtualNetNumber: %s

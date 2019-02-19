@@ -47,17 +47,49 @@ func test() error {
 		item := itemRaw.ToIDispatch()
 		defer item.Release()
 
-		asString, _ := oleutil.GetProperty(item, "DNSDomainSuffixSearchOrder")
+		asString, err := oleutil.GetProperty(item, "DNSDomainSuffixSearchOrder")
+
+		if err != nil {
+			fmt.Printf("GetProperty() returned an error: %v\n", err)
+			continue
+		}
+
+		if asString == nil {
+			fmt.Println("GetProperty() returned nil.")
+		}
 
 		arr := asString.ToArray()
 
-		tmp := len(*arr)
-
-		for _, itm := range arr.Array {
-
+		if arr == nil {
+			fmt.Println("ToArray() returned nil.")
+			continue
 		}
 
-		fmt.Println(asString.ToString())
+		totalElements, err := arr.TotalElements(0)
+
+		if err != nil {
+			fmt.Printf("TotalElements() returned an error: %v\n", err)
+			continue
+		}
+
+		fmt.Printf("Total elements: %d\n", totalElements)
+
+		if totalElements > 0 {
+
+			fmt.Println("About to do!")
+			stringArray := arr.ToValueArray()
+			fmt.Println("Did it!")
+
+			if stringArray == nil {
+				fmt.Println("ToStringArray() returned nil.")
+			} else {
+				for _, itm := range stringArray {
+					fmt.Println(itm)
+				}
+			}
+		}
+
+		//fmt.Println(asString.ToString())
 	}
 
 	return nil

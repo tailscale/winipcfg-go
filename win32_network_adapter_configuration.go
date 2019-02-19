@@ -7,7 +7,9 @@ import (
 	"time"
 )
 
-type win32_NetworkAdapterConfiguration struct {
+// https://docs.microsoft.com/en-us/windows/desktop/CIMWin32Prov/win32-networkadapterconfiguration
+// Based on WMI Win32_NetworkAdapterConfiguration class.
+type win32NetworkAdapterConfiguration struct {
 	Caption                      string
 	Description                  string
 	SettingID                    string
@@ -71,7 +73,7 @@ type win32_NetworkAdapterConfiguration struct {
 	WINSSecondaryServer          string
 }
 
-func (nac *win32_NetworkAdapterConfiguration) String() string {
+func (nac *win32NetworkAdapterConfiguration) String() string {
 
 	if nac == nil {
 		return "<nil>"

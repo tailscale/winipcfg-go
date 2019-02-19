@@ -3,13 +3,14 @@ package winipcfg
 import (
 	"bytes"
 	"fmt"
+	"github.com/go-ole/go-ole"
+	"github.com/go-ole/go-ole/oleutil"
 	"net"
-	"time"
 )
 
 // https://docs.microsoft.com/en-us/windows/desktop/CIMWin32Prov/win32-networkadapterconfiguration
 // Based on WMI Win32_NetworkAdapterConfiguration class.
-type win32NetworkAdapterConfiguration struct {
+type NetworkAdapterConfiguration struct {
 	Caption                      string
 	Description                  string
 	SettingID                    string
@@ -21,8 +22,8 @@ type win32NetworkAdapterConfiguration struct {
 	DefaultTOS                   uint8
 	DefaultTTL                   uint8
 	DHCPEnabled                  bool
-	DHCPLeaseExpires             time.Time
-	DHCPLeaseObtained            time.Time
+	DHCPLeaseExpires             string //time.Time
+	DHCPLeaseObtained            string //time.Time
 	DHCPServer                   string
 	DNSDomain                    string
 	DNSDomainSuffixSearchOrder   []string
@@ -73,7 +74,357 @@ type win32NetworkAdapterConfiguration struct {
 	WINSSecondaryServer          string
 }
 
-func (nac *win32NetworkAdapterConfiguration) String() string {
+func getOlePropertyValueArray(item *ole.IDispatch, propertyName string) ([]interface{}, error) {
+
+	if item == nil {
+		return nil, nil
+	}
+
+	arrVal, err := oleutil.GetProperty(item, propertyName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if arrVal == nil {
+		return nil, nil
+	}
+
+	arr := arrVal.ToArray()
+
+	if arr == nil {
+		return nil, nil
+	} else {
+		return arr.ToValueArray(), nil
+	}
+}
+
+func getOlePropertyValueStringArray(item *ole.IDispatch, propertyName string) ([]string, error) {
+
+	arr, err := getOlePropertyValueArray(item, propertyName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if arr == nil {
+		return nil, nil
+	}
+
+	length := len(arr)
+
+	strs := make([]string, length, length)
+
+	for idx, val := range arr {
+		strs[idx] = val.(string)
+	}
+
+	return strs, nil
+}
+
+func getOlePropertyValueUint16Array(item *ole.IDispatch, propertyName string) ([]uint16, error) {
+
+	arr, err := getOlePropertyValueArray(item, propertyName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if arr == nil {
+		return nil, nil
+	}
+
+	length := len(arr)
+
+	strs := make([]uint16, length, length)
+
+	for idx, val := range arr {
+		strs[idx] = uint16(val.(int32))
+	}
+
+	return strs, nil
+}
+
+func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapterConfiguration, error) {
+
+	if itemRaw == nil {
+		return nil, nil
+	}
+
+	item := itemRaw.ToIDispatch()
+	defer item.Release()
+
+	nac := NetworkAdapterConfiguration{}
+
+	val, err := oleutil.GetProperty(item, "Caption")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.Caption = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "Description")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.Description = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "SettingID")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.SettingID = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "ArpAlwaysSourceRoute")
+
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Printf("ArpAlwaysSourceRoute: %v; %v; %v; %s\n", val, val.Value(), val.Val, val.ToString())
+
+	nac.ArpAlwaysSourceRoute = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "ArpUseEtherSNAP")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.ArpUseEtherSNAP = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "DatabasePath")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DatabasePath = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "DeadGWDetectEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DeadGWDetectEnabled = val.Val != 0
+
+	stringArr, err := getOlePropertyValueStringArray(item, "DefaultIPGateway")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DefaultIPGateway = stringArr
+
+	val, err = oleutil.GetProperty(item, "DefaultTOS")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DefaultTOS = uint8(val.Val)
+
+	val, err = oleutil.GetProperty(item, "DefaultTTL")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DefaultTTL = uint8(val.Val)
+
+	val, err = oleutil.GetProperty(item, "DHCPEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DHCPEnabled = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "DHCPLeaseExpires")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DHCPLeaseExpires = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "DHCPLeaseObtained")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DHCPLeaseObtained = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "DHCPServer")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DHCPServer = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "DNSDomain")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DNSDomain = val.ToString()
+
+	stringArr, err = getOlePropertyValueStringArray(item, "DNSDomainSuffixSearchOrder")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DNSDomainSuffixSearchOrder = stringArr
+
+	val, err = oleutil.GetProperty(item, "DNSEnabledForWINSResolution")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DNSEnabledForWINSResolution = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "DNSHostName")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DNSHostName = val.ToString()
+
+	stringArr, err = getOlePropertyValueStringArray(item, "DNSServerSearchOrder")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DNSServerSearchOrder = stringArr
+
+	val, err = oleutil.GetProperty(item, "DomainDNSRegistrationEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.DomainDNSRegistrationEnabled = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "ForwardBufferMemory")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.ForwardBufferMemory = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "FullDNSRegistrationEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.FullDNSRegistrationEnabled = val.Val != 0
+
+	uint16Arr, err := getOlePropertyValueUint16Array(item, "GatewayCostMetric")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.GatewayCostMetric = uint16Arr
+
+	//
+	return &nac, nil
+}
+
+func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) {
+
+	// init COM, oh yeah
+	err := ole.CoInitialize(0)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer ole.CoUninitialize()
+
+	unknown, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer unknown.Release()
+
+	wmi, err := unknown.QueryInterface(ole.IID_IDispatch)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer wmi.Release()
+
+	// service is a SWbemServices
+	serviceRaw, err := oleutil.CallMethod(wmi, "ConnectServer")
+
+	if err != nil {
+		return nil, err
+	}
+
+	service := serviceRaw.ToIDispatch()
+	defer service.Release()
+
+	// result is a SWBemObjectSet
+	resultRaw, err := oleutil.CallMethod(service, "ExecQuery",
+		"SELECT * FROM Win32_NetworkAdapterConfiguration")
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := resultRaw.ToIDispatch()
+	defer result.Release()
+
+	countVar, err := oleutil.GetProperty(result, "Count")
+
+	if err != nil {
+		return nil, err
+	}
+
+	count := int(countVar.Val)
+
+	nacs := make([]*NetworkAdapterConfiguration, count, count)
+
+	for i := 0; i < count; i++ {
+		// item is a SWbemObject, but really a Win32_NetworkAdapterConfiguration
+		itemRaw, err := oleutil.CallMethod(result, "ItemIndex", i)
+
+		if err != nil {
+			return nil, err
+		}
+
+		nac, err := itemRawToNetworkAdaptersConfigurations(itemRaw)
+
+		if err != nil {
+			return nil, err
+		}
+
+		nacs[i] = nac
+	}
+
+	return nacs, nil
+}
+
+func (nac *NetworkAdapterConfiguration) String() string {
 
 	if nac == nil {
 		return "<nil>"

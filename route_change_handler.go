@@ -7,13 +7,15 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"net"
 	"os"
 	"sync"
 	"unsafe"
 )
 
 // Defines function that can be used as a callback.
-type RouteChangeCallback func(route *Route, notificationType MibNotificationType)
+type RouteChangeCallback func(notificationType MibNotificationType, interfaceLuid uint64, destination *net.IPNet,
+	nextHop *net.IP)
 
 var (
 	routeChangeMutex     = sync.Mutex{}
@@ -64,10 +66,10 @@ func UnregisterRouteChangeCallback(callback *RouteChangeCallback) error {
 		}
 	} else if index == 0 {
 		routeChangeCallbacks = routeChangeCallbacks[1:]
-	} else if index == count - 1 {
+	} else if index == count-1 {
 		routeChangeCallbacks = routeChangeCallbacks[:index]
 	} else {
-		routeChangeCallbacks = append(routeChangeCallbacks[:index], routeChangeCallbacks[index + 1:]...)
+		routeChangeCallbacks = append(routeChangeCallbacks[:index], routeChangeCallbacks[index+1:]...)
 	}
 
 	return nil
@@ -138,7 +140,7 @@ func checkRouteChangeSubscribed() error {
 
 func routeChanged(callerContext unsafe.Pointer, wtr *wtMibIpforwardRow2, notificationType MibNotificationType) uintptr {
 
-	route, err := wtr.toRoute()
+	routeData, err := wtr.extractRouteData()
 
 	if err != nil {
 		// TODO: At lest we should add some logging here.
@@ -146,17 +148,18 @@ func routeChanged(callerContext unsafe.Pointer, wtr *wtMibIpforwardRow2, notific
 	}
 
 	// go routine used to avoid blocking OS call.
-	go notifyRouteChangedCallbacks(route, notificationType)
+	go notifyRouteChangedCallbacks(notificationType, wtr.InterfaceLuid, &routeData.Destination, &routeData.NextHop)
 
 	return 0
 }
 
-func notifyRouteChangedCallbacks(route *Route, notificationType MibNotificationType) {
+func notifyRouteChangedCallbacks(notificationType MibNotificationType, interfaceLuid uint64, destination *net.IPNet,
+	nextHop *net.IP) {
 
 	routeChangeMutex.Lock()
 	defer routeChangeMutex.Unlock()
 
 	for _, c := range routeChangeCallbacks {
-		(*c)(route, notificationType)
+		(*c)(notificationType, interfaceLuid, destination, nextHop)
 	}
 }

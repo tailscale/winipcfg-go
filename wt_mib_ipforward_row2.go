@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"net"
 	"os"
 	"unsafe"
 )
@@ -75,6 +76,29 @@ func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]wtMibIpforw
 	return rows, nil
 }
 
+func findWtMibIpforwardRow2(destination *net.IPNet, ifc *Interface) (*wtMibIpforwardRow2, error) {
+
+	if destination == nil {
+		return nil, fmt.Errorf("findWtMibIpforwardRow2() - input argument 'destination' is nil")
+	}
+
+	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ones, _ := destination.Mask.Size()
+
+	for _, row := range rows {
+		if row.DestinationPrefix.PrefixLength == uint8(ones) && row.DestinationPrefix.Prefix.matches(&destination.IP) {
+			return &row, nil
+		}
+	}
+
+	return nil, nil
+}
+
 func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 
 	if ifc == nil || routeData == nil {
@@ -97,7 +121,7 @@ func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 
 	_ = initializeIpForwardEntry(&row)
 
-	fmt.Printf("wtMibIpforwardRow2 initialized to:\n%s\n", row.String())
+	//fmt.Printf("wtMibIpforwardRow2 initialized to:\n%s\n", row.String())
 
 	row.InterfaceLuid = ifc.Luid
 	row.InterfaceIndex = ifc.Index
@@ -105,7 +129,7 @@ func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 	row.NextHop = *wtsaNextHop
 	row.Metric = routeData.Metric
 
-	fmt.Printf("wtMibIpforwardRow2 to add:\n%s\n", row.String())
+	//fmt.Printf("wtMibIpforwardRow2 to add:\n%s\n", row.String())
 
 	result := createIpForwardEntry2(&row)
 
@@ -165,6 +189,37 @@ func (r *wtMibIpforwardRow2) toRoute() (*Route, error) {
 		Immortal:             uint8ToBool(r.Immortal),
 		Age:                  r.Age,
 		Origin:               r.Origin,
+	}, nil
+}
+
+func (r *wtMibIpforwardRow2) extractRouteData() (*RouteData, error) {
+
+	if r == nil {
+		return nil, nil
+	}
+
+	iap, err := r.DestinationPrefix.toIpAddressPrefix()
+
+	if err != nil {
+		return nil, err
+	}
+
+	destination, err := iap.toNetIpNet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	sainet, err := r.NextHop.toSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &RouteData{
+		Destination: *destination,
+		NextHop: sainet.Address,
+		Metric: r.Metric,
 	}, nil
 }
 

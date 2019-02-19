@@ -13,7 +13,7 @@ import (
 	"unsafe"
 )
 
-func getWtMibUnicastipaddressRows(family AddressFamily) ([]*wtMibUnicastipaddressRow, error) {
+func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddressRow, error) {
 
 	var pTable *wtMibUnicastipaddressTable = nil
 
@@ -27,13 +27,13 @@ func getWtMibUnicastipaddressRows(family AddressFamily) ([]*wtMibUnicastipaddres
 		return nil, os.NewSyscallError("iphlpapi.GetUnicastIpAddressTable", windows.Errno(result))
 	}
 
-	addresses := make([]*wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
+	addresses := make([]wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibUnicastipaddressRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
-		addresses[i] = (*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		addresses[i] = *(*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 	}
 
 	return addresses, nil
@@ -77,7 +77,7 @@ func getMatchingWtMibUnicastipaddressRow(luid uint64, ip *net.IP) (*wtMibUnicast
 
 	for _, wta := range wtas {
 		if wta.InterfaceLuid == luid && wta.Address.matches(ip) {
-			return wta, nil
+			return &wta, nil
 		}
 	}
 
@@ -167,6 +167,6 @@ DadState: %s
 ScopeId: %d
 CreationTimeStamp: %d
 `, wtua.Address.String(), wtua.OnLinkPrefixLength, wtua.InterfaceLuid, wtua.InterfaceIndex, wtua.PrefixOrigin.String(),
-wtua.SuffixOrigin.String(), wtua.ValidLifetime, wtua.PreferredLifetime, wtua.SkipAsSource, wtua.DadState.String(),
-wtua.SkipAsSource, wtua.CreationTimeStamp)
+		wtua.SuffixOrigin.String(), wtua.ValidLifetime, wtua.PreferredLifetime, wtua.SkipAsSource, wtua.DadState.String(),
+		wtua.SkipAsSource, wtua.CreationTimeStamp)
 }

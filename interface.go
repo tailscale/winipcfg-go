@@ -500,7 +500,25 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 }
 
 func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.GetRoutes() - receiver argument is nil")
+	}
+
 	return getRoutes(family, ifc)
+}
+
+func (ifc *Interface) FindRoute(destination *net.IPNet) (*Route, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.FindRoute() - receiver argument is nil")
+	}
+
+	if destination == nil {
+		return nil, fmt.Errorf("Interface.FindRoute() - 'destination' input argument is nil")
+	}
+
+	return findRoute(destination, ifc)
 }
 
 // splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
@@ -643,21 +661,17 @@ func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 		return fmt.Errorf("Interface.DeleteRoute() - 'destination' input argument is nil")
 	}
 
-	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
+	row, err := findWtMibIpforwardRow2(destination, ifc)
 
 	if err != nil {
 		return err
 	}
 
-	ones, _ := destination.Mask.Size()
-
-	for _, row := range rows {
-		if row.DestinationPrefix.PrefixLength == uint8(ones) && row.DestinationPrefix.Prefix.matches(&destination.IP) {
-			return row.delete()
-		}
+	if row == nil {
+		return fmt.Errorf("Interface.DeleteRoute() - matching route not found")
+	} else {
+		return row.delete()
 	}
-
-	return fmt.Errorf("Interface.DeleteRoute() - matching route not found")
 }
 
 //func (iface *Interface) FlushDNS() error

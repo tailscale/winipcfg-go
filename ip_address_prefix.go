@@ -5,11 +5,41 @@
 
 package winipcfg
 
-import "fmt"
+import (
+	"fmt"
+	"net"
+)
 
 type IpAddressPrefix struct {
 	Prefix       SockaddrInet
 	PrefixLength uint8
+}
+
+func (ap *IpAddressPrefix) toNetIpNet() (*net.IPNet, error) {
+
+	if ap == nil {
+		return nil, nil
+	}
+
+	ipv4 := ap.Prefix.Address.To4()
+
+	if ipv4 != nil {
+		return &net.IPNet{
+			IP:   ipv4,
+			Mask: net.CIDRMask(int(ap.PrefixLength), 32),
+		}, nil
+	}
+
+	ipv6 := ap.Prefix.Address.To16()
+
+	if ipv6 != nil {
+		return &net.IPNet{
+			IP:   ipv6,
+			Mask: net.CIDRMask(int(ap.PrefixLength), 128),
+		}, nil
+	}
+
+	return nil, fmt.Errorf("IpAddressPrefix.toNetIpNet() - invalid receiver argument")
 }
 
 func (ap *IpAddressPrefix) String() string {

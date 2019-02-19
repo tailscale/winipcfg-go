@@ -67,8 +67,16 @@ func (addr *wtSockaddrIn) matches(ip *net.IP) bool {
 }
 
 func (addr *wtSockaddrIn) String() string {
-	return fmt.Sprintf("sin_family: %s; sin_port: %d; IP: %s", addr.sin_family.String(), addr.sin_port,
-		addr.sin_addr.toNetIp().String())
+
+	if addr == nil {
+		return "<nil>"
+	}
+
+	if addr.sin_family != AF_INET {
+		return fmt.Sprintf("Invalid sin_family: %s", addr.sin_family.String())
+	}
+
+	return fmt.Sprintf("%s:%d", addr.sin_addr.toNetIp().String(), addr.sin_port)
 }
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/ws2ipdef/ns-ws2ipdef-sockaddr_in6
@@ -127,9 +135,16 @@ func (addr *wtSockaddrIn6Lh) matches(ip *net.IP) bool {
 }
 
 func (addr *wtSockaddrIn6Lh) String() string {
-	return fmt.Sprintf("sin6_family: %s; sin6_port: %d; sin6_flowinfo: %d; sin6_addr: [%s]; sin6_scope_id: %d",
-		addr.sin6_family.String(), addr.sin6_port, addr.sin6_flowinfo, addr.sin6_addr.toNetIp().String(),
-		addr.sin6_scope_id)
+
+	if addr == nil {
+		return "<nil>"
+	}
+
+	if addr.sin6_family != AF_INET6 {
+		return fmt.Sprintf("Invalid sin6_family: %s", addr.sin6_family.String())
+	}
+
+	return fmt.Sprintf("%s:%d", addr.sin6_addr.toNetIp().String(), addr.sin6_port)
 }
 
 // SOCKADDR_IN6 defined in ws2ipdef.h

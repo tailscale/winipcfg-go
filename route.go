@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"fmt"
+	"net"
 )
 
 type Route struct {
@@ -51,6 +52,40 @@ func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
 	}
 
 	return routes, nil
+}
+
+func FindRoute(destination *net.IPNet) (*Route, error) {
+
+	if destination == nil {
+		return nil, fmt.Errorf("FindRoute() - 'destination' input argument is nil")
+	}
+
+	return findRoute(destination, nil)
+}
+
+func findRoute(destination *net.IPNet, ifc *Interface) (*Route, error) {
+
+	if destination == nil {
+		return nil, fmt.Errorf("findRoute() - 'destination' input argument is nil")
+	}
+
+	row, err := findWtMibIpforwardRow2(destination, ifc)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if row == nil {
+		return nil, nil
+	}
+
+	route, err := row.toRoute()
+
+	if err == nil {
+		return route, nil
+	} else {
+		return nil, err
+	}
 }
 
 func GetRoutes(family AddressFamily) ([]*Route, error) {

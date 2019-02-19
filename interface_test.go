@@ -28,6 +28,14 @@ var (
 		IP:   net.IP{172, 16, 1, 114},
 		Mask: net.IPMask{255, 255, 255, 0},
 	}
+	unexistentRouteIPv4ToAdd = RouteData{
+		Destination: net.IPNet{
+			IP: net.IP{172, 16, 200, 0},
+			Mask: net.IPMask{255, 255, 255, 0},
+		},
+		NextHop: net.IP{172, 16, 1, 2},
+		Metric: 0,
+	}
 )
 
 func TestGetInterfaces(t *testing.T) {
@@ -141,18 +149,18 @@ func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 	}
 }
 
-func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
+func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so add/remove address testing cannot be performed.",
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so add/delete address testing cannot be performed.",
 			err)
 		return
 	}
 
 	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so add/remove address testing cannot be performed.")
+		t.Error("InterfaceFromLUID() returned nil, so add/delete address testing cannot be performed.")
 		return
 	}
 
@@ -216,7 +224,7 @@ func TestInterface_AddAddresses_RemoveAddress(t *testing.T) {
 	if err != nil {
 		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
 	} else if addr != nil {
-		t.Errorf("Unicast address %s still exists, although it's removed successfully.",
+		t.Errorf("Unicast address %s still exists, although it's deleted successfully.",
 			unexistingIpAddresToAdd.IP.String())
 	}
 }
@@ -261,5 +269,89 @@ func TestInterface_GetRoutes(t *testing.T) {
 			fmt.Println(route)
 			fmt.Println("=========================== ROUTE OUTPUT END ===========================")
 		}
+	}
+}
+
+func TestInterface_AddRoute_DeleteRoute_IPv4(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetRoutes() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.GetRoutes() testing cannot be performed.")
+		return
+	}
+
+	route, err := ifc.FindRoute(&unexistentRouteIPv4ToAdd.Destination)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+		return
+	}
+
+	if route != nil {
+		t.Error("Interface.FindRoute() returned a route although it is not added yet. Have you forgot to set unexistentRouteIPv4ToAdd appropriately?")
+	}
+
+	err = RegisterRouteChangeCallback(&routeChangeCallbackExample)
+
+	if err != nil {
+		t.Errorf("RegisterRouteChangeCallback() returned an error: %v", err)
+		return
+	}
+
+	defer func() {
+		err := UnregisterRouteChangeCallback(&routeChangeCallbackExample)
+
+		if err != nil {
+			t.Errorf("UnregisterRouteChangeCallback() returned an error: %v", err)
+		}
+	}()
+
+	err = ifc.AddRoute(&unexistentRouteIPv4ToAdd, true)
+
+	if err != nil {
+		t.Errorf("Interface.AddRoute() returned an error: %v", err)
+		return
+	}
+
+	// Giving some time to callbacks.
+	time.Sleep(500 * time.Millisecond)
+
+	route, err = ifc.FindRoute(&unexistentRouteIPv4ToAdd.Destination)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+		return
+	}
+
+	if route == nil {
+		t.Error("Interface.FindRoute() returned nil although a route is added successfully.")
+	}
+
+	err = ifc.DeleteRoute(&unexistentRouteIPv4ToAdd.Destination)
+
+	if err != nil {
+		t.Errorf("Iterface.DeleteRoute() returned an error: %v", err)
+		return
+	}
+
+	// Giving some time to callbacks.
+	time.Sleep(500 * time.Millisecond)
+
+	route, err = ifc.FindRoute(&unexistentRouteIPv4ToAdd.Destination)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+		return
+	}
+
+	if route != nil {
+		t.Error("Interface.FindRoute() returned the route although it's deleted successfully.")
 	}
 }

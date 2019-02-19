@@ -7,19 +7,15 @@ package winipcfg
 
 import (
 	"fmt"
+	"net"
 	"testing"
 )
 
 // Example callback
-var routeChangeCallbackExample RouteChangeCallback = func(route *Route, notificationType MibNotificationType) {
-
-	fmt.Printf(`============================= ROUTE CHANGED START =============================
-MibNotificationType: %s
-Route:
-%s
-============================== ROUTE CHANGED END ==============================
-`, notificationType.String(), toIndentedText(route.String(), "  "))
-
+var routeChangeCallbackExample RouteChangeCallback = func(notificationType MibNotificationType, interfaceLuid uint64,
+	destination *net.IPNet, nextHop *net.IP) {
+	fmt.Printf("ROUTE CHANGED! MibNotificationType: %s; interface LUID: %d; destination: %s; next hop: %s\n",
+		notificationType.String(), interfaceLuid, destination.String(), nextHop.String())
 }
 
 func TestRegisterUnregisterRouteChangeCallback(t *testing.T) {

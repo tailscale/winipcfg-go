@@ -272,7 +272,7 @@ func TestInterface_GetRoutes(t *testing.T) {
 	}
 }
 
-func TestInterface_AddRoute_DeleteRoute_IPv4(t *testing.T) {
+func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 
 	ifc, err := InterfaceFromLUID(existingLuid)
 
@@ -296,6 +296,7 @@ func TestInterface_AddRoute_DeleteRoute_IPv4(t *testing.T) {
 
 	if route != nil {
 		t.Error("Interface.FindRoute() returned a route although it is not added yet. Have you forgot to set unexistentRouteIPv4ToAdd appropriately?")
+		return
 	}
 
 	err = RegisterRouteChangeCallback(&routeChangeCallbackExample)
@@ -354,4 +355,121 @@ func TestInterface_AddRoute_DeleteRoute_IPv4(t *testing.T) {
 	if route != nil {
 		t.Error("Interface.FindRoute() returned the route although it's deleted successfully.")
 	}
+}
+
+func TestInterface_AddRoute_DeleteRoute_SplitDefault(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetRoutes() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.GetRoutes() testing cannot be performed.")
+		return
+	}
+
+	routeToAdd := RouteData{
+		Destination: net.IPNet{
+			IP: net.IP{0, 0, 0, 0},
+			Mask: net.IPMask{0, 0, 0, 0},
+		},
+		NextHop: net.IP{172, 16, 1, 2},
+		Metric: 0,
+	}
+
+	expect1 := net.IPNet{
+		IP: net.IP{0, 0, 0, 0},
+		Mask: net.CIDRMask(1, 32),
+	}
+
+	expect2 := net.IPNet{
+		IP: net.IP{128, 0, 0, 0},
+		Mask: net.CIDRMask(1, 32),
+	}
+
+	route, err := ifc.FindRoute(&expect1)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+		return
+	}
+
+	if route != nil {
+		t.Errorf("Route to %s already exists!", expect1.String())
+		return
+	}
+
+	route, err = ifc.FindRoute(&expect2)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+		return
+	}
+
+	if route != nil {
+		t.Errorf("Route to %s already exists!", expect2.String())
+		return
+	}
+
+	err = RegisterRouteChangeCallback(&routeChangeCallbackExample)
+
+	if err != nil {
+		t.Errorf("RegisterRouteChangeCallback() returned an error: %v", err)
+		return
+	}
+
+	defer func() {
+		err := UnregisterRouteChangeCallback(&routeChangeCallbackExample)
+
+		if err != nil {
+			t.Errorf("UnregisterRouteChangeCallback() returned an error: %v", err)
+		}
+	}()
+
+	err = ifc.AddRoute(&routeToAdd, true)
+
+	if err != nil {
+		t.Errorf("Interface.AddRoute() returned an error: %v", err)
+		return
+	}
+
+	// Giving some time to callbacks.
+	time.Sleep(500 * time.Millisecond)
+
+	route, err = ifc.FindRoute(&expect1)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+	} else if route == nil {
+		t.Errorf("Route %s not found although it's added successfully", expect1.String())
+	} else {
+
+		err = ifc.DeleteRoute(&expect1)
+
+		if err != nil {
+			t.Errorf("Interface.DeleteRoute() returned an error: %v", err)
+		}
+	}
+
+	route, err = ifc.FindRoute(&expect2)
+
+	if err != nil {
+		t.Errorf("Interface.FindRoute() returned an error: %v", err)
+	} else if route == nil {
+		t.Errorf("Route %s not found although it's added successfully", expect2.String())
+	} else {
+
+		err = ifc.DeleteRoute(&expect2)
+
+		if err != nil {
+			t.Errorf("Interface.DeleteRoute() returned an error: %v", err)
+		}
+	}
+
+	// Giving some time to callbacks.
+	time.Sleep(500 * time.Millisecond)
 }

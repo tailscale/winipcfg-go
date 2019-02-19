@@ -8,6 +8,19 @@ import (
 	"net"
 )
 
+type GatewayCost struct {
+	Gateway    net.IP
+	CostMetric uint16
+}
+
+func (gw *GatewayCost) String() string {
+	if gw == nil {
+		return "<nil>"
+	} else {
+		return fmt.Sprintf("%s (Metric: %d)", gw.Gateway.String(), gw.CostMetric)
+	}
+}
+
 // https://docs.microsoft.com/en-us/windows/desktop/CIMWin32Prov/win32-networkadapterconfiguration
 // Based on WMI Win32_NetworkAdapterConfiguration class.
 type NetworkAdapterConfiguration struct {
@@ -18,7 +31,7 @@ type NetworkAdapterConfiguration struct {
 	ArpUseEtherSNAP              bool
 	DatabasePath                 string
 	DeadGWDetectEnabled          bool
-	DefaultIPGateway             []string
+	DefaultIPGateway             []GatewayCost
 	DefaultTOS                   uint8
 	DefaultTTL                   uint8
 	DHCPEnabled                  bool
@@ -33,11 +46,10 @@ type NetworkAdapterConfiguration struct {
 	DomainDNSRegistrationEnabled bool
 	ForwardBufferMemory          uint32
 	FullDNSRegistrationEnabled   bool
-	GatewayCostMetric            []uint16
 	IGMPLevel                    uint8
 	Index                        uint32
 	InterfaceIndex               uint32
-	IPAddress                    []net.IP
+	IPAddress                    []net.IPNet
 	IPConnectionMetric           uint32
 	IPEnabled                    bool
 	IPFilterSecurityEnabled      bool
@@ -45,7 +57,6 @@ type NetworkAdapterConfiguration struct {
 	IPSecPermitIPProtocols       []string
 	IPSecPermitTCPPorts          []string
 	IPSecPermitUDPPorts          []string
-	IPSubnet                     []string
 	IPUseZeroBroadcast           bool
 	IPXAddress                   string
 	IPXEnabled                   bool
@@ -145,6 +156,29 @@ func getOlePropertyValueUint16Array(item *ole.IDispatch, propertyName string) ([
 	return strs, nil
 }
 
+func getOlePropertyValueUint32Array(item *ole.IDispatch, propertyName string) ([]uint32, error) {
+
+	arr, err := getOlePropertyValueArray(item, propertyName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if arr == nil {
+		return nil, nil
+	}
+
+	length := len(arr)
+
+	strs := make([]uint32, length, length)
+
+	for idx, val := range arr {
+		strs[idx] = uint32(val.(int32))
+	}
+
+	return strs, nil
+}
+
 func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapterConfiguration, error) {
 
 	if itemRaw == nil {
@@ -220,7 +254,48 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapt
 		return nil, err
 	}
 
-	nac.DefaultIPGateway = stringArr
+	uint16Arr, err := getOlePropertyValueUint16Array(item, "GatewayCostMetric")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if stringArr == nil {
+		// TODO: Remove the following check:
+		if uint16Arr != nil && len(uint16Arr) != 0 {
+			return nil, fmt.Errorf(
+				"itemRawToNetworkAdaptersConfigurations() - DefaultIPGateway property is nil while GatewayCostMetric contains %d items",
+				len(uint16Arr))
+		}
+
+		nac.DefaultIPGateway = nil
+	} else {
+
+		length := len(stringArr)
+
+		// TODO: Remove the following check:
+		if uint16Arr == nil {
+			return nil, fmt.Errorf(
+				"itemRawToNetworkAdaptersConfigurations() - DefaultIPGateway property contains %d items while GatewayCostMetric is nil",
+				length)
+		}
+
+		// TODO: Remove the following check:
+		if uint16Arr == nil || len(uint16Arr) != length {
+			return nil, fmt.Errorf(
+				"itemRawToNetworkAdaptersConfigurations() - DefaultIPGateway property contains %d items while GatewayCostMetric contains %d",
+				length, len(uint16Arr))
+		}
+
+		nac.DefaultIPGateway = make([]GatewayCost, length, length)
+
+		for idx, addr := range stringArr {
+			nac.DefaultIPGateway[idx] = GatewayCost{
+				Gateway: net.ParseIP(addr),
+				CostMetric: uint16Arr[idx],
+			}
+		}
+	}
 
 	val, err = oleutil.GetProperty(item, "DefaultTOS")
 
@@ -334,15 +409,335 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT) (*NetworkAdapt
 
 	nac.FullDNSRegistrationEnabled = val.Val != 0
 
-	uint16Arr, err := getOlePropertyValueUint16Array(item, "GatewayCostMetric")
+	val, err = oleutil.GetProperty(item, "IGMPLevel")
 
 	if err != nil {
 		return nil, err
 	}
 
-	nac.GatewayCostMetric = uint16Arr
+	nac.IGMPLevel = uint8(val.Val)
 
-	//
+	val, err = oleutil.GetProperty(item, "Index")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.Index = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "InterfaceIndex")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.InterfaceIndex = uint32(val.Val)
+
+	stringArr, err = getOlePropertyValueStringArray(item, "IPAddress")
+
+	if err != nil {
+		return nil, err
+	}
+
+	subnetArr, err := getOlePropertyValueStringArray(item, "IPSubnet")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if stringArr == nil {
+		// TODO: Remove the following check:
+		if subnetArr != nil && len(subnetArr) > 0 {
+			return nil, fmt.Errorf(
+				"itemRawToNetworkAdaptersConfigurations() - IPAddress property is nil while IPSubnet property contains %d items",
+				len(subnetArr))
+		}
+
+		nac.IPAddress = nil
+	} else {
+
+		length := len(stringArr)
+
+		// TODO: Remove the following check:
+		if subnetArr == nil {
+			return nil, fmt.Errorf(
+				"itemRawToNetworkAdaptersConfigurations() - IPAddress property contains %d items while IPSubnet is nil",
+				length)
+		}
+
+		// TODO: Remove the following check:
+		if len(subnetArr) != length {
+			return nil, fmt.Errorf(
+				"itemRawToNetworkAdaptersConfigurations() - IPAddress property contains %d items while IPSubnet contains %d",
+				length, len(subnetArr))
+		}
+
+		nac.IPAddress = make([]net.IPNet, length, length)
+
+		for idx, addr := range stringArr {
+			nac.IPAddress[idx] = net.IPNet{
+				IP:   net.ParseIP(addr),
+				Mask: net.IPMask(net.ParseIP(subnetArr[idx])),
+			}
+		}
+	}
+
+	val, err = oleutil.GetProperty(item, "IPConnectionMetric")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPConnectionMetric = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "IPEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPEnabled = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "IPFilterSecurityEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPFilterSecurityEnabled = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "IPPortSecurityEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPPortSecurityEnabled = val.Val != 0
+
+	stringArr, err = getOlePropertyValueStringArray(item, "IPSecPermitIPProtocols")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPSecPermitIPProtocols = stringArr
+
+	stringArr, err = getOlePropertyValueStringArray(item, "IPSecPermitTCPPorts")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPSecPermitTCPPorts = stringArr
+
+	stringArr, err = getOlePropertyValueStringArray(item, "IPSecPermitUDPPorts")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPSecPermitUDPPorts = stringArr
+
+	val, err = oleutil.GetProperty(item, "IPUseZeroBroadcast")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPUseZeroBroadcast = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "IPXAddress")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPXAddress = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "IPXEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPXEnabled = val.Val != 0
+
+	uint32Arr, err := getOlePropertyValueUint32Array(item, "IPXFrameType")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPXFrameType = uint32Arr
+
+	val, err = oleutil.GetProperty(item, "IPXMediaType")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPXMediaType = uint32(val.Val)
+
+	stringArr, err = getOlePropertyValueStringArray(item, "IPXNetworkNumber")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPXNetworkNumber = stringArr
+
+	val, err = oleutil.GetProperty(item, "IPXVirtualNetNumber")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.IPXVirtualNetNumber = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "KeepAliveInterval")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.KeepAliveInterval = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "KeepAliveTime")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.KeepAliveTime = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "MACAddress")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.MACAddress = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "MTU")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.MTU = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "NumForwardPackets")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.NumForwardPackets = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "PMTUBHDetectEnabled")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.PMTUBHDetectEnabled = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "ServiceName")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.ServiceName = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "TcpipNetbiosOptions")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.TcpipNetbiosOptions = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "TcpMaxConnectRetransmissions")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.TcpMaxConnectRetransmissions = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "TcpMaxDataRetransmissions")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.TcpMaxDataRetransmissions = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "TcpNumConnections")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.TcpNumConnections = uint32(val.Val)
+
+	val, err = oleutil.GetProperty(item, "TcpUseRFC1122UrgentPointer")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.TcpUseRFC1122UrgentPointer = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "TcpWindowSize")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.TcpWindowSize = uint16(val.Val)
+
+	val, err = oleutil.GetProperty(item, "WINSEnableLMHostsLookup")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.WINSEnableLMHostsLookup = val.Val != 0
+
+	val, err = oleutil.GetProperty(item, "WINSHostLookupFile")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.WINSHostLookupFile = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "WINSPrimaryServer")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.WINSPrimaryServer = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "WINSScopeID")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.WINSScopeID = val.ToString()
+
+	val, err = oleutil.GetProperty(item, "WINSSecondaryServer")
+
+	if err != nil {
+		return nil, err
+	}
+
+	nac.WINSSecondaryServer = val.ToString()
+
 	return &nac, nil
 }
 
@@ -444,7 +839,7 @@ DefaultIPGateway:
 		nac.DeadGWDetectEnabled))
 
 	for _, item := range nac.DefaultIPGateway {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
+		buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
 	}
 
 	buffer.WriteString(fmt.Sprintf(`DefaultTOS: %d
@@ -474,18 +869,12 @@ DNSServerSearchOrder:
 	buffer.WriteString(fmt.Sprintf(`DomainDNSRegistrationEnabled: %v
 ForwardBufferMemory: %d
 FullDNSRegistrationEnabled: %v
-GatewayCostMetric:
-`, nac.DomainDNSRegistrationEnabled, nac.ForwardBufferMemory, nac.FullDNSRegistrationEnabled))
-
-	for _, item := range nac.GatewayCostMetric {
-		buffer.WriteString(fmt.Sprintf("    %d\n", item))
-	}
-
-	buffer.WriteString(fmt.Sprintf(`IGMPLevel: %d
+IGMPLevel: %d
 Index: %d
 InterfaceIndex: %d
 IPAddress:
-`, nac.IGMPLevel, nac.Index, nac.InterfaceIndex))
+`, nac.DomainDNSRegistrationEnabled, nac.ForwardBufferMemory, nac.FullDNSRegistrationEnabled, nac.IGMPLevel, nac.Index,
+		nac.InterfaceIndex))
 
 	for _, item := range nac.IPAddress {
 		buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
@@ -514,12 +903,6 @@ IPSecPermitIPProtocols:
 		buffer.WriteString(fmt.Sprintf("    %s\n", item))
 	}
 
-	buffer.WriteString("IPSubnet:\n")
-
-	for _, item := range nac.IPSubnet {
-		buffer.WriteString(fmt.Sprintf("    %s\n", item))
-	}
-
 	buffer.WriteString(fmt.Sprintf(`IPUseZeroBroadcast: %v
 IPXAddress: %s
 IPXEnabled: %v
@@ -530,8 +913,7 @@ IPXFrameType:
 		buffer.WriteString(fmt.Sprintf("    %d\n", item))
 	}
 
-	buffer.WriteString(fmt.Sprintf(`IPXMediaType: %d
-IPXNetworkNumber:`, nac.IPXMediaType))
+	buffer.WriteString(fmt.Sprintf("IPXMediaType: %d\nIPXNetworkNumber:\n", nac.IPXMediaType))
 
 	for _, item := range nac.IPXNetworkNumber {
 		buffer.WriteString(fmt.Sprintf("    %s\n", item))

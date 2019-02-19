@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: MIT
+ *
+ * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
+ */
+
 package winipcfg
 
 import (
@@ -13,6 +18,11 @@ func TestGetNetworkAdaptersConfigurations(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("GetNetworkAdaptersConfigurations() returned an error: %v", err)
+		return
+	}
+
+	if nacs == nil || len(nacs) == 0 {
+		t.Error("GetNetworkAdaptersConfigurations() returned nil or empty slice.")
 		return
 	}
 

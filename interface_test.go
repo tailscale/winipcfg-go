@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	printInterfaceData      = true
+	printInterfaceData      = false
 	existingLuid            = uint64(1689399632855040) // TODO: Set an existing LUID here
 	unexistingLuid          = uint64(42)
 	existingIndex           = uint32(13) // TODO: Set an existing interface index here
@@ -519,6 +519,143 @@ func TestInterface_GetNetworkAdapterConfiguration(t *testing.T) {
 	}
 }
 
+func TestInterface_FlushDNS(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.FlushDNS() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.FlushDNS() testing cannot be performed.")
+		return
+	}
+
+	prevDnsesCount := 0
+
+	if (ifc.DnsServerAddresses != nil) {
+		prevDnsesCount = len(ifc.DnsServerAddresses)
+	}
+
+	prevDnses := make([]net.IP, prevDnsesCount, prevDnsesCount)
+
+	for i := 0; i < prevDnsesCount; i++ {
+		prevDnses[i] = ifc.DnsServerAddresses[i].Address.Address
+	}
+
+	err = ifc.FlushDNS()
+
+	if err != nil {
+		t.Errorf("Interface.SetDNS() returned an error: %v", err)
+		return
+	}
+
+	err = ifc.Refresh()
+
+	if err != nil {
+		t.Errorf("Interface.Refresh() returned an error: %v", err)
+	}
+
+	if printInterfaceData {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
+		fmt.Println(ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
+	}
+
+	if ifc.DnsServerAddresses != nil && len(ifc.DnsServerAddresses) != 0 {
+		t.Errorf("DnsServerAddresses contains %d items, although FlushDNS is executed successfully.",
+			len(ifc.DnsServerAddresses))
+	}
+
+	err = ifc.SetDNS(prevDnses)
+
+	if err != nil {
+		t.Errorf("Interface.SetDNS() returned an error: %v.", err)
+	}
+}
+
+func TestInterface_AddDNS(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.AddDNS() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.AddDNS() testing cannot be performed.")
+		return
+	}
+
+	prevDnsesCount := 0
+
+	if (ifc.DnsServerAddresses != nil) {
+		prevDnsesCount = len(ifc.DnsServerAddresses)
+	}
+
+	prevDnses := make([]net.IP, prevDnsesCount, prevDnsesCount)
+
+	for i := 0; i < prevDnsesCount; i++ {
+		prevDnses[i] = ifc.DnsServerAddresses[i].Address.Address
+	}
+
+	expectedDnses := append(prevDnses, dnsesToSet...)
+
+	err = ifc.AddDNS(dnsesToSet)
+
+	if err != nil {
+		t.Errorf("Interface.AddDNS() returned an error: %v", err)
+		return
+	}
+
+	err = ifc.Refresh()
+
+	if err != nil {
+		t.Errorf("Interface.Refresh() returned an error: %v", err)
+	}
+
+	if printInterfaceData {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
+		fmt.Println(ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
+	}
+
+	if expectedDnses == nil {
+		if ifc.DnsServerAddresses != nil && len(ifc.DnsServerAddresses) != 0 {
+			t.Errorf("expectedDnses is nil, but DnsServerAddresses contains %d items.",
+				len(ifc.DnsServerAddresses))
+		}
+	} else {
+
+		length := len(expectedDnses)
+
+		if ifc.DnsServerAddresses == nil {
+			t.Errorf("expectedDnses contains %d items, while DnsServerAddresses is nil.", length)
+		} else if len(ifc.DnsServerAddresses) != length {
+			t.Errorf("expectedDnses contains %d items, while DnsServerAddresses contains %d.", length,
+				len(ifc.DnsServerAddresses))
+		} else {
+			for idx, dns := range expectedDnses {
+				if !dns.Equal(ifc.DnsServerAddresses[idx].Address.Address) {
+					t.Errorf("expectedDnses[%d] = %s while DnsServerAddresses[%d].Address.Address = %s.", idx,
+						dns.String(), idx, ifc.DnsServerAddresses[idx].Address.Address.String())
+				}
+			}
+		}
+	}
+
+	err = ifc.SetDNS(prevDnses)
+
+	if err != nil {
+		t.Errorf("Interface.SetDNS() returned an error: %v.", err)
+	}
+}
+
 func TestInterface_SetDNS(t *testing.T) {
 
 	ifc, err := InterfaceFromLUID(existingLuid)
@@ -577,36 +714,31 @@ func TestInterface_SetDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if err != nil {
-		t.Errorf("GetNetworkAdapterConfiguration() returned an error: %v", err)
+	if printInterfaceData {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
+		fmt.Println(ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
+	}
+
+	if dnsesToSet == nil {
+		if ifc.DnsServerAddresses != nil && len(ifc.DnsServerAddresses) != 0 {
+			t.Errorf("dnsesToSet is nil, but DnsServerAddresses contains %d items.",
+				len(ifc.DnsServerAddresses))
+		}
 	} else {
 
-		if printInterfaceData {
-			fmt.Println("======================== INTERFACE OUTPUT START ========================")
-			fmt.Println(ifc)
-			fmt.Println("========================= INTERFACE OUTPUT END =========================")
-		}
+		length := len(dnsesToSet)
 
-		if dnsesToSet == nil {
-			if ifc.DnsServerAddresses != nil && len(ifc.DnsServerAddresses) != 0 {
-				t.Errorf("dnsesToSet is nil, but DnsServerAddresses contains %d items.",
-					len(ifc.DnsServerAddresses))
-			}
+		if ifc.DnsServerAddresses == nil {
+			t.Errorf("dnsesToSet contains %d items, while DnsServerAddresses is nil.", length)
+		} else if len(ifc.DnsServerAddresses) != length {
+			t.Errorf("dnsesToSet contains %d items, while DnsServerAddresses contains %d.", length,
+				len(ifc.DnsServerAddresses))
 		} else {
-
-			length := len(dnsesToSet)
-
-			if ifc.DnsServerAddresses == nil {
-				t.Errorf("dnsesToSet contains %d items, while DnsServerAddresses is nil.", length)
-			} else if len(ifc.DnsServerAddresses) != length {
-				t.Errorf("dnsesToSet contains %d items, while DnsServerAddresses contains %d.", length,
-					len(ifc.DnsServerAddresses))
-			} else {
-				for idx, dns := range dnsesToSet {
-					if !dns.Equal(ifc.DnsServerAddresses[idx].Address.Address) {
-						t.Errorf("dnsesToSet[%d] = %s while DnsServerAddresses[%d].Address.Address = %s.", idx,
-							dns.String(), idx, ifc.DnsServerAddresses[idx].Address.Address.String())
-					}
+			for idx, dns := range dnsesToSet {
+				if !dns.Equal(ifc.DnsServerAddresses[idx].Address.Address) {
+					t.Errorf("dnsesToSet[%d] = %s while DnsServerAddresses[%d].Address.Address = %s.", idx,
+						dns.String(), idx, ifc.DnsServerAddresses[idx].Address.Address.String())
 				}
 			}
 		}
@@ -620,67 +752,4 @@ func TestInterface_SetDNS(t *testing.T) {
 
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
-}
-
-func TestInterface_FlushDNS(t *testing.T) {
-
-	ifc, err := InterfaceFromLUID(existingLuid)
-
-	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.FlushDNS() testing cannot be performed.",
-			err)
-		return
-	}
-
-	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so Interface.FlushDNS() testing cannot be performed.")
-		return
-	}
-
-	prevDnsesCount := 0
-
-	if (ifc.DnsServerAddresses != nil) {
-		prevDnsesCount = len(ifc.DnsServerAddresses)
-	}
-
-	prevDnses := make([]net.IP, prevDnsesCount, prevDnsesCount)
-
-	for i := 0; i < prevDnsesCount; i++ {
-		prevDnses[i] = ifc.DnsServerAddresses[i].Address.Address
-	}
-
-	err = ifc.FlushDNS()
-
-	if err != nil {
-		t.Errorf("Interface.SetDNS() returned an error: %v", err)
-		return
-	}
-
-	err = ifc.Refresh()
-
-	if err != nil {
-		t.Errorf("Interface.Refresh() returned an error: %v", err)
-	}
-
-	if err != nil {
-		t.Errorf("GetNetworkAdapterConfiguration() returned an error: %v", err)
-	} else {
-
-		if printInterfaceData {
-			fmt.Println("======================== INTERFACE OUTPUT START ========================")
-			fmt.Println(ifc)
-			fmt.Println("========================= INTERFACE OUTPUT END =========================")
-		}
-
-		if ifc.DnsServerAddresses != nil && len(ifc.DnsServerAddresses) != 0 {
-			t.Errorf("DnsServerAddresses contains %d items, although FlushDNS is executed successfully.",
-				len(ifc.DnsServerAddresses))
-		}
-	}
-
-	err = ifc.SetDNS(prevDnses)
-
-	if err != nil {
-		t.Errorf("Interface.SetDNS() returned an error: %v.", err)
-	}
 }

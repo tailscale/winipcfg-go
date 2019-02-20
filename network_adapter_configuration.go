@@ -851,7 +851,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 	}
 }
 
-func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP) (bool, error) {
+func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP, add bool) (bool, error) {
 
 	if itemRaw == nil {
 		return false, fmt.Errorf("setDnsesIfMatch() - input argument itemRaw is nil")
@@ -882,6 +882,19 @@ func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP) (bo
 		strDnses[i] = dnses[i].String()
 	}
 
+	if add {
+
+		oldDnses, err := getOlePropertyValueStringArray(item, "DNSServerSearchOrder")
+
+		if err != nil {
+			return false, err
+		}
+
+		if oldDnses != nil && len(oldDnses) > 0 {
+			strDnses = append(oldDnses, strDnses...)
+		}
+	}
+
 	result, err := oleutil.CallMethod(item, "SetDNSServerSearchOrder", strDnses)
 
 	if err != nil {
@@ -895,7 +908,7 @@ func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP) (bo
 	}
 }
 
-func setDnses(ifc *Interface, dnses []net.IP) error {
+func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 
 	// init COM, oh yeah
 	err := ole.CoInitialize(0)
@@ -961,7 +974,7 @@ func setDnses(ifc *Interface, dnses []net.IP) error {
 			return err
 		}
 
-		added, err := setDnsesIfMatch(itemRaw, adapterName, dnses)
+		added, err := setDnsesIfMatch(itemRaw, adapterName, dnses, add)
 
 		if err != nil {
 			return err

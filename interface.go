@@ -695,17 +695,24 @@ func (ifc *Interface) FlushDNS() error {
 	if ifc == nil {
 		return fmt.Errorf("Interface.FlushDNS() - receiver argument is nil")
 	} else {
-		return setDnses(ifc, nil)
+		return setDnses(ifc, nil, false)
 	}
 }
 
-//func (iface *Interface) AddDNS(dnses []net.IP) error
+func (ifc *Interface) AddDNS(dnses []net.IP) error {
+	if ifc == nil {
+		return fmt.Errorf("Interface.AddDNS() - receiver argument is nil")
+	} else {
+		return setDnses(ifc, dnses, true)
+	}
+
+}
 
 func (ifc *Interface) SetDNS(dnses []net.IP) error {
 	if ifc == nil {
 		return fmt.Errorf("Interface.SetDNS() - receiver argument is nil")
 	} else {
-		return setDnses(ifc, dnses)
+		return setDnses(ifc, dnses, false)
 	}
 }
 

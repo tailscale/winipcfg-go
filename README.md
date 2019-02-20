@@ -6,6 +6,8 @@ This was created for use in [WireGuard](https://www.wireguard.com/) but may be u
 $ go get golang.zx2c4.com/winipcfg
 ```
 
+##### [Documentation](https://godoc.org/golang.zx2c4.com/winipcfg)
+
 #### License
 
     Copyright (C) 2019 WireGuard LLC. All Rights Reserved.

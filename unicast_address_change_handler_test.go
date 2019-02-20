@@ -12,7 +12,7 @@ import (
 )
 
 // Example callback
-var unicastAddressChangeCallbackExample UnicastAddressChangeCallback = func (notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP) {
+var unicastAddressChangeCallbackExample UnicastAddressChangeCallback = func(notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP) {
 	fmt.Printf("UNICAST ADDRESS CHANGED! MibNotificationType: %s; interface LUID: %d; IP: %s\n",
 		notificationType.String(), interfaceLuid, ip.String())
 }
@@ -21,14 +21,14 @@ func TestRegisterUnregisterUnicastAddressChangeCallback(t *testing.T) {
 
 	if UnicastAddressChangeCallbackRegistered(&unicastAddressChangeCallbackExample) {
 		t.Error("UnicastAddressChangeCallbackRegistered() returned true although nothing is registered.")
-		return;
+		return
 	}
 
 	err := RegisterUnicastAddressChangeCallback(&unicastAddressChangeCallbackExample)
 
 	if err != nil {
 		t.Errorf("RegisterUnicastAddressChangeCallback() returned error: %v", err)
-		return;
+		return
 	}
 
 	if !UnicastAddressChangeCallbackRegistered(&unicastAddressChangeCallbackExample) {
@@ -39,7 +39,7 @@ func TestRegisterUnregisterUnicastAddressChangeCallback(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("UnregisterUnicastAddressChangeCallback() returned error: %v", err)
-		return;
+		return
 	}
 
 	if UnicastAddressChangeCallbackRegistered(&unicastAddressChangeCallbackExample) {

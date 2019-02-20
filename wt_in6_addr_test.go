@@ -11,7 +11,7 @@ import (
 )
 
 func TestWtIn6AddrSize(t *testing.T) {
-	
+
 	const actualWtIn6AddrSize = unsafe.Sizeof(wtIn6Addr{})
 
 	if actualWtIn6AddrSize != wtIn6Addr_Size {

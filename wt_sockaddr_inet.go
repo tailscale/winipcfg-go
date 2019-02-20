@@ -178,7 +178,7 @@ func (addr *wtSockaddrInet) isIPv4() bool {
 	if addr == nil {
 		return false
 	} else {
-		return addr.sin6_family == AF_INET;
+		return addr.sin6_family == AF_INET
 	}
 }
 
@@ -186,7 +186,7 @@ func (addr *wtSockaddrInet) isIPv6() bool {
 	if addr == nil {
 		return false
 	} else {
-		return addr.sin6_family == AF_INET6;
+		return addr.sin6_family == AF_INET6
 	}
 }
 

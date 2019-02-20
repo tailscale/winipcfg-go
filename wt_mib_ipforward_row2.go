@@ -218,8 +218,8 @@ func (r *wtMibIpforwardRow2) extractRouteData() (*RouteData, error) {
 
 	return &RouteData{
 		Destination: *destination,
-		NextHop: sainet.Address,
-		Metric: r.Metric,
+		NextHop:     sainet.Address,
+		Metric:      r.Metric,
 	}, nil
 }
 

@@ -19,14 +19,14 @@ func TestRegisterUnregisterInterfaceChangeCallback(t *testing.T) {
 
 	if InterfaceChangeCallbackRegistered(&interfaceChangeCallbackExample) {
 		t.Error("InterfaceChangeCallbackRegistered() returned true although nothing is registered.")
-		return;
+		return
 	}
 
 	err := RegisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
 
 	if err != nil {
 		t.Errorf("RegisterInterfaceChangeCallback() returned error: %v", err)
-		return;
+		return
 	}
 
 	if !InterfaceChangeCallbackRegistered(&interfaceChangeCallbackExample) {
@@ -37,7 +37,7 @@ func TestRegisterUnregisterInterfaceChangeCallback(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("UnregisterInterfaceChangeCallback() returned error: %v", err)
-		return;
+		return
 	}
 
 	if InterfaceChangeCallbackRegistered(&interfaceChangeCallbackExample) {

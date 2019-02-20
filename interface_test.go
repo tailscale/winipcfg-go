@@ -31,11 +31,11 @@ var (
 	}
 	unexistentRouteIPv4ToAdd = RouteData{
 		Destination: net.IPNet{
-			IP: net.IP{172, 16, 200, 0},
+			IP:   net.IP{172, 16, 200, 0},
 			Mask: net.IPMask{255, 255, 255, 0},
 		},
 		NextHop: net.IP{172, 16, 1, 2},
-		Metric: 0,
+		Metric:  0,
 	}
 	dnsesToSet = []net.IP{
 		net.IPv4(8, 8, 8, 8),
@@ -379,20 +379,20 @@ func TestInterface_AddRoute_DeleteRoute_SplitDefault(t *testing.T) {
 
 	routeToAdd := RouteData{
 		Destination: net.IPNet{
-			IP: net.IP{0, 0, 0, 0},
+			IP:   net.IP{0, 0, 0, 0},
 			Mask: net.IPMask{0, 0, 0, 0},
 		},
 		NextHop: net.IP{172, 16, 1, 2},
-		Metric: 0,
+		Metric:  0,
 	}
 
 	expect1 := net.IPNet{
-		IP: net.IP{0, 0, 0, 0},
+		IP:   net.IP{0, 0, 0, 0},
 		Mask: net.CIDRMask(1, 32),
 	}
 
 	expect2 := net.IPNet{
-		IP: net.IP{128, 0, 0, 0},
+		IP:   net.IP{128, 0, 0, 0},
 		Mask: net.CIDRMask(1, 32),
 	}
 
@@ -536,7 +536,7 @@ func TestInterface_FlushDNS(t *testing.T) {
 
 	prevDnsesCount := 0
 
-	if (ifc.DnsServerAddresses != nil) {
+	if ifc.DnsServerAddresses != nil {
 		prevDnsesCount = len(ifc.DnsServerAddresses)
 	}
 
@@ -594,7 +594,7 @@ func TestInterface_AddDNS(t *testing.T) {
 
 	prevDnsesCount := 0
 
-	if (ifc.DnsServerAddresses != nil) {
+	if ifc.DnsServerAddresses != nil {
 		prevDnsesCount = len(ifc.DnsServerAddresses)
 	}
 
@@ -688,7 +688,7 @@ func TestInterface_SetDNS(t *testing.T) {
 
 	prevDnsesCount := 0
 
-	if (ifc.DnsServerAddresses != nil) {
+	if ifc.DnsServerAddresses != nil {
 		prevDnsesCount = len(ifc.DnsServerAddresses)
 	}
 

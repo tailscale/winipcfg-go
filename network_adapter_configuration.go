@@ -3,8 +3,7 @@ package winipcfg
 import (
 	"bytes"
 	"fmt"
-	"github.com/go-ole/go-ole"
-	"github.com/go-ole/go-ole/oleutil"
+	"golang.zx2c4.com/winipcfg/internal/ole"
 	"net"
 	"strings"
 )
@@ -92,7 +91,7 @@ func getOlePropertyValueArray(item *ole.IDispatch, propertyName string) ([]inter
 		return nil, nil
 	}
 
-	arrVal, err := oleutil.GetProperty(item, propertyName)
+	arrVal, err := ole.GetProperty(item, propertyName)
 
 	if err != nil {
 		return nil, err
@@ -189,7 +188,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 	item := itemRaw.ToIDispatch()
 	defer item.Release()
 
-	val, err := oleutil.GetProperty(item, "SettingID")
+	val, err := ole.GetProperty(item, "SettingID")
 
 	if err != nil {
 		return nil, err
@@ -201,9 +200,9 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 		return nil, nil
 	}
 
-	nac := NetworkAdapterConfiguration{ SettingID: sid }
+	nac := NetworkAdapterConfiguration{SettingID: sid}
 
-	val, err = oleutil.GetProperty(item, "Caption")
+	val, err = ole.GetProperty(item, "Caption")
 
 	if err != nil {
 		return nil, err
@@ -211,7 +210,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.Caption = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "Description")
+	val, err = ole.GetProperty(item, "Description")
 
 	if err != nil {
 		return nil, err
@@ -219,7 +218,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.Description = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "ArpAlwaysSourceRoute")
+	val, err = ole.GetProperty(item, "ArpAlwaysSourceRoute")
 
 	if err != nil {
 		return nil, err
@@ -227,7 +226,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.ArpAlwaysSourceRoute = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "ArpUseEtherSNAP")
+	val, err = ole.GetProperty(item, "ArpUseEtherSNAP")
 
 	if err != nil {
 		return nil, err
@@ -235,7 +234,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.ArpUseEtherSNAP = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "DatabasePath")
+	val, err = ole.GetProperty(item, "DatabasePath")
 
 	if err != nil {
 		return nil, err
@@ -243,7 +242,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DatabasePath = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "DeadGWDetectEnabled")
+	val, err = ole.GetProperty(item, "DeadGWDetectEnabled")
 
 	if err != nil {
 		return nil, err
@@ -294,13 +293,13 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 		for idx, addr := range stringArr {
 			nac.DefaultIPGateway[idx] = GatewayCost{
-				Gateway: net.ParseIP(addr),
+				Gateway:    net.ParseIP(addr),
 				CostMetric: uint16Arr[idx],
 			}
 		}
 	}
 
-	val, err = oleutil.GetProperty(item, "DefaultTOS")
+	val, err = ole.GetProperty(item, "DefaultTOS")
 
 	if err != nil {
 		return nil, err
@@ -308,7 +307,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DefaultTOS = uint8(val.Val)
 
-	val, err = oleutil.GetProperty(item, "DefaultTTL")
+	val, err = ole.GetProperty(item, "DefaultTTL")
 
 	if err != nil {
 		return nil, err
@@ -316,7 +315,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DefaultTTL = uint8(val.Val)
 
-	val, err = oleutil.GetProperty(item, "DHCPEnabled")
+	val, err = ole.GetProperty(item, "DHCPEnabled")
 
 	if err != nil {
 		return nil, err
@@ -324,7 +323,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DHCPEnabled = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "DHCPLeaseExpires")
+	val, err = ole.GetProperty(item, "DHCPLeaseExpires")
 
 	if err != nil {
 		return nil, err
@@ -332,7 +331,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DHCPLeaseExpires = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "DHCPLeaseObtained")
+	val, err = ole.GetProperty(item, "DHCPLeaseObtained")
 
 	if err != nil {
 		return nil, err
@@ -340,7 +339,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DHCPLeaseObtained = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "DHCPServer")
+	val, err = ole.GetProperty(item, "DHCPServer")
 
 	if err != nil {
 		return nil, err
@@ -348,7 +347,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DHCPServer = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "DNSDomain")
+	val, err = ole.GetProperty(item, "DNSDomain")
 
 	if err != nil {
 		return nil, err
@@ -364,7 +363,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DNSDomainSuffixSearchOrder = stringArr
 
-	val, err = oleutil.GetProperty(item, "DNSEnabledForWINSResolution")
+	val, err = ole.GetProperty(item, "DNSEnabledForWINSResolution")
 
 	if err != nil {
 		return nil, err
@@ -372,7 +371,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DNSEnabledForWINSResolution = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "DNSHostName")
+	val, err = ole.GetProperty(item, "DNSHostName")
 
 	if err != nil {
 		return nil, err
@@ -399,7 +398,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 		}
 	}
 
-	val, err = oleutil.GetProperty(item, "DomainDNSRegistrationEnabled")
+	val, err = ole.GetProperty(item, "DomainDNSRegistrationEnabled")
 
 	if err != nil {
 		return nil, err
@@ -407,7 +406,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.DomainDNSRegistrationEnabled = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "ForwardBufferMemory")
+	val, err = ole.GetProperty(item, "ForwardBufferMemory")
 
 	if err != nil {
 		return nil, err
@@ -415,7 +414,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.ForwardBufferMemory = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "FullDNSRegistrationEnabled")
+	val, err = ole.GetProperty(item, "FullDNSRegistrationEnabled")
 
 	if err != nil {
 		return nil, err
@@ -423,7 +422,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.FullDNSRegistrationEnabled = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "IGMPLevel")
+	val, err = ole.GetProperty(item, "IGMPLevel")
 
 	if err != nil {
 		return nil, err
@@ -431,7 +430,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IGMPLevel = uint8(val.Val)
 
-	val, err = oleutil.GetProperty(item, "Index")
+	val, err = ole.GetProperty(item, "Index")
 
 	if err != nil {
 		return nil, err
@@ -439,7 +438,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.Index = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "InterfaceIndex")
+	val, err = ole.GetProperty(item, "InterfaceIndex")
 
 	if err != nil {
 		return nil, err
@@ -496,7 +495,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 		}
 	}
 
-	val, err = oleutil.GetProperty(item, "IPConnectionMetric")
+	val, err = ole.GetProperty(item, "IPConnectionMetric")
 
 	if err != nil {
 		return nil, err
@@ -504,7 +503,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPConnectionMetric = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "IPEnabled")
+	val, err = ole.GetProperty(item, "IPEnabled")
 
 	if err != nil {
 		return nil, err
@@ -512,7 +511,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPEnabled = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "IPFilterSecurityEnabled")
+	val, err = ole.GetProperty(item, "IPFilterSecurityEnabled")
 
 	if err != nil {
 		return nil, err
@@ -520,7 +519,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPFilterSecurityEnabled = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "IPPortSecurityEnabled")
+	val, err = ole.GetProperty(item, "IPPortSecurityEnabled")
 
 	if err != nil {
 		return nil, err
@@ -552,7 +551,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPSecPermitUDPPorts = stringArr
 
-	val, err = oleutil.GetProperty(item, "IPUseZeroBroadcast")
+	val, err = ole.GetProperty(item, "IPUseZeroBroadcast")
 
 	if err != nil {
 		return nil, err
@@ -560,7 +559,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPUseZeroBroadcast = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "IPXAddress")
+	val, err = ole.GetProperty(item, "IPXAddress")
 
 	if err != nil {
 		return nil, err
@@ -568,7 +567,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPXAddress = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "IPXEnabled")
+	val, err = ole.GetProperty(item, "IPXEnabled")
 
 	if err != nil {
 		return nil, err
@@ -584,7 +583,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPXFrameType = uint32Arr
 
-	val, err = oleutil.GetProperty(item, "IPXMediaType")
+	val, err = ole.GetProperty(item, "IPXMediaType")
 
 	if err != nil {
 		return nil, err
@@ -600,7 +599,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPXNetworkNumber = stringArr
 
-	val, err = oleutil.GetProperty(item, "IPXVirtualNetNumber")
+	val, err = ole.GetProperty(item, "IPXVirtualNetNumber")
 
 	if err != nil {
 		return nil, err
@@ -608,7 +607,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.IPXVirtualNetNumber = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "KeepAliveInterval")
+	val, err = ole.GetProperty(item, "KeepAliveInterval")
 
 	if err != nil {
 		return nil, err
@@ -616,7 +615,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.KeepAliveInterval = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "KeepAliveTime")
+	val, err = ole.GetProperty(item, "KeepAliveTime")
 
 	if err != nil {
 		return nil, err
@@ -624,7 +623,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.KeepAliveTime = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "MACAddress")
+	val, err = ole.GetProperty(item, "MACAddress")
 
 	if err != nil {
 		return nil, err
@@ -632,7 +631,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.MACAddress = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "MTU")
+	val, err = ole.GetProperty(item, "MTU")
 
 	if err != nil {
 		return nil, err
@@ -640,7 +639,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.MTU = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "NumForwardPackets")
+	val, err = ole.GetProperty(item, "NumForwardPackets")
 
 	if err != nil {
 		return nil, err
@@ -648,7 +647,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.NumForwardPackets = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "PMTUBHDetectEnabled")
+	val, err = ole.GetProperty(item, "PMTUBHDetectEnabled")
 
 	if err != nil {
 		return nil, err
@@ -656,7 +655,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.PMTUBHDetectEnabled = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "ServiceName")
+	val, err = ole.GetProperty(item, "ServiceName")
 
 	if err != nil {
 		return nil, err
@@ -664,7 +663,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.ServiceName = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "TcpipNetbiosOptions")
+	val, err = ole.GetProperty(item, "TcpipNetbiosOptions")
 
 	if err != nil {
 		return nil, err
@@ -672,7 +671,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.TcpipNetbiosOptions = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "TcpMaxConnectRetransmissions")
+	val, err = ole.GetProperty(item, "TcpMaxConnectRetransmissions")
 
 	if err != nil {
 		return nil, err
@@ -680,7 +679,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.TcpMaxConnectRetransmissions = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "TcpMaxDataRetransmissions")
+	val, err = ole.GetProperty(item, "TcpMaxDataRetransmissions")
 
 	if err != nil {
 		return nil, err
@@ -688,7 +687,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.TcpMaxDataRetransmissions = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "TcpNumConnections")
+	val, err = ole.GetProperty(item, "TcpNumConnections")
 
 	if err != nil {
 		return nil, err
@@ -696,7 +695,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.TcpNumConnections = uint32(val.Val)
 
-	val, err = oleutil.GetProperty(item, "TcpUseRFC1122UrgentPointer")
+	val, err = ole.GetProperty(item, "TcpUseRFC1122UrgentPointer")
 
 	if err != nil {
 		return nil, err
@@ -704,7 +703,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.TcpUseRFC1122UrgentPointer = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "TcpWindowSize")
+	val, err = ole.GetProperty(item, "TcpWindowSize")
 
 	if err != nil {
 		return nil, err
@@ -712,7 +711,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.TcpWindowSize = uint16(val.Val)
 
-	val, err = oleutil.GetProperty(item, "WINSEnableLMHostsLookup")
+	val, err = ole.GetProperty(item, "WINSEnableLMHostsLookup")
 
 	if err != nil {
 		return nil, err
@@ -720,7 +719,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.WINSEnableLMHostsLookup = val.Val != 0
 
-	val, err = oleutil.GetProperty(item, "WINSHostLookupFile")
+	val, err = ole.GetProperty(item, "WINSHostLookupFile")
 
 	if err != nil {
 		return nil, err
@@ -728,7 +727,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.WINSHostLookupFile = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "WINSPrimaryServer")
+	val, err = ole.GetProperty(item, "WINSPrimaryServer")
 
 	if err != nil {
 		return nil, err
@@ -736,7 +735,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.WINSPrimaryServer = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "WINSScopeID")
+	val, err = ole.GetProperty(item, "WINSScopeID")
 
 	if err != nil {
 		return nil, err
@@ -744,7 +743,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	nac.WINSScopeID = val.ToString()
 
-	val, err = oleutil.GetProperty(item, "WINSSecondaryServer")
+	val, err = ole.GetProperty(item, "WINSSecondaryServer")
 
 	if err != nil {
 		return nil, err
@@ -766,7 +765,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 
 	defer ole.CoUninitialize()
 
-	unknown, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
+	unknown, err := ole.CreateObject("WbemScripting.SWbemLocator")
 
 	if err != nil {
 		return nil, err
@@ -783,7 +782,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 	defer wmi.Release()
 
 	// service is a SWbemServices
-	serviceRaw, err := oleutil.CallMethod(wmi, "ConnectServer")
+	serviceRaw, err := ole.CallMethod(wmi, "ConnectServer")
 
 	if err != nil {
 		return nil, err
@@ -793,7 +792,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 	defer service.Release()
 
 	// result is a SWBemObjectSet
-	resultRaw, err := oleutil.CallMethod(service, "ExecQuery",
+	resultRaw, err := ole.CallMethod(service, "ExecQuery",
 		"SELECT * FROM Win32_NetworkAdapterConfiguration")
 
 	if err != nil {
@@ -803,7 +802,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 	result := resultRaw.ToIDispatch()
 	defer result.Release()
 
-	countVar, err := oleutil.GetProperty(result, "Count")
+	countVar, err := ole.GetProperty(result, "Count")
 
 	if err != nil {
 		return nil, err
@@ -823,7 +822,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 
 	for i := 0; i < count; i++ {
 		// item is a SWbemObject, but really a Win32_NetworkAdapterConfiguration
-		itemRaw, err := oleutil.CallMethod(result, "ItemIndex", i)
+		itemRaw, err := ole.CallMethod(result, "ItemIndex", i)
 
 		if err != nil {
 			return nil, err
@@ -860,7 +859,7 @@ func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP, add
 	item := itemRaw.ToIDispatch()
 	defer item.Release()
 
-	val, err := oleutil.GetProperty(item, "SettingID")
+	val, err := ole.GetProperty(item, "SettingID")
 
 	if err != nil {
 		return false, err
@@ -895,7 +894,7 @@ func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP, add
 		}
 	}
 
-	result, err := oleutil.CallMethod(item, "SetDNSServerSearchOrder", strDnses)
+	result, err := ole.CallMethod(item, "SetDNSServerSearchOrder", strDnses)
 
 	if err != nil {
 		return false, err
@@ -919,7 +918,7 @@ func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 
 	defer ole.CoUninitialize()
 
-	unknown, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
+	unknown, err := ole.CreateObject("WbemScripting.SWbemLocator")
 
 	if err != nil {
 		return err
@@ -936,7 +935,7 @@ func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 	defer wmi.Release()
 
 	// service is a SWbemServices
-	serviceRaw, err := oleutil.CallMethod(wmi, "ConnectServer")
+	serviceRaw, err := ole.CallMethod(wmi, "ConnectServer")
 
 	if err != nil {
 		return err
@@ -946,7 +945,7 @@ func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 	defer service.Release()
 
 	// result is a SWBemObjectSet
-	resultRaw, err := oleutil.CallMethod(service, "ExecQuery",
+	resultRaw, err := ole.CallMethod(service, "ExecQuery",
 		"SELECT * FROM Win32_NetworkAdapterConfiguration")
 
 	if err != nil {
@@ -956,7 +955,7 @@ func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 	result := resultRaw.ToIDispatch()
 	defer result.Release()
 
-	countVar, err := oleutil.GetProperty(result, "Count")
+	countVar, err := ole.GetProperty(result, "Count")
 
 	if err != nil {
 		return err
@@ -968,7 +967,7 @@ func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 
 	for i := 0; i < count; i++ {
 		// item is a SWbemObject, but really a Win32_NetworkAdapterConfiguration
-		itemRaw, err := oleutil.CallMethod(result, "ItemIndex", i)
+		itemRaw, err := ole.CallMethod(result, "ItemIndex", i)
 
 		if err != nil {
 			return err
@@ -1015,7 +1014,7 @@ ArpUseEtherSNAP: %v
 DatabasePath: %s
 DeadGWDetectEnabled: %v
 DefaultIPGateway:`, nac.Caption, nac.Description, nac.SettingID, nac.ArpAlwaysSourceRoute, nac.ArpUseEtherSNAP,
-nac.DatabasePath, nac.DeadGWDetectEnabled))
+		nac.DatabasePath, nac.DeadGWDetectEnabled))
 
 	if nac.DefaultIPGateway == nil {
 		buffer.WriteString(" <nil>\n")
@@ -1038,7 +1037,7 @@ DHCPLeaseObtained: %v
 DHCPServer: %s
 DNSDomain: %s
 DNSDomainSuffixSearchOrder:`, nac.DefaultTOS, nac.DefaultTTL, nac.DHCPEnabled, nac.DHCPLeaseExpires,
-nac.DHCPLeaseObtained, nac.DHCPServer, nac.DNSDomain))
+		nac.DHCPLeaseObtained, nac.DHCPServer, nac.DNSDomain))
 
 	if nac.DNSDomainSuffixSearchOrder == nil {
 		buffer.WriteString(" <nil>\n")
@@ -1077,7 +1076,7 @@ IGMPLevel: %d
 Index: %d
 InterfaceIndex: %d
 IPAddress:`, nac.DomainDNSRegistrationEnabled, nac.ForwardBufferMemory, nac.FullDNSRegistrationEnabled, nac.IGMPLevel,
-nac.Index, nac.InterfaceIndex))
+		nac.Index, nac.InterfaceIndex))
 
 	if nac.IPAddress == nil {
 		buffer.WriteString(" <nil>\n")

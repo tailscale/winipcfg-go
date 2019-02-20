@@ -22,14 +22,14 @@ func TestRegisterUnregisterRouteChangeCallback(t *testing.T) {
 
 	if RouteChangeCallbackRegistered(&routeChangeCallbackExample) {
 		t.Error("RouteChangeCallbackRegistered() returned true although nothing is registered.")
-		return;
+		return
 	}
 
 	err := RegisterRouteChangeCallback(&routeChangeCallbackExample)
 
 	if err != nil {
 		t.Errorf("RegisterRouteChangeCallback() returned error: %v", err)
-		return;
+		return
 	}
 
 	if !RouteChangeCallbackRegistered(&routeChangeCallbackExample) {
@@ -40,7 +40,7 @@ func TestRegisterUnregisterRouteChangeCallback(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("UnregisterRouteChangeCallback() returned error: %v", err)
-		return;
+		return
 	}
 
 	if RouteChangeCallbackRegistered(&routeChangeCallbackExample) {

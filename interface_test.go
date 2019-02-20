@@ -37,6 +37,10 @@ var (
 		NextHop: net.IP{172, 16, 1, 2},
 		Metric: 0,
 	}
+	dnsesToSet = []net.IP{
+		net.IPv4(8, 8, 8, 8),
+		net.IPv4(8, 8, 4, 4),
+	}
 )
 
 func TestGetInterfaces(t *testing.T) {
@@ -278,13 +282,13 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetRoutes() testing cannot be performed.",
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so add/delete route testing cannot be performed.",
 			err)
 		return
 	}
 
 	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so Interface.GetRoutes() testing cannot be performed.")
+		t.Error("InterfaceFromLUID() returned nil, so add/delete route testing cannot be performed.")
 		return
 	}
 
@@ -363,13 +367,13 @@ func TestInterface_AddRoute_DeleteRoute_SplitDefault(t *testing.T) {
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetRoutes() testing cannot be performed.",
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so add/delete route testing cannot be performed.",
 			err)
 		return
 	}
 
 	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so Interface.GetRoutes() testing cannot be performed.")
+		t.Error("InterfaceFromLUID() returned nil, so add/delete route testing cannot be performed.")
 		return
 	}
 
@@ -480,13 +484,13 @@ func TestInterface_GetNetworkAdapterConfiguration(t *testing.T) {
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetRoutes() testing cannot be performed.",
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetNetworkAdapterConfiguration() testing cannot be performed.",
 			err)
 		return
 	}
 
 	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so Interface.GetRoutes() testing cannot be performed.")
+		t.Error("InterfaceFromLUID() returned nil, so Interface.GetNetworkAdapterConfiguration() testing cannot be performed.")
 		return
 	}
 
@@ -512,5 +516,153 @@ func TestInterface_GetNetworkAdapterConfiguration(t *testing.T) {
 		fmt.Println("============== NETWORK ADAPTER CONFIGURATION OUTPUT START ==============")
 		fmt.Println(nac)
 		fmt.Println("=============== NETWORK ADAPTER CONFIGURATION OUTPUT END ===============")
+	}
+}
+
+func TestInterface_SetDNS(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.SetDNS() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.SetDNS() testing cannot be performed.")
+		return
+	}
+
+	err = RegisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
+
+	if err != nil {
+		t.Errorf("RegisterInterfaceChangeCallback() returned an error: %v", err)
+		return
+	}
+
+	defer func() {
+		err := UnregisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
+
+		if err != nil {
+			t.Errorf("UnregisterInterfaceChangeCallback() returned an error: %v", err)
+		}
+	}()
+
+	nac, err := ifc.GetNetworkAdapterConfiguration()
+
+	if err != nil {
+		t.Errorf("GetNetworkAdapterConfiguration() returned an error: %v", err)
+		return
+	}
+
+	err = ifc.SetDNS(dnsesToSet)
+
+	if err != nil {
+		t.Errorf("Interface.SetDNS() returned an error: %v", err)
+		return
+	}
+
+	// Giving some time to callbacks.
+	time.Sleep(500 * time.Millisecond)
+
+	nac2, err := ifc.GetNetworkAdapterConfiguration()
+
+	if err != nil {
+		t.Errorf("GetNetworkAdapterConfiguration() returned an error: %v", err)
+	} else {
+
+		if printNetworkAdaptersConfigurations {
+			fmt.Println("============== NETWORK ADAPTER CONFIGURATION OUTPUT START ==============")
+			fmt.Println(nac2)
+			fmt.Println("=============== NETWORK ADAPTER CONFIGURATION OUTPUT END ===============")
+		}
+
+		if dnsesToSet == nil {
+			if nac2.DNSServerSearchOrder != nil && len(nac2.DNSServerSearchOrder) != 0 {
+				t.Errorf("dnsesToSet is nil, but DNSServerSearchOrder contains %d items.",
+					len(nac2.DNSServerSearchOrder))
+			}
+		} else {
+
+			length := len(dnsesToSet)
+
+			if nac2.DNSServerSearchOrder == nil {
+				t.Errorf("dnsesToSet contains %d items, while DNSServerSearchOrder is nil.", length)
+			} else if len(nac2.DNSServerSearchOrder) != length {
+				t.Errorf("dnsesToSet contains %d items, while DNSServerSearchOrder contains %d.", length,
+					len(nac2.DNSServerSearchOrder))
+			} else {
+				for idx, dns := range dnsesToSet {
+					if !dns.Equal(nac2.DNSServerSearchOrder[idx]) {
+						t.Errorf("dnsesToSet[%d] = %s while DNSServerSearchOrder[%d] = %s.", idx, dns.String(), idx,
+							nac2.DNSServerSearchOrder[idx].String())
+					}
+				}
+			}
+		}
+	}
+
+	err = ifc.SetDNS(nac.DNSServerSearchOrder)
+
+	if err != nil {
+		t.Errorf("Interface.SetDNS() returned an error: %v.", err)
+	}
+
+	// Giving some time to callbacks.
+	time.Sleep(500 * time.Millisecond)
+}
+
+func TestInterface_FlushDNS(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.FlushDNS() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.FlushDNS() testing cannot be performed.")
+		return
+	}
+
+	nac, err := ifc.GetNetworkAdapterConfiguration()
+
+	if err != nil {
+		t.Errorf("GetNetworkAdapterConfiguration() returned an error: %v", err)
+		return
+	}
+
+	err = ifc.FlushDNS()
+
+	if err != nil {
+		t.Errorf("Interface.FlushDNS() returned an error: %v", err)
+		return
+	}
+
+	nac2, err := ifc.GetNetworkAdapterConfiguration()
+
+	if err != nil {
+		t.Errorf("GetNetworkAdapterConfiguration() returned an error: %v", err)
+	} else {
+
+		if printNetworkAdaptersConfigurations {
+			fmt.Println("============== NETWORK ADAPTER CONFIGURATION OUTPUT START ==============")
+			fmt.Println(nac2)
+			fmt.Println("=============== NETWORK ADAPTER CONFIGURATION OUTPUT END ===============")
+		}
+
+		if nac2.DNSServerSearchOrder != nil && len(nac2.DNSServerSearchOrder) > 0 {
+			t.Errorf("DNSServerSearchOrder contains %d items, although FlushDNS is executed successfully.",
+				len(nac2.DNSServerSearchOrder))
+		}
+	}
+
+	err = ifc.SetDNS(nac.DNSServerSearchOrder)
+
+	if err != nil {
+		t.Errorf("Interface.SetDNS() returned an error: %v.", err)
 	}
 }

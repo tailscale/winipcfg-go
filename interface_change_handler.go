@@ -13,7 +13,7 @@ import (
 )
 
 // Defines function that can be used as a callback.
-type InterfaceChangeCallback func(ifc *MibIpinterfaceRow, notificationType MibNotificationType)
+type InterfaceChangeCallback func(notificationType MibNotificationType, interfaceLuid uint64)
 
 var (
 	interfaceChangeMutex     = sync.Mutex{}
@@ -138,20 +138,18 @@ func checkInterfaceChangeSubscribed() error {
 
 func interfaceChanged(callerContext unsafe.Pointer, wtIfc *wtMibIpinterfaceRow, notificationType MibNotificationType) uintptr {
 
-	ifc := wtIfc.toMibIpinterfaceRow()
-
 	// go routine used to avoid blocking OS call.
-	go notifyInterfaceChangedCallbacks(ifc, notificationType)
+	go notifyInterfaceChangedCallbacks(notificationType, wtIfc.InterfaceLuid)
 
 	return 0
 }
 
-func notifyInterfaceChangedCallbacks(ifc *MibIpinterfaceRow, notificationType MibNotificationType) {
+func notifyInterfaceChangedCallbacks(notificationType MibNotificationType, interfaceLuid uint64) {
 
 	interfaceChangeMutex.Lock()
 	defer interfaceChangeMutex.Unlock()
 
 	for _, c := range interfaceChangeCallbacks {
-		(*c)(ifc, notificationType)
+		(*c)(notificationType, interfaceLuid)
 	}
 }

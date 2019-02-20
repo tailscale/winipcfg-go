@@ -43,7 +43,7 @@ type NetworkAdapterConfiguration struct {
 	DNSDomainSuffixSearchOrder   []string
 	DNSEnabledForWINSResolution  bool
 	DNSHostName                  string
-	DNSServerSearchOrder         []string
+	DNSServerSearchOrder         []net.IP
 	DomainDNSRegistrationEnabled bool
 	ForwardBufferMemory          uint32
 	FullDNSRegistrationEnabled   bool
@@ -183,7 +183,7 @@ func getOlePropertyValueUint32Array(item *ole.IDispatch, propertyName string) ([
 func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId string) (*NetworkAdapterConfiguration, error) {
 
 	if itemRaw == nil {
-		return nil, nil
+		return nil, fmt.Errorf("itemRawToNetworkAdaptersConfigurations() - input argument itemRaw is nil")
 	}
 
 	item := itemRaw.ToIDispatch()
@@ -197,7 +197,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 
 	sid := val.ToString()
 
-	if settingId != "" && settingId != strings.ToUpper(strings.TrimSpace(val.ToString())) {
+	if settingId != "" && settingId != strings.ToUpper(strings.TrimSpace(sid)) {
 		return nil, nil
 	}
 
@@ -386,7 +386,18 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 		return nil, err
 	}
 
-	nac.DNSServerSearchOrder = stringArr
+	if stringArr == nil {
+		nac.DNSServerSearchOrder = nil
+	} else {
+
+		length := len(stringArr)
+
+		nac.DNSServerSearchOrder = make([]net.IP, length, length)
+
+		for idx, addr := range stringArr {
+			nac.DNSServerSearchOrder[idx] = net.ParseIP(addr)
+		}
+	}
 
 	val, err = oleutil.GetProperty(item, "DomainDNSRegistrationEnabled")
 
@@ -840,6 +851,130 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 	}
 }
 
+func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP) (bool, error) {
+
+	if itemRaw == nil {
+		return false, fmt.Errorf("setDnsesIfMatch() - input argument itemRaw is nil")
+	}
+
+	item := itemRaw.ToIDispatch()
+	defer item.Release()
+
+	val, err := oleutil.GetProperty(item, "SettingID")
+
+	if err != nil {
+		return false, err
+	}
+
+	if settingId != strings.ToUpper(strings.TrimSpace(val.ToString())) {
+		return false, nil
+	}
+
+	length := 0
+
+	if dnses != nil {
+		length = len(dnses)
+	}
+
+	strDnses := make([]string, length, length)
+
+	for i := 0; i < length; i++ {
+		strDnses[i] = dnses[i].String()
+	}
+
+	result, err := oleutil.CallMethod(item, "SetDNSServerSearchOrder", strDnses)
+
+	if err != nil {
+		return false, err
+	}
+
+	if result.Val == 0 {
+		return true, nil
+	} else {
+		return false, fmt.Errorf("SetDNSServerSearchOrder returned %d", result.Val)
+	}
+}
+
+func setDnses(ifc *Interface, dnses []net.IP) error {
+
+	// init COM, oh yeah
+	err := ole.CoInitialize(0)
+
+	if err != nil {
+		return err
+	}
+
+	defer ole.CoUninitialize()
+
+	unknown, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
+
+	if err != nil {
+		return err
+	}
+
+	defer unknown.Release()
+
+	wmi, err := unknown.QueryInterface(ole.IID_IDispatch)
+
+	if err != nil {
+		return err
+	}
+
+	defer wmi.Release()
+
+	// service is a SWbemServices
+	serviceRaw, err := oleutil.CallMethod(wmi, "ConnectServer")
+
+	if err != nil {
+		return err
+	}
+
+	service := serviceRaw.ToIDispatch()
+	defer service.Release()
+
+	// result is a SWBemObjectSet
+	resultRaw, err := oleutil.CallMethod(service, "ExecQuery",
+		"SELECT * FROM Win32_NetworkAdapterConfiguration")
+
+	if err != nil {
+		return err
+	}
+
+	result := resultRaw.ToIDispatch()
+	defer result.Release()
+
+	countVar, err := oleutil.GetProperty(result, "Count")
+
+	if err != nil {
+		return err
+	}
+
+	adapterName := strings.ToUpper(strings.TrimSpace(ifc.AdapterName))
+
+	count := int(countVar.Val)
+
+	for i := 0; i < count; i++ {
+		// item is a SWbemObject, but really a Win32_NetworkAdapterConfiguration
+		itemRaw, err := oleutil.CallMethod(result, "ItemIndex", i)
+
+		if err != nil {
+			return err
+		}
+
+		added, err := setDnsesIfMatch(itemRaw, adapterName, dnses)
+
+		if err != nil {
+			return err
+		}
+
+		if added {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("setDnses() - interface not found")
+}
+
 func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) {
 
 	nacs, err := getNetworkAdaptersConfigurations(nil)
@@ -918,7 +1053,7 @@ DNSServerSearchOrder:`, nac.DNSEnabledForWINSResolution, nac.DNSHostName))
 		buffer.WriteString("\n")
 
 		for _, item := range nac.DNSServerSearchOrder {
-			buffer.WriteString(fmt.Sprintf("    %s\n", item))
+			buffer.WriteString(fmt.Sprintf("    %s\n", item.String()))
 		}
 	}
 

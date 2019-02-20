@@ -691,9 +691,24 @@ func (ifc *Interface) GetNetworkAdapterConfiguration() (*NetworkAdapterConfigura
 	}
 }
 
-//func (iface *Interface) FlushDNS() error
+func (ifc *Interface) FlushDNS() error {
+	if ifc == nil {
+		return fmt.Errorf("Interface.FlushDNS() - receiver argument is nil")
+	} else {
+		return setDnses(ifc, nil)
+	}
+}
+
 //func (iface *Interface) AddDNS(dnses []net.IP) error
-//func (iface *Interface) SetDNS(dnses []net.IP) error
+
+func (ifc *Interface) SetDNS(dnses []net.IP) error {
+	if ifc == nil {
+		return fmt.Errorf("Interface.SetDNS() - receiver argument is nil")
+	} else {
+		return setDnses(ifc, dnses)
+	}
+}
+
 //
 //// These make sure we don't leak through another interface's resolver.
 //func (iface *Interface) ForceDNSPriority() (windows.HANDLE, error)

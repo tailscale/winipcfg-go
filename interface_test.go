@@ -15,7 +15,7 @@ import (
 
 const (
 	printInterfaces         = false
-	printInterfacesData     = true
+	printInterfacesData     = false
 	existingLuid            = uint64(1689399632855040) // TODO: Set an existing LUID here
 	unexistingLuid          = uint64(42)
 	existingIndex           = uint32(13) // TODO: Set an existing interface index here

@@ -55,6 +55,10 @@ const (
 	wtMibIpinterfaceRow_ReceiveOffload_Offset                       = 165
 	wtMibIpinterfaceRow_DisableDefaultRoutes_Offset                 = 166
 
+	wtMibIpinterfaceTable_Size = 176
+
+	wtMibIpinterfaceTable_Table_Offset = 8
+
 	wtMibIpforwardRow2_Size = 104
 
 	wtMibIpforwardRow2_InterfaceIndex_Offset       = 8

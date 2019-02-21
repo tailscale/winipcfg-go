@@ -51,6 +51,6 @@ type wtIpAdapterAddressesLh struct {
 	Dhcpv6ClientDuidLength uint32                        // Windows type: ULONG
 	Dhcpv6Iaid             uint32                        // Windows type: ULONG
 	FirstDnsSuffix         *wtIpAdapterDnsSuffix
-	// Fixing layout! I've had to add this padding to ensure the same structure size.
-	correction [4]uint8
+
+	correction [4]uint8 // Layout correction field
 }

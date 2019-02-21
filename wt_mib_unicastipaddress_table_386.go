@@ -9,6 +9,8 @@ package winipcfg
 // MIB_UNICASTIPADDRESS_TABLE defined in netioapi.h
 type wtMibUnicastipaddressTable struct {
 	NumEntries uint32   // Windows type: ULONG
+
 	offset1    [4]uint8 // Layout correction field
-	Table      [ANY_SIZE]wtMibUnicastipaddressRow
+
+	Table      [anySize]wtMibUnicastipaddressRow
 }

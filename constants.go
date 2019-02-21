@@ -61,6 +61,10 @@ const (
 	wtMibIfRow2_OutBroadcastOctets_Offset          = 1336
 	wtMibIfRow2_OutQLen_Offset                     = 1344
 
+	wtMibIfTable2_Size = 1360
+
+	wtMibIfTable2_Table_Offset = 8
+
 	wtMibIpinterfaceRow_Size = 168
 
 	wtMibIpinterfaceRow_InterfaceLuid_Offset                        = 8

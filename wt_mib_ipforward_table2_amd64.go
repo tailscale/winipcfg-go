@@ -9,5 +9,5 @@ package winipcfg
 // MIB_IPFORWARD_TABLE2 defined in netioapi.h
 type wtMibIpforwardTable2 struct {
 	NumEntries uint32 // Windows type: ULONG
-	Table      [ANY_SIZE]wtMibIpforwardRow2
+	Table      [anySize]wtMibIpforwardRow2
 }

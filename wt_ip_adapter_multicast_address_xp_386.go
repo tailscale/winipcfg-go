@@ -12,5 +12,6 @@ type wtIpAdapterMulticastAddressXp struct {
 	Flags      uint32 // Windows type: DWORD
 	Next       *wtIpAdapterMulticastAddressXp
 	Address    wtSocketAddress
-	correction [4]uint8 // Layout correction field
+
+	offset1 [4]uint8 // Layout correction field
 }

@@ -52,5 +52,5 @@ type wtIpAdapterAddressesLh struct {
 	Dhcpv6Iaid             uint32                        // Windows type: ULONG
 	FirstDnsSuffix         *wtIpAdapterDnsSuffix
 
-	correction [4]uint8 // Layout correction field
+	offset1 [4]uint8 // Layout correction field
 }

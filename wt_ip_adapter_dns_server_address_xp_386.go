@@ -12,5 +12,6 @@ type wtIpAdapterDnsServerAddressXp struct {
 	Reserved   uint32 // Windows type: DWORD
 	Next       *wtIpAdapterDnsServerAddressXp
 	Address    wtSocketAddress
-	correction [4]uint8 // Layout correction field
+
+	offset1 [4]uint8 // Layout correction field
 }

@@ -11,5 +11,5 @@ type wtMibIpforwardTable2 struct {
 	NumEntries uint32 // Windows type: ULONG
 	// In 32-bit builds we have to artificially add an offset, in order to get the same size of the struct.
 	offset [4]byte
-	Table  [ANY_SIZE]wtMibIpforwardRow2
+	Table  [anySize]wtMibIpforwardRow2
 }

@@ -7,8 +7,7 @@ package winipcfg
 
 import "unsafe"
 
-// Defined in Iprtrmib.h
-const ANY_SIZE uint32 = 1
+const anySize uint32 = 1 // ANY_SIZE defined in Iprtrmib.h
 
 func (mit *wtMibIpforwardTable2) toSlice() []wtMibIpforwardRow2 {
 

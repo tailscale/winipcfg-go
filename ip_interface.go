@@ -79,6 +79,29 @@ type IpInterface struct {
 	DisableDefaultRoutes bool
 }
 
+func GetIpInterfaces(family AddressFamily) ([]*IpInterface, error) {
+
+	rows, err := getWtMibIpinterfaceRows(family)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if rows == nil {
+		return nil, nil
+	}
+
+	length := len(rows)
+
+	ipifcs := make([]*IpInterface, length, length)
+
+	for idx, row := range rows {
+		ipifcs[idx] = row.toIpInterface()
+	}
+
+	return ipifcs, nil
+}
+
 func (mir *IpInterface) String() string {
 
 	if mir == nil {

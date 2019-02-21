@@ -9,7 +9,34 @@ import (
 	"fmt"
 	"os"
 	"golang.org/x/sys/windows"
+	"unsafe"
 )
+
+func getWtMibIpinterfaceRows(family AddressFamily) ([]wtMibIpinterfaceRow, error) {
+
+	var pTable *wtMibIpinterfaceTable = nil
+
+	result := getIpInterfaceTable(family, unsafe.Pointer(&pTable))
+
+	if pTable != nil {
+		defer freeMibTable(unsafe.Pointer(pTable))
+	}
+
+	if result != 0 {
+		return nil, os.NewSyscallError("iphlpapi.GetIpInterfaceTable", windows.Errno(result))
+	}
+
+	ipifcs := make([]wtMibIpinterfaceRow, pTable.NumEntries, pTable.NumEntries)
+
+	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
+	rowSize := uintptr(wtMibIpinterfaceRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
+
+	for i := uint32(0); i < pTable.NumEntries; i++ {
+		ipifcs[i] = *(*wtMibIpinterfaceRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+	}
+
+	return ipifcs, nil
+}
 
 func getWtMibIpinterfaceRow(interfaceLuid uint64, family AddressFamily) (*wtMibIpinterfaceRow, error) {
 

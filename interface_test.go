@@ -14,15 +14,15 @@ import (
 )
 
 const (
-	printInterfaces         = false
-	printInterfacesData     = false
-	existingLuid            = uint64(1689399632855040) // TODO: Set an existing LUID here
-	unexistingLuid          = uint64(42)
-	existingIndex           = uint32(13) // TODO: Set an existing interface index here
-	unexistingIndex         = uint32(42000000)
-	existingInterfaceName   = "LAN" // TODO: Set an existing interface name here
-	unexistingInterfaceName = "NON-EXISTING-NAME"
-	printInterfaceRoutes    = false
+	printInterfaces             = false
+	interface_printIpInterfaces = false
+	existingLuid                = uint64(1689399632855040) // TODO: Set an existing LUID here
+	unexistingLuid              = uint64(42)
+	existingIndex               = uint32(13) // TODO: Set an existing interface index here
+	unexistingIndex             = uint32(42000000)
+	existingInterfaceName       = "LAN" // TODO: Set an existing interface name here
+	unexistingInterfaceName     = "NON-EXISTING-NAME"
+	printInterfaceRoutes        = false
 )
 
 var (
@@ -177,7 +177,7 @@ func TestInterface_GetData(t *testing.T) {
 		return
 	}
 
-	if printInterfacesData {
+	if interface_printIpInterfaces {
 		fmt.Println("====================== INTERFACE DATA OUTPUT START ======================")
 		fmt.Println(ifcdata)
 		fmt.Println("======================= INTERFACE DATA OUTPUT END =======================")

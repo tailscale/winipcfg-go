@@ -42,8 +42,9 @@ var (
 	procGetAdaptersAddresses            = modiphlpapi.NewProc("GetAdaptersAddresses")
 	procInitializeIpInterfaceEntry      = modiphlpapi.NewProc("InitializeIpInterfaceEntry")
 	procGetIpInterfaceEntry             = modiphlpapi.NewProc("GetIpInterfaceEntry")
-	procGetUnicastIpAddressTable        = modiphlpapi.NewProc("GetUnicastIpAddressTable")
+	procGetIpInterfaceTable             = modiphlpapi.NewProc("GetIpInterfaceTable")
 	procFreeMibTable                    = modiphlpapi.NewProc("FreeMibTable")
+	procGetUnicastIpAddressTable        = modiphlpapi.NewProc("GetUnicastIpAddressTable")
 	procInitializeUnicastIpAddressEntry = modiphlpapi.NewProc("InitializeUnicastIpAddressEntry")
 	procCreateUnicastIpAddressEntry     = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
 	procDeleteUnicastIpAddressEntry     = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
@@ -76,14 +77,20 @@ func getIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) {
 	return
 }
 
-func getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) {
-	r0, _, _ := syscall.Syscall(procGetUnicastIpAddressTable.Addr(), 2, uintptr(Family), uintptr(Table), 0)
+func getIpInterfaceTable(Family AddressFamily, Table unsafe.Pointer) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetIpInterfaceTable.Addr(), 2, uintptr(Family), uintptr(Table), 0)
 	result = int32(r0)
 	return
 }
 
 func freeMibTable(memory unsafe.Pointer) {
 	syscall.Syscall(procFreeMibTable.Addr(), 1, uintptr(memory), 0, 0)
+	return
+}
+
+func getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetUnicastIpAddressTable.Addr(), 2, uintptr(Family), uintptr(Table), 0)
+	result = int32(r0)
 	return
 }
 

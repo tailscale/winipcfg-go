@@ -16,13 +16,16 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry
 //sys	getIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) = iphlpapi.GetIpInterfaceEntry
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfacetable
+//sys	getIpInterfaceTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetIpInterfaceTable
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
+//sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
+
 // IP address - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable
 //sys	getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetUnicastIpAddressTable
-
-// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
-//sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeunicastipaddressentry
 //sys	initializeUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.InitializeUnicastIpAddressEntry

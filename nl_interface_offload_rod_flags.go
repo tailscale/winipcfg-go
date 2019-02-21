@@ -31,19 +31,6 @@ type NlInterfaceOffloadRodFlags struct {
 	TlGiantSendOffloadSupported bool
 }
 
-func (wtior wtNlInterfaceOffloadRod) toNlInterfaceOffloadRodFlags() *NlInterfaceOffloadRodFlags {
-	return &NlInterfaceOffloadRodFlags{
-		NlChecksumSupported:         uint8ToBool(uint8(wtior) & uint8(nlChecksumSupported)),
-		NlOptionsSupported:          uint8ToBool(uint8(wtior) & uint8(nlOptionsSupported)),
-		TlDatagramChecksumSupported: uint8ToBool(uint8(wtior) & uint8(tlDatagramChecksumSupported)),
-		TlStreamChecksumSupported:   uint8ToBool(uint8(wtior) & uint8(tlStreamChecksumSupported)),
-		TlStreamOptionsSupported:    uint8ToBool(uint8(wtior) & uint8(tlStreamOptionsSupported)),
-		FastPathCompatible:          uint8ToBool(uint8(wtior) & uint8(fastPathCompatible)),
-		TlLargeSendOffloadSupported: uint8ToBool(uint8(wtior) & uint8(tlLargeSendOffloadSupported)),
-		TlGiantSendOffloadSupported: uint8ToBool(uint8(wtior) & uint8(tlGiantSendOffloadSupported)),
-	}
-}
-
 func (ior *NlInterfaceOffloadRodFlags) toWtNlInterfaceOffloadRod() wtNlInterfaceOffloadRod {
 
 	uint8Val := uint8(0)

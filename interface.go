@@ -49,6 +49,7 @@ type Interface struct {
 	DnsSuffixes         []string
 }
 
+// Returns all available interfaces.
 func GetInterfaces() ([]*Interface, error) {
 
 	wtiaas, err := getWtIpAdapterAddresses()
@@ -77,6 +78,7 @@ func GetInterfaces() ([]*Interface, error) {
 	return ifcs, nil
 }
 
+// Returns interface with specified LUID.
 func InterfaceFromLUID(luid uint64) (*Interface, error) {
 
 	wtiaas, err := getWtIpAdapterAddresses()
@@ -105,6 +107,7 @@ func InterfaceFromLUID(luid uint64) (*Interface, error) {
 	return nil, nil
 }
 
+// Returns interface at specified index.
 func InterfaceFromIndex(index uint32) (*Interface, error) {
 
 	wtiaas, err := getWtIpAdapterAddresses()
@@ -140,6 +143,7 @@ func InterfaceFromIndex(index uint32) (*Interface, error) {
 	return nil, nil
 }
 
+// Returns interface with specified friendly name.
 func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 
 	wtiaas, err := getWtIpAdapterAddresses()
@@ -190,6 +194,8 @@ func (ifc *Interface) Refresh() error {
 	return nil
 }
 
+// Returns corresponding IpInterface.
+// Argument 'family' has to be either AF_INET or AF_INET6.
 func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error) {
 
 	if ifc == nil {

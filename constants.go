@@ -18,6 +18,49 @@ const (
 
 	wtIpAddressPrefix_PrefixLength_Offset = 28
 
+	wtMibIfRow2_Size = 1352
+
+	wtMibIfRow2_InterfaceIndex_Offset              = 8
+	wtMibIfRow2_InterfaceGuid_Offset               = 12
+	wtMibIfRow2_Alias_Offset                       = 28
+	wtMibIfRow2_Description_Offset                 = 542
+	wtMibIfRow2_PhysicalAddressLength_Offset       = 1056
+	wtMibIfRow2_PhysicalAddress_Offset             = 1060
+	wtMibIfRow2_PermanentPhysicalAddress_Offset    = 1092
+	wtMibIfRow2_Mtu_Offset                         = 1124
+	wtMibIfRow2_Type_Offset                        = 1128
+	wtMibIfRow2_TunnelType_Offset                  = 1132
+	wtMibIfRow2_MediaType_Offset                   = 1136
+	wtMibIfRow2_PhysicalMediumType_Offset          = 1140
+	wtMibIfRow2_AccessType_Offset                  = 1144
+	wtMibIfRow2_DirectionType_Offset               = 1148
+	wtMibIfRow2_InterfaceAndOperStatusFlags_Offset = 1152
+	wtMibIfRow2_OperStatus_Offset                  = 1156
+	wtMibIfRow2_AdminStatus_Offset                 = 1160
+	wtMibIfRow2_MediaConnectState_Offset           = 1164
+	wtMibIfRow2_NetworkGuid_Offset                 = 1168
+	wtMibIfRow2_ConnectionType_Offset              = 1184
+	wtMibIfRow2_TransmitLinkSpeed_Offset           = 1192
+	wtMibIfRow2_ReceiveLinkSpeed_Offset            = 1200
+	wtMibIfRow2_InOctets_Offset                    = 1208
+	wtMibIfRow2_InUcastPkts_Offset                 = 1216
+	wtMibIfRow2_InNUcastPkts_Offset                = 1224
+	wtMibIfRow2_InDiscards_Offset                  = 1232
+	wtMibIfRow2_InErrors_Offset                    = 1240
+	wtMibIfRow2_InUnknownProtos_Offset             = 1248
+	wtMibIfRow2_InUcastOctets_Offset               = 1256
+	wtMibIfRow2_InMulticastOctets_Offset           = 1264
+	wtMibIfRow2_InBroadcastOctets_Offset           = 1272
+	wtMibIfRow2_OutOctets_Offset                   = 1280
+	wtMibIfRow2_OutUcastPkts_Offset                = 1288
+	wtMibIfRow2_OutNUcastPkts_Offset               = 1296
+	wtMibIfRow2_OutDiscards_Offset                 = 1304
+	wtMibIfRow2_OutErrors_Offset                   = 1312
+	wtMibIfRow2_OutUcastOctets_Offset              = 1320
+	wtMibIfRow2_OutMulticastOctets_Offset          = 1328
+	wtMibIfRow2_OutBroadcastOctets_Offset          = 1336
+	wtMibIfRow2_OutQLen_Offset                     = 1344
+
 	wtMibIpinterfaceRow_Size = 168
 
 	wtMibIpinterfaceRow_InterfaceLuid_Offset                        = 8

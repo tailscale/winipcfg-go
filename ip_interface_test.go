@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const ipInterface_print = true
+const ipInterface_print = false
 
 func TestGetIpInterfaces(t *testing.T) {
 

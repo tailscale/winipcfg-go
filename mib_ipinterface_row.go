@@ -7,7 +7,9 @@ package winipcfg
 
 import "fmt"
 
-type MibIpinterfaceRow struct {
+// Corresponds to Windows struct MIB_IPINTERFACE_ROW
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipinterface_row)
+type IpinterfaceData struct {
 	//
 	// Key Structure;
 	//
@@ -77,7 +79,7 @@ type MibIpinterfaceRow struct {
 	DisableDefaultRoutes bool
 }
 
-func (mir *MibIpinterfaceRow) String() string {
+func (mir *IpinterfaceData) String() string {
 
 	if mir == nil {
 		return "<nil>"

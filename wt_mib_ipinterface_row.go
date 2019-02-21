@@ -5,13 +5,13 @@
 
 package winipcfg
 
-func (wt *wtMibIpinterfaceRow) toMibIpinterfaceRow() *MibIpinterfaceRow {
+func (wt *wtMibIpinterfaceRow) toInterfaceData() *IpinterfaceData {
 
 	if wt == nil {
 		return nil
 	}
 
-	return &MibIpinterfaceRow{
+	return &IpinterfaceData{
 		Family:                               wt.Family,
 		InterfaceLuid:                        wt.InterfaceLuid,
 		InterfaceIndex:                       wt.InterfaceIndex,

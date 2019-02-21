@@ -11,7 +11,8 @@ import (
 	"net"
 )
 
-// Represents an interface, and it's based on Windows API type IP_ADAPTER_ADDRESSES.
+// Corresponds to Windows struct IP_ADAPTER_ADDRESSES
+// (https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_addresses_lh)
 type Interface struct {
 	Luid                uint64
 	Index               uint32

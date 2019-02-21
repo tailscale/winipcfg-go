@@ -10,6 +10,9 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses
 //sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeipinterfaceentry
+//sys	initializeIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) = iphlpapi.InitializeIpInterfaceEntry
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry
 //sys	getIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) = iphlpapi.GetIpInterfaceEntry
 

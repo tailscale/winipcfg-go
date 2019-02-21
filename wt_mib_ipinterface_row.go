@@ -6,13 +6,23 @@
 package winipcfg
 
 import (
+	"fmt"
 	"os"
 	"golang.org/x/sys/windows"
 )
 
-func getWtMibIpinterfaceRow(interfaceLuid uint64) (*wtMibIpinterfaceRow, error) {
+func getWtMibIpinterfaceRow(interfaceLuid uint64, family AddressFamily) (*wtMibIpinterfaceRow, error) {
 
-	wtrow := wtMibIpinterfaceRow{InterfaceLuid: interfaceLuid}
+	if family != AF_INET && family != AF_INET6 {
+		return nil, fmt.Errorf("argument 'family' has to be either AF_INET or AF_INET6")
+	}
+
+	wtrow := wtMibIpinterfaceRow{InterfaceLuid: interfaceLuid, Family: family}
+
+	_ = initializeIpInterfaceEntry(&wtrow)
+
+	wtrow.InterfaceLuid = interfaceLuid
+	wtrow.Family = family
 
 	result := getIpInterfaceEntry(&wtrow)
 

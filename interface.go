@@ -190,13 +190,13 @@ func (ifc *Interface) Refresh() error {
 	return nil
 }
 
-func (ifc *Interface) GetData() (*InterfaceData, error) {
+func (ifc *Interface) GetData(family AddressFamily) (*InterfaceData, error) {
 
 	if ifc == nil {
 		return nil, fmt.Errorf("Interface.GetInterfaceData() - receiver argument is nil")
 	}
 
-	row, err := getWtMibIpinterfaceRow(ifc.Luid)
+	row, err := getWtMibIpinterfaceRow(ifc.Luid, family)
 
 	if err != nil {
 		return nil, err

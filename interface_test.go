@@ -15,6 +15,7 @@ import (
 
 const (
 	printInterfaces         = false
+	printInterfacesData     = true
 	existingLuid            = uint64(1689399632855040) // TODO: Set an existing LUID here
 	unexistingLuid          = uint64(42)
 	existingIndex           = uint32(13) // TODO: Set an existing interface index here
@@ -151,6 +152,35 @@ func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 	} else if ifc != nil {
 		t.Errorf("InterfaceFromFriendlyName() returned an interface with name=%s, although requested name was %s.",
 			ifc.FriendlyName, unexistingInterfaceName)
+	}
+}
+
+func TestInterface_GetData(t *testing.T) {
+
+	ifc, err := InterfaceFromLUID(existingLuid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetData() testing cannot be performed.",
+			err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromLUID() returned nil, so Interface.GetData() testing cannot be performed.")
+		return
+	}
+
+	ifcdata, err := ifc.GetData(AF_INET)
+
+	if err != nil {
+		t.Errorf("Interface.GetData() returned an error: %v", err)
+		return
+	}
+
+	if printInterfacesData {
+		fmt.Println("====================== INTERFACE DATA OUTPUT START ======================")
+		fmt.Println(ifcdata)
+		fmt.Println("======================= INTERFACE DATA OUTPUT END =======================")
 	}
 }
 

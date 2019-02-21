@@ -1,10 +1,10 @@
+// +build windows,386
+
 /* SPDX-License-Identifier: MIT
  *
  * Copyright (C) 2013-2017 Yasuhiro Matsumoto <mattn.jp@gmail.com>.
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
-
-// +build windows,386
 
 package ole
 

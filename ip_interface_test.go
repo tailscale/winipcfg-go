@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const ipInterface_printIpInterfaces = true
+const ipInterface_print = true
 
 func TestGetIpInterfaces(t *testing.T) {
 
@@ -26,7 +26,7 @@ func TestGetIpInterfaces(t *testing.T) {
 		return
 	}
 
-	if ipInterface_printIpInterfaces {
+	if ipInterface_print {
 		for _, ipifc := range ipifcs {
 			fmt.Println("====================== INTERFACE DATA OUTPUT START ======================")
 			fmt.Println(ipifc)

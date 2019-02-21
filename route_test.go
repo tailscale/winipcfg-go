@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const printRoutes bool = false
+const route_print bool = false
 
 func TestGetRoutes(t *testing.T) {
 
@@ -26,7 +26,7 @@ func TestGetRoutes(t *testing.T) {
 		return
 	}
 
-	if printRoutes {
+	if route_print {
 		for _, route := range routes {
 			fmt.Println("========================== ROUTE OUTPUT START ==========================")
 			fmt.Println(route)

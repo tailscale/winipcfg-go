@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const printNetworkAdaptersConfigurations = false
+const networkAdaptersConfigurations_print = false
 
 func TestGetNetworkAdaptersConfigurations(t *testing.T) {
 
@@ -26,7 +26,7 @@ func TestGetNetworkAdaptersConfigurations(t *testing.T) {
 		return
 	}
 
-	if printNetworkAdaptersConfigurations {
+	if networkAdaptersConfigurations_print {
 		for _, nac := range nacs {
 			fmt.Println("============== NETWORK ADAPTER CONFIGURATION OUTPUT START ==============")
 			fmt.Println(nac)

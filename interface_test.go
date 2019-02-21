@@ -14,15 +14,16 @@ import (
 )
 
 const (
-	printInterfaces             = false
-	interface_printIpInterfaces = false
-	existingLuid                = uint64(1689399632855040) // TODO: Set an existing LUID here
-	unexistingLuid              = uint64(42)
-	existingIndex               = uint32(13) // TODO: Set an existing interface index here
-	unexistingIndex             = uint32(42000000)
-	existingInterfaceName       = "LAN" // TODO: Set an existing interface name here
-	unexistingInterfaceName     = "NON-EXISTING-NAME"
-	printInterfaceRoutes        = false
+	interface_print                              = false
+	interface_printIpInterfaces                  = false
+	interface_printRoutes                        = false
+	interface_printNetworkAdaptersConfigurations = false
+	existingLuid                                 = uint64(1689399632855040) // TODO: Set an existing LUID here
+	unexistingLuid                               = uint64(42)
+	existingIndex                                = uint32(13) // TODO: Set an existing interface index here
+	unexistingIndex                              = uint32(42000000)
+	existingInterfaceName                        = "LAN" // TODO: Set an existing interface name here
+	unexistingInterfaceName                      = "NON-EXISTING-NAME"
 )
 
 var (
@@ -52,7 +53,7 @@ func TestGetInterfaces(t *testing.T) {
 		t.Errorf("GetInterfaces() returned error: %v", err)
 	} else if ifcs == nil {
 		t.Errorf("GetInterfaces() returned nil.")
-	} else if printInterfaces {
+	} else if interface_print {
 		fmt.Printf("GetInterfaces() returned %d items:\n", len(ifcs))
 		for _, ifc := range ifcs {
 			fmt.Println("======================== INTERFACE OUTPUT START ========================")
@@ -74,7 +75,7 @@ func TestInterfaceFromLUIDExisting(t *testing.T) {
 	} else if ifc.Luid != existingLuid {
 		t.Errorf("InterfaceFromLUID() returned interface with a wrong LUID. Requested: %d; returned: %d.",
 			existingLuid, ifc.Luid)
-	} else if printInterfaces {
+	} else if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromLUID() returned corresponding interface:\n%s\n", ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -105,7 +106,7 @@ func TestInterfaceFromIndexExisting(t *testing.T) {
 	} else if uint32(ifc.Index) != existingIndex {
 		t.Errorf("InterfaceFromIndex() returned interface with a wrong index. Requested: %d; returned: %d.",
 			existingIndex, ifc.Index)
-	} else if printInterfaces {
+	} else if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromIndex() returned corresponding interface:\n%s\n", ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -136,7 +137,7 @@ func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 	} else if ifc.FriendlyName != existingInterfaceName {
 		t.Errorf("InterfaceFromFriendlyName() returned interface with a wrong name. Requested: %s; returned: %s.",
 			existingInterfaceName, ifc.FriendlyName)
-	} else if printInterfaces {
+	} else if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromFriendlyName() returned corresponding interface:\n%s\n", ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -298,7 +299,7 @@ func TestInterface_GetRoutes(t *testing.T) {
 		}
 	}
 
-	if printInterfaceRoutes {
+	if interface_printRoutes {
 		for _, route := range routes {
 			fmt.Println("========================== ROUTE OUTPUT START ==========================")
 			fmt.Println(route)
@@ -542,7 +543,7 @@ func TestInterface_GetNetworkAdapterConfiguration(t *testing.T) {
 		return
 	}
 
-	if printNetworkAdaptersConfigurations {
+	if interface_printNetworkAdaptersConfigurations {
 		fmt.Println("============== NETWORK ADAPTER CONFIGURATION OUTPUT START ==============")
 		fmt.Println(nac)
 		fmt.Println("=============== NETWORK ADAPTER CONFIGURATION OUTPUT END ===============")
@@ -589,7 +590,7 @@ func TestInterface_FlushDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if printInterfaces {
+	if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Println(ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -649,7 +650,7 @@ func TestInterface_AddDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if printInterfaces {
+	if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Println(ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -744,7 +745,7 @@ func TestInterface_SetDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if printInterfaces {
+	if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Println(ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")

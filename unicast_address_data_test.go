@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const printUnicastAddresses = false
+const unicastAddressData_print = false
 
 func TestGetUnicastAddresses(t *testing.T) {
 
@@ -26,7 +26,7 @@ func TestGetUnicastAddresses(t *testing.T) {
 		return
 	}
 
-	if printUnicastAddresses {
+	if unicastAddressData_print {
 		for _, address := range addresses {
 			fmt.Println("===================== UNICAST ADDRESS OUTPUT START =====================")
 			fmt.Println(address)

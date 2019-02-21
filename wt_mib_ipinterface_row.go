@@ -33,13 +33,13 @@ func getWtMibIpinterfaceRow(interfaceLuid uint64, family AddressFamily) (*wtMibI
 	}
 }
 
-func (wt *wtMibIpinterfaceRow) toInterfaceData() *InterfaceData {
+func (wt *wtMibIpinterfaceRow) toIpInterface() *IpInterface {
 
 	if wt == nil {
 		return nil
 	}
 
-	return &InterfaceData{
+	return &IpInterface{
 		Family:                               wt.Family,
 		InterfaceLuid:                        wt.InterfaceLuid,
 		InterfaceIndex:                       wt.InterfaceIndex,

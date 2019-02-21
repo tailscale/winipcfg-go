@@ -190,10 +190,10 @@ func (ifc *Interface) Refresh() error {
 	return nil
 }
 
-func (ifc *Interface) GetData(family AddressFamily) (*InterfaceData, error) {
+func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error) {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetInterfaceData() - receiver argument is nil")
+		return nil, fmt.Errorf("Interface.GetIpInterface() - receiver argument is nil")
 	}
 
 	row, err := getWtMibIpinterfaceRow(ifc.Luid, family)
@@ -201,7 +201,7 @@ func (ifc *Interface) GetData(family AddressFamily) (*InterfaceData, error) {
 	if err != nil {
 		return nil, err
 	} else {
-		return row.toInterfaceData(), nil
+		return row.toIpInterface(), nil
 	}
 }
 

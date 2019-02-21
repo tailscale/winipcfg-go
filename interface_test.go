@@ -160,20 +160,20 @@ func TestInterface_GetData(t *testing.T) {
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetData() testing cannot be performed.",
+		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetIpInterface() testing cannot be performed.",
 			err)
 		return
 	}
 
 	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so Interface.GetData() testing cannot be performed.")
+		t.Error("InterfaceFromLUID() returned nil, so Interface.GetIpInterface() testing cannot be performed.")
 		return
 	}
 
-	ifcdata, err := ifc.GetData(AF_INET)
+	ifcdata, err := ifc.GetIpInterface(AF_INET)
 
 	if err != nil {
-		t.Errorf("Interface.GetData() returned an error: %v", err)
+		t.Errorf("Interface.GetIpInterface() returned an error: %v", err)
 		return
 	}
 

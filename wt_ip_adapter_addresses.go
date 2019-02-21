@@ -69,8 +69,8 @@ func (wtiaa *wtIpAdapterAddresses) toInterface() (*Interface, error) {
 		Index:             uint32(wtiaa.IfIndex),
 		AdapterName:       wtiaa.getAdapterName(),
 		FriendlyName:      wtiaa.getFriendlyName(),
-		DnsSuffix:         wcharToString(wtiaa.DnsSuffix),
-		Description:       wcharToString(wtiaa.Description),
+		DnsSuffix:         wcharToString(wtiaa.DnsSuffix, 1000),
+		Description:       wcharToString(wtiaa.Description, 1000),
 		Flags:             wtiaa.Flags,
 		Mtu:               wtiaa.Mtu,
 		IfType:            wtiaa.IfType,
@@ -230,7 +230,7 @@ func (wtiaa *wtIpAdapterAddresses) toInterface() (*Interface, error) {
 	var dnsSuffixes []string
 
 	for dnss := wtiaa.FirstDnsSuffix; dnss != nil; dnss = dnss.Next {
-		dnsSuffixes = append(dnsSuffixes, wcharToString(&dnss.String[0]))
+		dnsSuffixes = append(dnsSuffixes, wcharToString(&dnss.String[0], 1000))
 	}
 
 	ifc.DnsSuffixes = dnsSuffixes
@@ -250,7 +250,7 @@ func (aa *wtIpAdapterAddresses) getAdapterName() string {
 	if aa == nil {
 		return "<nil>"
 	} else {
-		return charToString(aa.AdapterName)
+		return charToString(aa.AdapterName, 1000)
 	}
 }
 
@@ -258,6 +258,6 @@ func (aa *wtIpAdapterAddresses) getFriendlyName() string {
 	if aa == nil {
 		return "<nil>"
 	} else {
-		return wcharToString(aa.FriendlyName)
+		return wcharToString(aa.FriendlyName, 1000)
 	}
 }

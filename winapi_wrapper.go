@@ -22,6 +22,9 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
 //sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex
+//sys	getIfEntry2Ex(Level MibIfEntryLevel, Row *wtMibIfRow2) (result int32) = iphlpapi.GetIfEntry2Ex
+
 // IP address - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable

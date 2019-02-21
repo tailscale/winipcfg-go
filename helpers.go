@@ -12,52 +12,49 @@ import (
 	"unsafe"
 )
 
-const (
-	expectedStringLength = 1000
-)
+func wcharToString(wchar *uint16, maxLength uint32) string {
 
-func wcharToString(wchar *uint16) string {
-
-	buffer := make([]uint16, expectedStringLength)
+	buffer := make([]uint16, maxLength, maxLength)
 
 	const size = uintptr(2) // unsafe.Sizeof(uint16(0))
 
 	start := unsafe.Pointer(wchar)
 
-	for i := 0; ; i++ {
+	var i uint32
+
+	for i = 0; i < maxLength ; i++ {
 
 		letter := *(*uint16)(unsafe.Pointer(uintptr(start) + size*uintptr(i)))
 
 		if letter == 0 {
-
-			if i < expectedStringLength {
-				buffer[i] = 0
-			}
-
 			break
 		}
 
-		if i < expectedStringLength {
-			buffer[i] = letter
-		} else {
-			buffer = append(buffer, letter)
-		}
+		buffer[i] = letter
+	}
+
+	if i == 0 {
+		return ""
+	}
+
+	if i < maxLength {
+		buffer = buffer[:i]
 	}
 
 	return windows.UTF16ToString(buffer)
 }
 
-func charToString(char *uint8) string {
+func charToString(char *uint8, maxLength uint32) string {
 
-	buffer := make([]byte, expectedStringLength)
+	buffer := make([]byte, maxLength, maxLength)
 
 	const size = uintptr(1) // unsafe.Sizeof(uint8(0))
 
 	start := unsafe.Pointer(char)
 
-	var i int
+	var i uint32
 
-	for i = 0; ; i++ {
+	for i = 0; i < maxLength; i++ {
 
 		letter := *(*uint8)(unsafe.Pointer(uintptr(start) + size*uintptr(i)))
 
@@ -65,14 +62,14 @@ func charToString(char *uint8) string {
 			break
 		}
 
-		if i < expectedStringLength {
-			buffer[i] = byte(letter)
-		} else {
-			buffer = append(buffer, byte(letter))
-		}
+		buffer[i] = byte(letter)
 	}
 
-	if i < len(buffer) {
+	if i == 0 {
+		return ""
+	}
+
+	if i < maxLength {
 		buffer = buffer[:i]
 	}
 

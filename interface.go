@@ -211,6 +211,17 @@ func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error)
 	}
 }
 
+// Returns corresponding IfRow. Based on GetIfEntry2Ex function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex)
+func (ifc *Interface) GetIfRow(level MibIfEntryLevel) (*IfRow, error) {
+
+	if ifc == nil {
+		return nil, fmt.Errorf("Interface.GetIfRow() - receiver argument is nil")
+	} else {
+		return GetIfRow(ifc.Luid, level)
+	}
+}
+
 func (ifc *Interface) GetMatchingUnicastAddressData(ip *net.IP) (*UnicastAddressData, error) {
 
 	if ifc == nil {

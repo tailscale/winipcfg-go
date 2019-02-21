@@ -9,7 +9,7 @@ import "fmt"
 
 // Corresponds to Windows struct MIB_IPINTERFACE_ROW
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipinterface_row)
-type IpinterfaceData struct {
+type InterfaceData struct {
 	//
 	// Key Structure;
 	//
@@ -79,7 +79,7 @@ type IpinterfaceData struct {
 	DisableDefaultRoutes bool
 }
 
-func (mir *IpinterfaceData) String() string {
+func (mir *InterfaceData) String() string {
 
 	if mir == nil {
 		return "<nil>"

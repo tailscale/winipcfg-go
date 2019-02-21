@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"net"
 	"os"
 	"unsafe"
 )
@@ -59,6 +60,182 @@ func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
 	}
 
 	return wtiaas, nil
+}
+
+func (wtiaa *wtIpAdapterAddresses) toInterface() (*Interface, error) {
+
+	ifc := Interface{
+		Luid:              wtiaa.Luid,
+		Index:             uint32(wtiaa.IfIndex),
+		AdapterName:       wtiaa.getAdapterName(),
+		FriendlyName:      wtiaa.getFriendlyName(),
+		DnsSuffix:         wcharToString(wtiaa.DnsSuffix),
+		Description:       wcharToString(wtiaa.Description),
+		Flags:             wtiaa.Flags,
+		Mtu:               wtiaa.Mtu,
+		IfType:            wtiaa.IfType,
+		OperStatus:        wtiaa.OperStatus,
+		Ipv6IfIndex:       wtiaa.Ipv6IfIndex,
+		ZoneIndices:       wtiaa.ZoneIndices,
+		TransmitLinkSpeed: wtiaa.TransmitLinkSpeed,
+		ReceiveLinkSpeed:  wtiaa.ReceiveLinkSpeed,
+		Ipv4Metric:        wtiaa.Ipv4Metric,
+		Ipv6Metric:        wtiaa.Ipv6Metric,
+		CompartmentId:     wtiaa.CompartmentId,
+		NetworkGuid:       wtiaa.NetworkGuid,
+		ConnectionType:    wtiaa.ConnectionType,
+		TunnelType:        wtiaa.TunnelType,
+		Dhcpv6Iaid:        wtiaa.Dhcpv6Iaid,
+	}
+
+	if wtiaa.PhysicalAddressLength > 0 {
+
+		ifc.PhysicalAddress = net.HardwareAddr(make([]byte, wtiaa.PhysicalAddressLength, wtiaa.PhysicalAddressLength))
+
+		for i := uint32(0); i < wtiaa.PhysicalAddressLength; i++ {
+			ifc.PhysicalAddress[i] = wtiaa.PhysicalAddress[i]
+		}
+	}
+
+	var unicastAddresses []*UnicastAddress
+
+	for wtua := wtiaa.FirstUnicastAddress; wtua != nil; wtua = wtua.Next {
+
+		ua, err := wtua.toIpAdapterAddress(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		unicastAddresses = append(unicastAddresses, ua)
+	}
+
+	ifc.UnicastAddresses = unicastAddresses
+
+	var anycastAddresses []*IpAdapterAddressCommonTypeEx
+
+	for wtaa := wtiaa.FirstAnycastAddress; wtaa != nil; wtaa = wtaa.Next {
+
+		ua, err := wtaa.toIpAdapterAddress(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		anycastAddresses = append(anycastAddresses, ua)
+	}
+
+	ifc.AnycastAddresses = anycastAddresses
+
+	var multicastAddresses []*IpAdapterAddressCommonTypeEx
+
+	for wtma := wtiaa.FirstMulticastAddress; wtma != nil; wtma = wtma.Next {
+
+		ma, err := wtma.toIpAdapterAddress(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		multicastAddresses = append(multicastAddresses, ma)
+	}
+
+	ifc.MulticastAddresses = multicastAddresses
+
+	var dnsServerAddresses []*IpAdapterAddressCommonType
+
+	for wtdsa := wtiaa.FirstDnsServerAddress; wtdsa != nil; wtdsa = wtdsa.Next {
+
+		dsa, err := wtdsa.toIpAdapterAddress(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		dnsServerAddresses = append(dnsServerAddresses, dsa)
+	}
+
+	ifc.DnsServerAddresses = dnsServerAddresses
+
+	var prefixes []*IpAdapterPrefix
+
+	for wtp := wtiaa.FirstPrefix; wtp != nil; wtp = wtp.Next {
+
+		p, err := wtp.toIpAdapterPrefix(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		prefixes = append(prefixes, p)
+	}
+
+	ifc.Prefixes = prefixes
+
+	var winsServerAddresses []*IpAdapterAddressCommonType
+
+	for wtwsa := wtiaa.FirstWinsServerAddress; wtwsa != nil; wtwsa = wtwsa.Next {
+
+		wsa, err := wtwsa.toIpAdapterAddress(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		winsServerAddresses = append(winsServerAddresses, wsa)
+	}
+
+	ifc.WinsServerAddresses = winsServerAddresses
+
+	var gatewayAddresses []*IpAdapterAddressCommonType
+
+	for wtga := wtiaa.FirstGatewayAddress; wtga != nil; wtga = wtga.Next {
+
+		wsa, err := wtga.toIpAdapterAddress(ifc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		gatewayAddresses = append(gatewayAddresses, wsa)
+	}
+
+	ifc.GatewayAddresses = gatewayAddresses
+
+	dhcpv4s, err := (&wtiaa.Dhcpv4Server).toSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	ifc.Dhcpv4Server = dhcpv4s
+
+	dhcpv6s, err := (&wtiaa.Dhcpv6Server).toSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	ifc.Dhcpv6Server = dhcpv6s
+
+	if wtiaa.Dhcpv6ClientDuidLength > 0 {
+
+		ifc.Dhcpv6ClientDuid = make([]uint8, wtiaa.Dhcpv6ClientDuidLength, wtiaa.Dhcpv6ClientDuidLength)
+
+		for i := uint32(0); i < wtiaa.Dhcpv6ClientDuidLength; i++ {
+			ifc.Dhcpv6ClientDuid[i] = wtiaa.Dhcpv6ClientDuid[i]
+		}
+	}
+
+	var dnsSuffixes []string
+
+	for dnss := wtiaa.FirstDnsSuffix; dnss != nil; dnss = dnss.Next {
+		dnsSuffixes = append(dnsSuffixes, wcharToString(&dnss.String[0]))
+	}
+
+	ifc.DnsSuffixes = dnsSuffixes
+
+	return &ifc, nil
 }
 
 func (aa *wtIpAdapterAddresses) nextCasted() *wtIpAdapterAddresses {

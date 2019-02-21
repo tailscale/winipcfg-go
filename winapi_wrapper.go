@@ -5,10 +5,15 @@
 
 package winipcfg
 
-// IP address - related functions
+// Interface - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses
 //sys	getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) = iphlpapi.GetAdaptersAddresses
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry
+//sys	getIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) = iphlpapi.GetIpInterfaceEntry
+
+// IP address - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable
 //sys	getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetUnicastIpAddressTable

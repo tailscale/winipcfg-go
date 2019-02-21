@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	printInterfaceData      = false
+	printInterfaces         = false
 	existingLuid            = uint64(1689399632855040) // TODO: Set an existing LUID here
 	unexistingLuid          = uint64(42)
 	existingIndex           = uint32(13) // TODO: Set an existing interface index here
@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	unexistingIpAddresToAdd = net.IPNet{
+	unexistentIpAddresToAdd = net.IPNet{
 		IP:   net.IP{172, 16, 1, 114},
 		Mask: net.IPMask{255, 255, 255, 0},
 	}
@@ -51,7 +51,7 @@ func TestGetInterfaces(t *testing.T) {
 		t.Errorf("GetInterfaces() returned error: %v", err)
 	} else if ifcs == nil {
 		t.Errorf("GetInterfaces() returned nil.")
-	} else if printInterfaceData {
+	} else if printInterfaces {
 		fmt.Printf("GetInterfaces() returned %d items:\n", len(ifcs))
 		for _, ifc := range ifcs {
 			fmt.Println("======================== INTERFACE OUTPUT START ========================")
@@ -73,7 +73,7 @@ func TestInterfaceFromLUIDExisting(t *testing.T) {
 	} else if ifc.Luid != existingLuid {
 		t.Errorf("InterfaceFromLUID() returned interface with a wrong LUID. Requested: %d; returned: %d.",
 			existingLuid, ifc.Luid)
-	} else if printInterfaceData {
+	} else if printInterfaces {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromLUID() returned corresponding interface:\n%s\n", ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -104,7 +104,7 @@ func TestInterfaceFromIndexExisting(t *testing.T) {
 	} else if uint32(ifc.Index) != existingIndex {
 		t.Errorf("InterfaceFromIndex() returned interface with a wrong index. Requested: %d; returned: %d.",
 			existingIndex, ifc.Index)
-	} else if printInterfaceData {
+	} else if printInterfaces {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromIndex() returned corresponding interface:\n%s\n", ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -135,7 +135,7 @@ func TestInterfaceFromFriendlyNameExisting(t *testing.T) {
 	} else if ifc.FriendlyName != existingInterfaceName {
 		t.Errorf("InterfaceFromFriendlyName() returned interface with a wrong name. Requested: %s; returned: %s.",
 			existingInterfaceName, ifc.FriendlyName)
-	} else if printInterfaceData {
+	} else if printInterfaces {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Printf("InterfaceFromFriendlyName() returned corresponding interface:\n%s\n", ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -169,7 +169,7 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 		return
 	}
 
-	addr, err := ifc.GetMatchingUnicastAddressData(&unexistingIpAddresToAdd.IP)
+	addr, err := ifc.GetMatchingUnicastAddressData(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
 		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
@@ -177,8 +177,8 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 	}
 
 	if addr != nil {
-		t.Errorf("Unicast address %s already exists. Please set unexistingIpAddresToAdd appropriately.",
-			unexistingIpAddresToAdd.IP.String())
+		t.Errorf("Unicast address %s already exists. Please set unexistentIpAddresToAdd appropriately.",
+			unexistentIpAddresToAdd.IP.String())
 		return
 	}
 
@@ -191,7 +191,7 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 
 	count := len(ifc.UnicastAddresses)
 
-	err = ifc.AddAddresses([]*net.IPNet{&unexistingIpAddresToAdd})
+	err = ifc.AddAddresses([]*net.IPNet{&unexistentIpAddresToAdd})
 
 	if err != nil {
 		t.Errorf("Interface.AddAddresses() returned an error: %v", err)
@@ -206,16 +206,16 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 			len(ifc.UnicastAddresses))
 	}
 
-	addr, err = ifc.GetMatchingUnicastAddressData(&unexistingIpAddresToAdd.IP)
+	addr, err = ifc.GetMatchingUnicastAddressData(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
 		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
 	} else if addr == nil {
 		t.Errorf("Unicast address %s still doesn't exist, although it's added successfully.",
-			unexistingIpAddresToAdd.IP.String())
+			unexistentIpAddresToAdd.IP.String())
 	}
 
-	err = ifc.DeleteAddress(&unexistingIpAddresToAdd.IP)
+	err = ifc.DeleteAddress(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
 		t.Errorf("Interface.DeleteAddress() returned an error: %v", err)
@@ -224,13 +224,13 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
 
-	addr, err = ifc.GetMatchingUnicastAddressData(&unexistingIpAddresToAdd.IP)
+	addr, err = ifc.GetMatchingUnicastAddressData(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
 		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
 	} else if addr != nil {
 		t.Errorf("Unicast address %s still exists, although it's deleted successfully.",
-			unexistingIpAddresToAdd.IP.String())
+			unexistentIpAddresToAdd.IP.String())
 	}
 }
 
@@ -559,7 +559,7 @@ func TestInterface_FlushDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if printInterfaceData {
+	if printInterfaces {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Println(ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -619,7 +619,7 @@ func TestInterface_AddDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if printInterfaceData {
+	if printInterfaces {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Println(ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")
@@ -714,7 +714,7 @@ func TestInterface_SetDNS(t *testing.T) {
 		t.Errorf("Interface.Refresh() returned an error: %v", err)
 	}
 
-	if printInterfaceData {
+	if printInterfaces {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
 		fmt.Println(ifc)
 		fmt.Println("========================= INTERFACE OUTPUT END =========================")

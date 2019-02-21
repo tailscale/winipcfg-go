@@ -5,13 +5,31 @@
 
 package winipcfg
 
-func (wt *wtMibIpinterfaceRow) toInterfaceData() *IpinterfaceData {
+import (
+	"os"
+	"golang.org/x/sys/windows"
+)
+
+func getWtMibIpinterfaceRow(interfaceLuid uint64) (*wtMibIpinterfaceRow, error) {
+
+	wtrow := wtMibIpinterfaceRow{InterfaceLuid: interfaceLuid}
+
+	result := getIpInterfaceEntry(&wtrow)
+
+	if result == 0 {
+		return &wtrow, nil
+	} else {
+		return nil, os.NewSyscallError("iphlpapi.GetIpInterfaceEntry", windows.Errno(result))
+	}
+}
+
+func (wt *wtMibIpinterfaceRow) toInterfaceData() *InterfaceData {
 
 	if wt == nil {
 		return nil
 	}
 
-	return &IpinterfaceData{
+	return &InterfaceData{
 		Family:                               wt.Family,
 		InterfaceLuid:                        wt.InterfaceLuid,
 		InterfaceIndex:                       wt.InterfaceIndex,

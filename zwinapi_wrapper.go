@@ -40,6 +40,7 @@ var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
 
 	procGetAdaptersAddresses            = modiphlpapi.NewProc("GetAdaptersAddresses")
+	procGetIpInterfaceEntry             = modiphlpapi.NewProc("GetIpInterfaceEntry")
 	procGetUnicastIpAddressTable        = modiphlpapi.NewProc("GetUnicastIpAddressTable")
 	procFreeMibTable                    = modiphlpapi.NewProc("FreeMibTable")
 	procInitializeUnicastIpAddressEntry = modiphlpapi.NewProc("InitializeUnicastIpAddressEntry")
@@ -59,6 +60,12 @@ var (
 func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) {
 	r0, _, _ := syscall.Syscall6(procGetAdaptersAddresses.Addr(), 5, uintptr(Family), uintptr(Flags), uintptr(Reserved), uintptr(unsafe.Pointer(AdapterAddresses)), uintptr(unsafe.Pointer(SizePointer)), 0)
 	result = uint32(r0)
+	return
+}
+
+func getIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetIpInterfaceEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
 	return
 }
 

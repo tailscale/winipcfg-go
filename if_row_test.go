@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const ifRow_print = false
+const ifRow_print = true
 
 func TestGetIfRow(t *testing.T) {
 
@@ -43,5 +43,22 @@ func TestGetIfRow(t *testing.T) {
 		fmt.Println("========================== IfRow OUTPUT START ==========================")
 		fmt.Println(ifrow)
 		fmt.Println("=========================== IfRow OUTPUT END ===========================")
+	}
+}
+
+func TestGetIfRows(t *testing.T) {
+
+	rows, err := GetIfRows(MibIfEntryNormal)
+
+	if err != nil {
+		t.Errorf("GetIfRows() returned an error: %v", err)
+	} else if rows == nil || len(rows) < 1 {
+		t.Error("GetIfRows() returned nil or an empty slice.")
+	} else if ifRow_print {
+		for _, row := range rows {
+			fmt.Println("========================== IfRow OUTPUT START ==========================")
+			fmt.Println(row)
+			fmt.Println("=========================== IfRow OUTPUT END ===========================")
+		}
 	}
 }

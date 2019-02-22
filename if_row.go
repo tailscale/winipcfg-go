@@ -69,7 +69,7 @@ type IfRow struct {
 	OutQLen            uint64
 }
 
-// Corresponds to GetIfEntry2Ex function
+// Equivalent to GetIfEntry2Ex function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex)
 func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 
@@ -82,6 +82,27 @@ func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 	} else {
 		return row.toIfRow(), nil
 	}
+}
+
+// Equivalent to GetIfTable2Ex function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex)
+func GetIfRows(level MibIfEntryLevel) ([]*IfRow, error) {
+
+	rows, err := getWtMibIfRow2s(level)
+
+	if err != nil {
+		return nil, err
+	}
+
+	length := len(rows)
+
+	ifrows := make([]*IfRow, length, length)
+
+	for idx, row := range rows {
+		ifrows[idx] = row.toIfRow()
+	}
+
+	return ifrows, nil
 }
 
 func (ifr *IfRow) String() string {

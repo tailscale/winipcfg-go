@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"golang.org/x/sys/windows"
 	"os"
+	"unsafe"
 )
 
 const (
@@ -39,6 +40,34 @@ func (wtior interfaceAndOperStatusFlagsByte) toInterfaceAndOperStatusFlags() *In
 		LowPower:          uint8ToBool(uint8(wtior) & uint8(lowPower)),
 		EndPointInterface: uint8ToBool(uint8(wtior) & uint8(endPointInterface)),
 	}
+}
+
+// Equivalent to GetIfTable2Ex function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex)
+func getWtMibIfRow2s(level MibIfEntryLevel) ([]wtMibIfRow2, error) {
+
+	var pTable *wtMibIfTable2 = nil
+
+	result := getIfTable2Ex(level, unsafe.Pointer(&pTable))
+
+	if pTable != nil {
+		defer freeMibTable(unsafe.Pointer(pTable))
+	}
+
+	if result != 0 {
+		return nil, os.NewSyscallError("iphlpapi.GetIfTable2Ex", windows.Errno(result))
+	}
+
+	rows := make([]wtMibIfRow2, pTable.NumEntries, pTable.NumEntries)
+
+	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
+	rowSize := uintptr(wtMibIfRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
+
+	for i := uint32(0); i < pTable.NumEntries; i++ {
+		rows[i] = *(*wtMibIfRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+	}
+
+	return rows, nil
 }
 
 // Corresponds to GetIfEntry2Ex function

@@ -334,10 +334,6 @@ func (ifc *Interface) FlushRoutes() error {
 // Adds route. Note that routeData can be changed if splitting takes place.
 func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
-	if routeData == nil {
-		return fmt.Errorf("Interface.AddRoute() - input RouteData argument is nil")
-	}
-
 	if splitDefault {
 
 		ones, bits := routeData.Destination.Mask.Size()
@@ -437,12 +433,7 @@ func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 
 func (ifc *Interface) GetNetworkAdapterConfiguration() (*NetworkAdapterConfiguration, error) {
 
-	if ifc == nil {
-		// Here we need to panic because ifc == nil have another meaning in getNetworkAdaptersConfigurations function.
-		panic("Interface.GetNetworkAdapterConfiguration() - receiver argument is nil")
-	}
-
-	nac, err := getNetworkAdaptersConfigurations(ifc)
+	nac, err := getNetworkAdaptersConfigurations(ifc.AdapterName)
 
 	if err != nil {
 		return nil, err

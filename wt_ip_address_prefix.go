@@ -19,10 +19,6 @@ type wtIpAddressPrefix struct {
 
 func createWtIpAddressPrefix(ipnet *net.IPNet) (*wtIpAddressPrefix, error) {
 
-	if ipnet == nil {
-		return nil, fmt.Errorf("createWtIpAddressPrefix() - input argument 'ipnet' is nil")
-	}
-
 	wtsainet, err := createWtSockaddrInet(&ipnet.IP, 0)
 
 	if err != nil {

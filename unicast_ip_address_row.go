@@ -101,10 +101,6 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastIpAddressRow, error) {
 // on the system.
 func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 
-	if ip == nil {
-		return nil, fmt.Errorf("GetMatchingUnicastIpAddressRow() - input ip is nil")
-	}
-
 	row, err := getMatchingWtMibUnicastipaddressRow(ip)
 
 	if err != nil {

@@ -92,10 +92,6 @@ type NetworkAdapterConfiguration struct {
 
 func getOlePropertyValueArray(item *ole.IDispatch, propertyName string) ([]interface{}, error) {
 
-	if item == nil {
-		return nil, fmt.Errorf("getOlePropertyValueArray() - input argument 'item' is nil")
-	}
-
 	arrVal, err := ole.GetProperty(item, propertyName)
 
 	if err != nil {
@@ -185,10 +181,6 @@ func getOlePropertyValueUint32Array(item *ole.IDispatch, propertyName string) ([
 }
 
 func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId string) (*NetworkAdapterConfiguration, error) {
-
-	if itemRaw == nil {
-		return nil, fmt.Errorf("itemRawToNetworkAdaptersConfigurations() - input argument itemRaw is nil")
-	}
 
 	item := itemRaw.ToIDispatch()
 	defer item.Release()
@@ -759,7 +751,7 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 	return &nac, nil
 }
 
-func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
+func getNetworkAdaptersConfigurations(adapterName string) (interface{}, error) {
 
 	// init COM, oh yeah
 	err := ole.CoInitialize(0)
@@ -817,12 +809,10 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 
 	var nacs []*NetworkAdapterConfiguration
 
-	adapterName := ""
-
-	if ifc == nil {
+	if adapterName == "" {
 		nacs = make([]*NetworkAdapterConfiguration, count, count)
 	} else {
-		adapterName = strings.ToUpper(strings.TrimSpace(ifc.AdapterName))
+		adapterName = strings.ToUpper(strings.TrimSpace(adapterName))
 	}
 
 	for i := 0; i < count; i++ {
@@ -840,7 +830,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 		}
 
 		if nac != nil {
-			if ifc == nil {
+			if adapterName == "" {
 				nacs[i] = nac
 			} else {
 				return nac, nil
@@ -848,7 +838,7 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 		}
 	}
 
-	if ifc == nil {
+	if adapterName == "" {
 		return nacs, nil
 	} else {
 		return nil, fmt.Errorf("getNetworkAdaptersConfigurations() - interface not found")
@@ -856,10 +846,6 @@ func getNetworkAdaptersConfigurations(ifc *Interface) (interface{}, error) {
 }
 
 func setDnsesIfMatch(itemRaw *ole.VARIANT, settingId string, dnses []net.IP, add bool) (bool, error) {
-
-	if itemRaw == nil {
-		return false, fmt.Errorf("setDnsesIfMatch() - input argument itemRaw is nil")
-	}
 
 	item := itemRaw.ToIDispatch()
 	defer item.Release()
@@ -994,7 +980,7 @@ func setDnses(ifc *Interface, dnses []net.IP, add bool) error {
 
 func GetNetworkAdaptersConfigurations() ([]*NetworkAdapterConfiguration, error) {
 
-	nacs, err := getNetworkAdaptersConfigurations(nil)
+	nacs, err := getNetworkAdaptersConfigurations("")
 
 	if err == nil {
 		return nacs.([]*NetworkAdapterConfiguration), nil

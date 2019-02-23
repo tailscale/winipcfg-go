@@ -105,10 +105,6 @@ func findWtMibIpforwardRow2(interfaceLuid uint64, destination *net.IPNet) (*wtMi
 
 func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 
-	if ifc == nil || routeData == nil {
-		return fmt.Errorf("addWtMibIpforwardRow2() - some of the input arguments is nil")
-	}
-
 	wtdest, err := createWtIpAddressPrefix(&routeData.Destination)
 
 	if err != nil {
@@ -125,15 +121,11 @@ func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 
 	_ = initializeIpForwardEntry(&row)
 
-	//fmt.Printf("wtMibIpforwardRow2 initialized to:\n%s\n", row.String())
-
 	row.InterfaceLuid = ifc.Luid
 	row.InterfaceIndex = ifc.Index
 	row.DestinationPrefix = *wtdest
 	row.NextHop = *wtsaNextHop
 	row.Metric = routeData.Metric
-
-	//fmt.Printf("wtMibIpforwardRow2 to add:\n%s\n", row.String())
 
 	result := createIpForwardEntry2(&row)
 

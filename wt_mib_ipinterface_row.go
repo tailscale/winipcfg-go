@@ -12,6 +12,8 @@ import (
 	"unsafe"
 )
 
+// Corresponds to GetIpInterfaceTable function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfacetable)
 func getWtMibIpinterfaceRows(family AddressFamily) ([]wtMibIpinterfaceRow, error) {
 
 	var pTable *wtMibIpinterfaceTable = nil

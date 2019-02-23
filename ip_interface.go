@@ -79,16 +79,14 @@ type IpInterface struct {
 	DisableDefaultRoutes bool
 }
 
+// Corresponds to GetIpInterfaceTable function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfacetable)
 func GetIpInterfaces(family AddressFamily) ([]*IpInterface, error) {
 
 	rows, err := getWtMibIpinterfaceRows(family)
 
 	if err != nil {
 		return nil, err
-	}
-
-	if rows == nil {
-		return nil, nil
 	}
 
 	length := len(rows)

@@ -13,6 +13,8 @@ import (
 	"unsafe"
 )
 
+// Corresponds to GetUnicastIpAddressTable function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable)
 func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddressRow, error) {
 
 	var pTable *wtMibUnicastipaddressTable = nil

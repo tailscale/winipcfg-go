@@ -67,16 +67,14 @@ func (address *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastip
 	}, nil
 }
 
+// Corresponds to GetUnicastIpAddressTable function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable)
 func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 
 	wtas, err := getWtMibUnicastipaddressRows(family)
 
 	if err != nil {
 		return nil, err
-	}
-
-	if wtas == nil {
-		return nil, nil
 	}
 
 	count := len(wtas)

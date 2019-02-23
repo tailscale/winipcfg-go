@@ -21,7 +21,7 @@ type wtIpAdapterAddressesLh struct {
 	DnsSuffix             *uint16                           // Windows type: *WCHAR
 	Description           *uint16                           // Windows type: *WCHAR
 	FriendlyName          *uint16                           // Windows type: *WCHAR
-	PhysicalAddress       [MAX_ADAPTER_ADDRESS_LENGTH]uint8 // Windows type: [MAX_ADAPTER_ADDRESS_LENGTH]BYTE
+	PhysicalAddress       [max_adapter_address_length]uint8 // Windows type: [MAX_ADAPTER_ADDRESS_LENGTH]BYTE
 	PhysicalAddressLength uint32                            // Windows type: ULONG
 	Flags                 uint32                            // Windows type: ULONG
 	Mtu                   uint32                            // Windows type: ULONG
@@ -47,7 +47,7 @@ type wtIpAdapterAddressesLh struct {
 	// DHCP v6 Info.
 	//
 	Dhcpv6Server           wtSocketAddress
-	Dhcpv6ClientDuid       [MAX_DHCPV6_DUID_LENGTH]uint8 // Windows type: [MAX_DHCPV6_DUID_LENGTH]BYTE
+	Dhcpv6ClientDuid       [max_dhcpv6_duid_length]uint8 // Windows type: [MAX_DHCPV6_DUID_LENGTH]BYTE
 	Dhcpv6ClientDuidLength uint32                        // Windows type: ULONG
 	Dhcpv6Iaid             uint32                        // Windows type: ULONG
 	FirstDnsSuffix         *wtIpAdapterDnsSuffix

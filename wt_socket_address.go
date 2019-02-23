@@ -26,10 +26,6 @@ type wtSockaddr struct {
 
 func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 
-	if sa == nil {
-		return nil, nil
-	}
-
 	if sa.lpSockaddr == nil {
 		// TODO: The following check is unnecessary. Only for curiosity...
 		if sa.iSockaddrLength == 0 {

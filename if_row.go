@@ -10,7 +10,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// MIB_IF_ROW2 defined in netioapi.h
+// Corresponds to MIB_IF_ROW2 struct defined in netioapi.h
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_if_row2)
 type IfRow struct {
 	//
@@ -77,8 +77,6 @@ func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 
 	if err != nil {
 		return nil, err
-	} else if row == nil {
-		return nil, nil
 	} else {
 		return row.toIfRow(), nil
 	}

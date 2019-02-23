@@ -93,7 +93,7 @@ type NetworkAdapterConfiguration struct {
 func getOlePropertyValueArray(item *ole.IDispatch, propertyName string) ([]interface{}, error) {
 
 	if item == nil {
-		return nil, nil
+		return nil, fmt.Errorf("getOlePropertyValueArray() - input argument 'item' is nil")
 	}
 
 	arrVal, err := ole.GetProperty(item, propertyName)

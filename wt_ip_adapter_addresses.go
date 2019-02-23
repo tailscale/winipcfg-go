@@ -12,16 +12,16 @@ import (
 	"unsafe"
 )
 
-// Defined in iptypes.h
 const (
-	MAX_ADAPTER_ADDRESS_LENGTH = 8
-	MAX_DHCPV6_DUID_LENGTH     = 130
+	max_adapter_address_length = 8 // MAX_ADAPTER_ADDRESS_LENGTH defined in iptypes.h
+	max_dhcpv6_duid_length     = 130 // MAX_DHCPV6_DUID_LENGTH defined in iptypes.h
 )
 
 // IP_ADAPTER_ADDRESSES defined in iptypes.h
 type wtIpAdapterAddresses wtIpAdapterAddressesLh
 
-// Based on function with the same name in 'net' module, in file interface_windows.go
+// Corresponds to GetAdaptersAddresses function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses)
 func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
 
 	var b []byte
@@ -36,11 +36,6 @@ func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
 			(*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
 
 		if result == 0 {
-
-			if size == 0 {
-				return nil, nil
-			}
-
 			break
 		}
 
@@ -53,7 +48,7 @@ func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
 		}
 	}
 
-	var wtiaas []*wtIpAdapterAddresses
+	wtiaas := make([]*wtIpAdapterAddresses, 0)
 
 	for wtiaa := (*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])); wtiaa != nil; wtiaa = wtiaa.nextCasted() {
 		wtiaas = append(wtiaas, wtiaa)

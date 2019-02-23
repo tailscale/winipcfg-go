@@ -49,7 +49,8 @@ type Interface struct {
 	DnsSuffixes         []string
 }
 
-// Returns all available interfaces.
+// Returns all available interfaces. Corresponds to GetAdaptersAddresses function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses)
 func GetInterfaces() ([]*Interface, error) {
 
 	wtiaas, err := getWtIpAdapterAddresses()
@@ -58,11 +59,9 @@ func GetInterfaces() ([]*Interface, error) {
 		return nil, err
 	}
 
-	if wtiaas == nil {
-		return nil, nil
-	}
+	length := len(wtiaas)
 
-	ifcs := make([]*Interface, len(wtiaas), len(wtiaas))
+	ifcs := make([]*Interface, length, length)
 
 	for i, wtiaa := range wtiaas {
 
@@ -85,10 +84,6 @@ func InterfaceFromLUID(luid uint64) (*Interface, error) {
 
 	if err != nil {
 		return nil, err
-	}
-
-	if wtiaas == nil {
-		return nil, nil
 	}
 
 	for _, wtiaa := range wtiaas {
@@ -114,10 +109,6 @@ func InterfaceFromIndex(index uint32) (*Interface, error) {
 
 	if err != nil {
 		return nil, err
-	}
-
-	if wtiaas == nil {
-		return nil, nil
 	}
 
 	for _, wtiaa := range wtiaas {
@@ -150,10 +141,6 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 
 	if err != nil {
 		return nil, err
-	}
-
-	if wtiaas == nil {
-		return nil, nil
 	}
 
 	for _, wtiaa := range wtiaas {

@@ -146,32 +146,17 @@ func (address *UnicastIpAddressRow) Set() error {
 	return old.set()
 }
 
-// Deletes unicast IP address from the system.
+// Deletes unicast IP address from the system. Corresponds to DeleteUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
 func (address *UnicastIpAddressRow) Delete() error {
 
-	if address.Address == nil {
-		return fmt.Errorf("UnicastIpAddressRow.Delete() - receiver argument or its Address field is nil")
-	}
+	row, err := getWtMibUnicastipaddressRow(address.InterfaceLuid, &address.Address.Address)
 
-	wta, err := address.toWtMibUnicastipaddressRow()
-
-	if err != nil {
+	if err == nil {
+		return row.delete()
+	} else {
 		return err
 	}
-
-	rows, err := getWtMibUnicastipaddressRows(address.Address.Family)
-
-	if err != nil {
-		return err
-	}
-
-	for _, row := range rows {
-		if row.equal(wta) {
-			return row.delete()
-		}
-	}
-
-	return fmt.Errorf("UnicastIpAddressRow.Delete() - address not found")
 }
 
 func (address *UnicastIpAddressRow) String() string {

@@ -40,6 +40,8 @@ func getWtMibIpinterfaceRows(family AddressFamily) ([]wtMibIpinterfaceRow, error
 	return ipifcs, nil
 }
 
+// Corresponds to GetIpInterfaceEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry)
 func getWtMibIpinterfaceRow(interfaceLuid uint64, family AddressFamily) (*wtMibIpinterfaceRow, error) {
 
 	if family != AF_INET && family != AF_INET6 {

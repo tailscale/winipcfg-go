@@ -100,6 +100,20 @@ func GetIpInterfaces(family AddressFamily) ([]*IpInterface, error) {
 	return ipifcs, nil
 }
 
+// Corresponds to GetIpInterfaceEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry).
+// Argument 'family' has to be either AF_INET or AF_INET6.
+func GetIpInterface(interfaceLuid uint64, family AddressFamily) (*IpInterface, error) {
+
+	row, err := getWtMibIpinterfaceRow(interfaceLuid, family)
+
+	if err != nil {
+		return nil, err
+	} else {
+		return row.toIpInterface(), nil
+	}
+}
+
 func (mir *IpInterface) String() string {
 
 	if mir == nil {

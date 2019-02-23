@@ -66,6 +66,56 @@ func getWtMibUnicastipaddressRow(interfaceLuid uint64, ip *net.IP) (*wtMibUnicas
 	}
 }
 
+func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow, error) {
+
+	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wta := range wtas {
+		if wta.Address.matches(ip) {
+			return &wta, nil
+		}
+	}
+
+	return nil, nil
+}
+
+// Corresponds to CreateUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry)
+func addWtMibUnicastipaddressRow(interfaceLuid uint64, ipnet *net.IPNet) error {
+
+	if ipnet == nil {
+		return fmt.Errorf("addWtMibUnicastipaddressRow() - some of the input arguments is nil")
+	}
+
+	wtsa, err := createWtSockaddrInet(&ipnet.IP, 0)
+
+	if err != nil {
+		return err
+	}
+
+	row := wtMibUnicastipaddressRow{InterfaceLuid:interfaceLuid}
+
+	_ = initializeUnicastIpAddressEntry(&row)
+
+	ones, _ := ipnet.Mask.Size()
+
+	row.InterfaceLuid = interfaceLuid
+	row.Address = *wtsa
+	row.OnLinkPrefixLength = uint8(ones)
+
+	result := createUnicastIpAddressEntry(&row)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.CreateUnicastIpAddressEntry", windows.Errno(result))
+	}
+}
+
 // Corresponds to SetUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setunicastipaddressentry)
 func (wtua *wtMibUnicastipaddressRow) set() error {
@@ -76,6 +126,19 @@ func (wtua *wtMibUnicastipaddressRow) set() error {
 		return nil
 	} else {
 		return os.NewSyscallError("iphlpapi.SetUnicastIpAddressEntry", windows.Errno(result))
+	}
+}
+
+// Corresponds to DeleteUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry)
+func (wtua *wtMibUnicastipaddressRow) delete() error {
+
+	result := deleteUnicastIpAddressEntry(wtua)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.DeleteUnicastIpAddressEntry", windows.Errno(result))
 	}
 }
 
@@ -105,70 +168,6 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddress
 		ScopeId:            wtua.ScopeId,
 		CreationTimeStamp:  wtua.CreationTimeStamp,
 	}, nil
-}
-
-func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow, error) {
-
-	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for _, wta := range wtas {
-		if wta.Address.matches(ip) {
-			return &wta, nil
-		}
-	}
-
-	return nil, nil
-}
-
-// Corresponds to CreateUnicastIpAddressEntry function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry)
-func addWtMibUnicastipaddressRow(ifc *Interface, ipnet *net.IPNet) error {
-
-	if ifc == nil || ipnet == nil {
-		return fmt.Errorf("addWtMibUnicastipaddressRow() - some of the input arguments is nil")
-	}
-
-	wtsa, err := createWtSockaddrInet(&ipnet.IP, 0)
-
-	if err != nil {
-		return err
-	}
-
-	row := wtMibUnicastipaddressRow{}
-
-	_ = initializeUnicastIpAddressEntry(&row)
-
-	ones, _ := ipnet.Mask.Size()
-
-	row.InterfaceLuid = ifc.Luid
-	row.InterfaceIndex = ifc.Index
-	row.Address = *wtsa
-	row.OnLinkPrefixLength = uint8(ones)
-
-	result := createUnicastIpAddressEntry(&row)
-
-	if result == 0 {
-		return nil
-	} else {
-		return os.NewSyscallError("iphlpapi.CreateUnicastIpAddressEntry", windows.Errno(result))
-	}
-}
-
-// Corresponds to DeleteUnicastIpAddressEntry function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry)
-func (wtua *wtMibUnicastipaddressRow) delete() error {
-
-	result := deleteUnicastIpAddressEntry(wtua)
-
-	if result == 0 {
-		return nil
-	} else {
-		return os.NewSyscallError("iphlpapi.DeleteUnicastIpAddressEntry", windows.Errno(result))
-	}
 }
 
 func (wtua *wtMibUnicastipaddressRow) equal(other *wtMibUnicastipaddressRow) bool {

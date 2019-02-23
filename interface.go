@@ -177,16 +177,11 @@ func (ifc *Interface) Refresh() error {
 	return nil
 }
 
-// Returns IpInterface struct that corresponds to the interface. Argument 'family' has to be either AF_INET or AF_INET6.
+// Returns IpInterface struct that corresponds to the interface. Corresponds to GetIpInterfaceEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry).
+// Argument 'family' has to be either AF_INET or AF_INET6.
 func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error) {
-
-	row, err := getWtMibIpinterfaceRow(ifc.Luid, family)
-
-	if err != nil {
-		return nil, err
-	} else {
-		return row.toIpInterface(), nil
-	}
+	return GetIpInterface(ifc.Luid, family)
 }
 
 // Returns IfRow struct that corresponds to the interface. Based on GetIfEntry2Ex function
@@ -245,10 +240,11 @@ func (ifc *Interface) FlushAddresses() error {
 // Adds new unicast IP address to the interface. Corresponds to CreateUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
 func (ifc *Interface) AddAddress(address *net.IPNet) error {
-	return addWtMibUnicastipaddressRow(ifc, address)
+	return addWtMibUnicastipaddressRow(ifc.Luid, address)
 }
 
-// Adds multiple new unicast IP addresses to the interface.
+// Adds multiple new unicast IP addresses to the interface. Corresponds to CreateUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
 func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 
 	if ifc == nil {
@@ -258,7 +254,7 @@ func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 	for _, ipnet := range addresses {
 		if ipnet != nil {
 
-			err := addWtMibUnicastipaddressRow(ifc, ipnet)
+			err := addWtMibUnicastipaddressRow(ifc.Luid, ipnet)
 
 			if err != nil {
 				return err

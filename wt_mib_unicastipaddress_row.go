@@ -124,6 +124,8 @@ func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow,
 	return nil, nil
 }
 
+// Corresponds to CreateUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry)
 func addWtMibUnicastipaddressRow(ifc *Interface, ipnet *net.IPNet) error {
 
 	if ifc == nil || ipnet == nil {
@@ -140,16 +142,12 @@ func addWtMibUnicastipaddressRow(ifc *Interface, ipnet *net.IPNet) error {
 
 	_ = initializeUnicastIpAddressEntry(&row)
 
-	//fmt.Printf("wtMibUnicastipaddressRow initialized to:\n%s\n", row.String())
-
 	ones, _ := ipnet.Mask.Size()
 
 	row.InterfaceLuid = ifc.Luid
 	row.InterfaceIndex = ifc.Index
 	row.Address = *wtsa
 	row.OnLinkPrefixLength = uint8(ones)
-
-	//fmt.Printf("wtMibUnicastipaddressRow to add:\n%s\n", row.String())
 
 	result := createUnicastIpAddressEntry(&row)
 
@@ -160,11 +158,9 @@ func addWtMibUnicastipaddressRow(ifc *Interface, ipnet *net.IPNet) error {
 	}
 }
 
+// Corresponds to DeleteUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry)
 func (wtua *wtMibUnicastipaddressRow) delete() error {
-
-	if wtua == nil {
-		return fmt.Errorf("wtMibUnicastipaddressRow.delete() - input argument is nil")
-	}
 
 	result := deleteUnicastIpAddressEntry(wtua)
 

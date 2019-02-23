@@ -220,10 +220,6 @@ func (ifc *Interface) GetUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, 
 // Deletes all interface's unicast IP addresses.
 func (ifc *Interface) FlushAddresses() error {
 
-	if ifc == nil {
-		return fmt.Errorf("Interface.FlushAddresses() - input argument is nil")
-	}
-
 	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
 
 	if err != nil {
@@ -246,7 +242,13 @@ func (ifc *Interface) FlushAddresses() error {
 	return nil
 }
 
-// Adds new unicast IP addresses to the interface.
+// Adds new unicast IP address to the interface. Corresponds to CreateUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
+func (ifc *Interface) AddAddress(address *net.IPNet) error {
+	return addWtMibUnicastipaddressRow(ifc, address)
+}
+
+// Adds multiple new unicast IP addresses to the interface.
 func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 
 	if ifc == nil {
@@ -287,13 +289,9 @@ func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 	return nil
 }
 
-// Deletes interface's unicast IP address.
+// Deletes interface's unicast IP address. Corresponds to DeleteUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
 func (ifc *Interface) DeleteAddress(ip *net.IP) error {
-
-	if ifc == nil {
-		// Here we need to panic because ifc == nil have another meaning in getMatchingWtMibUnicastipaddressRow function.
-		panic("Interface.FindRoute() - receiver argument is nil")
-	}
 
 	addr, err := getWtMibUnicastipaddressRow(ifc.Luid, ip)
 

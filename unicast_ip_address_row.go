@@ -11,7 +11,7 @@ import (
 )
 
 // Corresponds to MIB_UNICASTIPADDRESS_ROW defined in netioapi.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_unicastipaddress_row)
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_unicastipaddress_row).
 type UnicastIpAddressRow struct {
 	Address            *SockaddrInet
 	InterfaceLuid      uint64
@@ -69,6 +69,16 @@ func (address *UnicastIpAddressRow) toWtMibUnicastipaddressRow() (*wtMibUnicasti
 	}, nil
 }
 
+func (address *UnicastIpAddressRow) copyChangeableFieldsTo(row *wtMibUnicastipaddressRow) {
+
+	row.PrefixOrigin = address.PrefixOrigin
+	row.SuffixOrigin = address.SuffixOrigin
+	row.ValidLifetime = address.ValidLifetime
+	row.PreferredLifetime = address.PreferredLifetime
+	row.OnLinkPrefixLength = address.OnLinkPrefixLength
+	row.SkipAsSource = boolToUint8(address.SkipAsSource)
+}
+
 // Returns all unicast IP addresses assigned to any interface. Corresponds to GetUnicastIpAddressTable function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable).
 func GetUnicastAddresses(family AddressFamily) ([]*UnicastIpAddressRow, error) {
@@ -112,6 +122,26 @@ func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 	}
 }
 
+// Adds new unicast IP address to the system. Similar to Interface.AddAddress() method, but allows setting more options.
+// Besides raw IP that can be set by using Interface.AddAddress(), here all "changeable" fields (see
+// UnicastIpAddressRow.Set() method for more details) of the input UnicastIpAddressRow struct will also have effect.
+func (address *UnicastIpAddressRow) Add() error{
+
+	wtsainet, err := address.Address.toWtSockaddrInet()
+
+	if err != nil {
+		return err
+	}
+
+	row := getInitializedWtMibUnicastipaddressRow(address.InterfaceLuid)
+
+	row.Address = *wtsainet
+
+	address.copyChangeableFieldsTo(row)
+
+	return row.add()
+}
+
 // Saves (activates) modified UnicastIpAddressRow. Corresponds to SetUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setunicastipaddressentry).
 //
@@ -132,12 +162,7 @@ func (address *UnicastIpAddressRow) Set() error {
 		return err
 	}
 
-	old.PrefixOrigin = address.PrefixOrigin
-	old.SuffixOrigin = address.SuffixOrigin
-	old.ValidLifetime = address.ValidLifetime
-	old.PreferredLifetime = address.PreferredLifetime
-	old.OnLinkPrefixLength = address.OnLinkPrefixLength
-	old.SkipAsSource = boolToUint8(address.SkipAsSource)
+	address.copyChangeableFieldsTo(old)
 
 	return old.set()
 }

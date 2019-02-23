@@ -8,7 +8,7 @@ package winipcfg
 import "fmt"
 
 // Corresponds to Windows struct MIB_IPINTERFACE_ROW
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipinterface_row)
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipinterface_row).
 type IpInterface struct {
 	//
 	// Key Structure;

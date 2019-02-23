@@ -79,27 +79,43 @@ func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow,
 	return nil, nil
 }
 
-// Corresponds to CreateUnicastIpAddressEntry function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry)
-func addWtMibUnicastipaddressRow(interfaceLuid uint64, ipnet *net.IPNet) error {
-
-	wtsa, err := createWtSockaddrInet(&ipnet.IP, 0)
-
-	if err != nil {
-		return err
-	}
+// Uses InitializeUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeunicastipaddressentry).
+func getInitializedWtMibUnicastipaddressRow(interfaceLuid uint64) *wtMibUnicastipaddressRow {
 
 	row := wtMibUnicastipaddressRow{InterfaceLuid:interfaceLuid}
 
 	_ = initializeUnicastIpAddressEntry(&row)
 
+	row.InterfaceLuid = interfaceLuid
+
+	return &row
+}
+
+func createAndAddWtMibUnicastipaddressRow(interfaceLuid uint64, ipnet *net.IPNet) error {
+
+	wtsainet, err := createWtSockaddrInet(&ipnet.IP, 0)
+
+	if err != nil {
+		return err
+	}
+
+	row := getInitializedWtMibUnicastipaddressRow(interfaceLuid)
+
+	row.Address = *wtsainet
+
 	ones, _ := ipnet.Mask.Size()
 
-	row.InterfaceLuid = interfaceLuid
-	row.Address = *wtsa
 	row.OnLinkPrefixLength = uint8(ones)
 
-	result := createUnicastIpAddressEntry(&row)
+	return row.add()
+}
+
+// Uses CreateUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry)
+func (row *wtMibUnicastipaddressRow) add() error {
+
+	result := createUnicastIpAddressEntry(row)
 
 	if result == 0 {
 		return nil

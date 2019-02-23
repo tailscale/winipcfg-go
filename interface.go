@@ -240,7 +240,7 @@ func (ifc *Interface) FlushAddresses() error {
 // Adds new unicast IP address to the interface. Corresponds to CreateUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
 func (ifc *Interface) AddAddress(address *net.IPNet) error {
-	return addWtMibUnicastipaddressRow(ifc.Luid, address)
+	return createAndAddWtMibUnicastipaddressRow(ifc.Luid, address)
 }
 
 // Adds multiple new unicast IP addresses to the interface. Corresponds to CreateUnicastIpAddressEntry function
@@ -250,7 +250,7 @@ func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 	for _, ipnet := range addresses {
 		if ipnet != nil {
 
-			err := addWtMibUnicastipaddressRow(ifc.Luid, ipnet)
+			err := createAndAddWtMibUnicastipaddressRow(ifc.Luid, ipnet)
 
 			if err != nil {
 				return err
@@ -300,6 +300,8 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 	return err
 }
 
+// Returns all the interface's routes. Corresponds to GetIpForwardTable2 function, but filtered by interface.
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2)
 func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
 	return getRoutes(ifc.Luid, family)
 }
@@ -332,6 +334,8 @@ func (ifc *Interface) FlushRoutes() error {
 }
 
 // Adds route. Note that routeData can be changed if splitting takes place.
+// Corresponds to CreateIpForwardEntry2 function, with added splitDefault feature.
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2)
 func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
 	if splitDefault {
@@ -359,7 +363,7 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 					// It is 0::/0, so we should split
 					routeData.Destination.Mask = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 0::/1
 
-					err := addWtMibIpforwardRow2(ifc, routeData)
+					err := createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 
 					if err != nil {
 						return err
@@ -367,7 +371,7 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
 					routeData.Destination.IP = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 8000::/1
 
-					return addWtMibIpforwardRow2(ifc, routeData)
+					return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 				}
 
 			} else {
@@ -376,7 +380,7 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 					// It is 0.0.0.0/0, so we should split
 					routeData.Destination.Mask = []byte{128, 0, 0, 0} // It's now 0.0.0.0/1
 
-					err := addWtMibIpforwardRow2(ifc, routeData)
+					err := createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 
 					if err != nil {
 						return err
@@ -384,13 +388,13 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
 					routeData.Destination.IP = []byte{128, 0, 0, 0} // It's now 128.0.0.0/1
 
-					return addWtMibIpforwardRow2(ifc, routeData)
+					return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 				}
 			}
 		}
 	}
 
-	return addWtMibIpforwardRow2(ifc, routeData)
+	return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 }
 
 func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) error {
@@ -418,6 +422,8 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) erro
 	return ifc.AddRoutes(routesData, splitDefault)
 }
 
+// Deletes a route that matches the criteria. Corresponds to DeleteIpForwardEntry2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2).
 func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 
 	row, err := findWtMibIpforwardRow2(ifc.Luid, destination)

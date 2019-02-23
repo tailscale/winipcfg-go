@@ -10,6 +10,8 @@ import (
 	"net"
 )
 
+// Corresponds to MIB_IPFORWARD_ROW2 defined in netioapi.h
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipforward_row2).
 type Route struct {
 	InterfaceLuid        uint64
 	InterfaceIndex       uint32
@@ -54,10 +56,6 @@ func getRoutes(interfaceLuid uint64, family AddressFamily) ([]*Route, error) {
 	return routes, nil
 }
 
-func FindRoute(destination *net.IPNet) (*Route, error) {
-	return findRoute(0, destination)
-}
-
 func findRoute(interfaceLuid uint64, destination *net.IPNet) (*Route, error) {
 
 	row, err := findWtMibIpforwardRow2(interfaceLuid, destination)
@@ -79,6 +77,16 @@ func findRoute(interfaceLuid uint64, destination *net.IPNet) (*Route, error) {
 	}
 }
 
+func FindRoute(destination *net.IPNet) (*Route, error) {
+	return findRoute(0, destination)
+}
+
+//func (route *Route) Add() error {
+//
+//}
+
+// Returns all the routes. Corresponds to GetIpForwardTable2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2).
 func GetRoutes(family AddressFamily) ([]*Route, error) {
 	return getRoutes(0, family)
 }

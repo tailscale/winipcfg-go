@@ -69,8 +69,8 @@ type IfRow struct {
 	OutQLen            uint64
 }
 
-// Equivalent to GetIfEntry2Ex function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex)
+// Returns IfRow struct with specified InterfaceLuid. Corresponds to GetIfEntry2Ex function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex).
 func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 
 	row, err := getWtMibIfRow(interfaceLuid, level)
@@ -82,8 +82,8 @@ func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 	}
 }
 
-// Equivalent to GetIfTable2Ex function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex)
+// Returns all IfRow structs found in the system. Corresponds to GetIfTable2Ex function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex).
 func GetIfRows(level MibIfEntryLevel) ([]*IfRow, error) {
 
 	rows, err := getWtMibIfRow2s(level)

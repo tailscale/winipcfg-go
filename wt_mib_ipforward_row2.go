@@ -103,7 +103,20 @@ func findWtMibIpforwardRow2(interfaceLuid uint64, destination *net.IPNet) (*wtMi
 	return nil, nil
 }
 
-func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
+// Uses InitializeIpForwardEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeipforwardentry).
+func getInitializedWtMibIpforwardRow2(interfaceLuid uint64) *wtMibIpforwardRow2 {
+
+	row := wtMibIpforwardRow2{InterfaceLuid: interfaceLuid}
+
+	_ = initializeIpForwardEntry(&row)
+
+	row.InterfaceLuid = interfaceLuid
+
+	return &row
+}
+
+func createAndAddWtMibIpforwardRow2(interfaceLuid uint64, routeData *RouteData) error {
 
 	wtdest, err := createWtIpAddressPrefix(&routeData.Destination)
 
@@ -117,25 +130,30 @@ func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 		return err
 	}
 
-	row := wtMibIpforwardRow2{}
+	row := getInitializedWtMibIpforwardRow2(interfaceLuid)
 
-	_ = initializeIpForwardEntry(&row)
-
-	row.InterfaceLuid = ifc.Luid
-	row.InterfaceIndex = ifc.Index
 	row.DestinationPrefix = *wtdest
 	row.NextHop = *wtsaNextHop
 	row.Metric = routeData.Metric
 
-	result := createIpForwardEntry2(&row)
+	return row.add()
+}
+
+// Uses CreateIpForwardEntry2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2).
+func (r *wtMibIpforwardRow2) add() error {
+
+	result := createIpForwardEntry2(r)
 
 	if result == 0 {
 		return nil
 	} else {
-		return os.NewSyscallError("iphlpapi.createIpForwardEntry2", windows.Errno(result))
+		return os.NewSyscallError("iphlpapi.CreateIpForwardEntry2", windows.Errno(result))
 	}
 }
 
+// Corresponds to DeleteIpForwardEntry2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2).
 func (r *wtMibIpforwardRow2) delete() error {
 
 	result := deleteIpForwardEntry2(r)

@@ -28,9 +28,9 @@ type Route struct {
 	Origin               NlRouteOrigin
 }
 
-func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
+func getRoutes(interfaceLuid uint64, family AddressFamily) ([]*Route, error) {
 
-	rows, err := getWtMibIpforwardRow2s(family, ifc)
+	rows, err := getWtMibIpforwardRow2s(interfaceLuid, family)
 
 	if err != nil {
 		return nil, err
@@ -55,21 +55,12 @@ func getRoutes(family AddressFamily, ifc *Interface) ([]*Route, error) {
 }
 
 func FindRoute(destination *net.IPNet) (*Route, error) {
-
-	if destination == nil {
-		return nil, fmt.Errorf("FindRoute() - 'destination' input argument is nil")
-	}
-
-	return findRoute(destination, nil)
+	return findRoute(0, destination)
 }
 
-func findRoute(destination *net.IPNet, ifc *Interface) (*Route, error) {
+func findRoute(interfaceLuid uint64, destination *net.IPNet) (*Route, error) {
 
-	if destination == nil {
-		return nil, fmt.Errorf("findRoute() - 'destination' input argument is nil")
-	}
-
-	row, err := findWtMibIpforwardRow2(destination, ifc)
+	row, err := findWtMibIpforwardRow2(interfaceLuid, destination)
 
 	if err != nil {
 		return nil, err
@@ -89,7 +80,7 @@ func findRoute(destination *net.IPNet, ifc *Interface) (*Route, error) {
 }
 
 func GetRoutes(family AddressFamily) ([]*Route, error) {
-	return getRoutes(family, nil)
+	return getRoutes(0, family)
 }
 
 func (r *Route) String() string {

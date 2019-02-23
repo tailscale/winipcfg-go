@@ -45,7 +45,9 @@ type wtMibIpforwardRow2 struct {
 	Origin NlRouteOrigin
 }
 
-func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]wtMibIpforwardRow2, error) {
+// When interfaceLuid == 0, corresponds to GetIpForwardTable2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2).
+func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]wtMibIpforwardRow2, error) {
 
 	var pTable *wtMibIpforwardTable2 = nil
 
@@ -59,7 +61,11 @@ func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]wtMibIpforw
 		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
 	}
 
-	rows := make([]wtMibIpforwardRow2, 0)
+	var rows []wtMibIpforwardRow2;
+
+	if interfaceLuid == 0 {
+		rows = make([]wtMibIpforwardRow2, pTable.NumEntries, pTable.NumEntries)
+	}
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
@@ -68,7 +74,9 @@ func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]wtMibIpforw
 
 		row := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 
-		if ifc == nil || row.InterfaceLuid == ifc.Luid {
+		if interfaceLuid == 0 {
+			rows[i] = *row
+		} else if row.InterfaceLuid == interfaceLuid {
 			rows = append(rows, *row)
 		}
 	}
@@ -76,13 +84,9 @@ func getWtMibIpforwardRow2s(family AddressFamily, ifc *Interface) ([]wtMibIpforw
 	return rows, nil
 }
 
-func findWtMibIpforwardRow2(destination *net.IPNet, ifc *Interface) (*wtMibIpforwardRow2, error) {
+func findWtMibIpforwardRow2(interfaceLuid uint64, destination *net.IPNet) (*wtMibIpforwardRow2, error) {
 
-	if destination == nil {
-		return nil, fmt.Errorf("findWtMibIpforwardRow2() - input argument 'destination' is nil")
-	}
-
-	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
+	rows, err := getWtMibIpforwardRow2s(interfaceLuid, AF_UNSPEC)
 
 	if err != nil {
 		return nil, err

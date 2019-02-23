@@ -45,10 +45,6 @@ func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddress
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry)
 func getWtMibUnicastipaddressRow(interfaceLuid uint64, ip *net.IP) (*wtMibUnicastipaddressRow, error) {
 
-	if ip == nil {
-		return nil, fmt.Errorf("getWtMibUnicastipaddressRow() - input argument 'ip' is nil")
-	}
-
 	wtsainet, err := createWtSockaddrInet(ip, 0)
 
 	if err != nil {
@@ -86,10 +82,6 @@ func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow,
 // Corresponds to CreateUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry)
 func addWtMibUnicastipaddressRow(interfaceLuid uint64, ipnet *net.IPNet) error {
-
-	if ipnet == nil {
-		return fmt.Errorf("addWtMibUnicastipaddressRow() - some of the input arguments is nil")
-	}
 
 	wtsa, err := createWtSockaddrInet(&ipnet.IP, 0)
 

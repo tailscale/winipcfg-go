@@ -247,10 +247,6 @@ func (ifc *Interface) AddAddress(address *net.IPNet) error {
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
 func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 
-	if ifc == nil {
-		return fmt.Errorf("Interface.AddAddresses() - input argument is nil")
-	}
-
 	for _, ipnet := range addresses {
 		if ipnet != nil {
 
@@ -305,21 +301,11 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 }
 
 func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
-	return getRoutes(family, ifc)
+	return getRoutes(ifc.Luid, family)
 }
 
 func (ifc *Interface) FindRoute(destination *net.IPNet) (*Route, error) {
-
-	if ifc == nil {
-		// Here we need to panic because ifc == nil have another meaning in findRoute function.
-		panic("Interface.FindRoute() - receiver argument is nil")
-	}
-
-	if destination == nil {
-		return nil, fmt.Errorf("Interface.FindRoute() - 'destination' input argument is nil")
-	}
-
-	return findRoute(destination, ifc)
+	return findRoute(ifc.Luid, destination)
 }
 
 // splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
@@ -327,12 +313,7 @@ func (ifc *Interface) FindRoute(destination *net.IPNet) (*Route, error) {
 
 func (ifc *Interface) FlushRoutes() error {
 
-	if ifc == nil {
-		// Here we need to panic because ifc == nil have another meaning in getWtMibIpforwardRow2s function.
-		panic("Interface.FlushRoutes() - receiver argument is nil")
-	}
-
-	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
+	rows, err := getWtMibIpforwardRow2s(ifc.Luid, AF_UNSPEC)
 
 	if err != nil {
 		return err
@@ -443,22 +424,11 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) erro
 
 func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 
-	if ifc == nil {
-		// Here we need to panic because ifc == nil have another meaning in findWtMibIpforwardRow2 function.
-		panic("Interface.DeleteRoute() - receiver argument is nil")
-	}
-
-	if destination == nil {
-		return fmt.Errorf("Interface.DeleteRoute() - 'destination' input argument is nil")
-	}
-
-	row, err := findWtMibIpforwardRow2(destination, ifc)
+	row, err := findWtMibIpforwardRow2(ifc.Luid, destination)
 
 	if err != nil {
 		return err
-	}
-
-	if row == nil {
+	} else if row == nil {
 		return fmt.Errorf("Interface.DeleteRoute() - matching route not found")
 	} else {
 		return row.delete()

@@ -109,19 +109,11 @@ func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 
 	if err != nil {
 		return nil, err
-	}
-
-	if row == nil {
+	} else if row == nil {
 		return nil, nil
+	} else {
+		return row.toUnicastIpAddressRow()
 	}
-
-	uad, err := row.toUnicastIpAddressRow()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return uad, nil
 }
 
 // Saves (activates) modified UnicastIpAddressRow. Corresponds to SetUnicastIpAddressEntry function

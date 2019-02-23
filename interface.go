@@ -195,36 +195,6 @@ func (ifc *Interface) GetIfRow(level MibIfEntryLevel) (*IfRow, error) {
 	return GetIfRow(ifc.Luid, level)
 }
 
-// Returns UnicastIpAddressRow struct that matches to provided 'ip' argument, or nil if the interface does not have such
-// IP address assigned.
-func (ifc *Interface) GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
-
-	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetMatchingUnicastIpAddressRow() - receiver Interface argument is nil")
-	}
-
-	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for _, wta := range wtas {
-		if wta.InterfaceLuid == ifc.Luid && wta.Address.matches(ip) {
-
-			address, err := wta.toUnicastIpAddressRow()
-
-			if err == nil {
-				return address, nil
-			} else {
-				return nil, err
-			}
-		}
-	}
-
-	return nil, err
-}
-
 // TODO: Check interfaceTable method from 'net' module, interface_windows.go file - it may be useful...
 
 //// Sets up the interface to be totally blank, with no settings. If the user has
@@ -233,6 +203,19 @@ func (ifc *Interface) GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddr
 //func (iface *Interface) FlushInterface() error
 
 // Flush removes all, Add adds, Set flushes then adds.
+
+// Returns UnicastIpAddressRow struct that matches to provided 'ip' argument. Corresponds to GetUnicastIpAddressEntry
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry)
+func (ifc *Interface) GetUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
+
+	row, err := getWtMibUnicastipaddressRow(ifc.Luid, ip)
+
+	if err == nil {
+		return row.toUnicastIpAddressRow()
+	} else {
+		return nil, err
+	}
+}
 
 // Deletes all interface's unicast IP addresses.
 func (ifc *Interface) FlushAddresses() error {
@@ -316,14 +299,10 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 		panic("Interface.FindRoute() - receiver argument is nil")
 	}
 
-	addr, err := getMatchingWtMibUnicastipaddressRow(ifc, ip)
+	addr, err := getWtMibUnicastipaddressRow(ifc.Luid, ip)
 
 	if err != nil {
 		return err
-	}
-
-	if addr == nil {
-		return fmt.Errorf("address not found")
 	}
 
 	err = addr.delete()

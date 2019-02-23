@@ -200,16 +200,14 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 		return
 	}
 
-	addr, err := ifc.GetMatchingUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
+	addr, err := ifc.GetUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
 
-	if err != nil {
-		t.Errorf("Interface.GetMatchingUnicastIpAddressRow() returned an error: %v", err)
-		return
-	}
-
-	if addr != nil {
+	if err == nil {
 		t.Errorf("Unicast address %s already exists. Please set unexistentIpAddresToAdd appropriately.",
 			unexistentIpAddresToAdd.IP.String())
+		return
+	} else if err.Error() != "iphlpapi.GetUnicastIpAddressEntry: Element not found." {
+		t.Errorf("Interface.GetUnicastIpAddressRow() returned an error: %v", err)
 		return
 	}
 
@@ -237,10 +235,10 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 			len(ifc.UnicastAddresses))
 	}
 
-	addr, err = ifc.GetMatchingUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
+	addr, err = ifc.GetUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
-		t.Errorf("Interface.GetMatchingUnicastIpAddressRow() returned an error: %v", err)
+		t.Errorf("Interface.GetUnicastIpAddressRow() returned an error: %v", err)
 	} else if addr == nil {
 		t.Errorf("Unicast address %s still doesn't exist, although it's added successfully.",
 			unexistentIpAddresToAdd.IP.String())
@@ -255,13 +253,14 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
 
-	addr, err = ifc.GetMatchingUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
+	addr, err = ifc.GetUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
 
-	if err != nil {
-		t.Errorf("Interface.GetMatchingUnicastIpAddressRow() returned an error: %v", err)
-	} else if addr != nil {
+	if err == nil {
 		t.Errorf("Unicast address %s still exists, although it's deleted successfully.",
 			unexistentIpAddresToAdd.IP.String())
+	} else if err.Error() != "iphlpapi.GetUnicastIpAddressEntry: Element not found." {
+		t.Errorf("Interface.GetUnicastIpAddressRow() returned an error: %v", err)
+		return
 	}
 }
 

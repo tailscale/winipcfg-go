@@ -41,6 +41,31 @@ func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddress
 	return addresses, nil
 }
 
+// Corresponds to GetUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry)
+func getWtMibUnicastipaddressRow(interfaceLuid uint64, ip *net.IP) (*wtMibUnicastipaddressRow, error) {
+
+	if ip == nil {
+		return nil, fmt.Errorf("getWtMibUnicastipaddressRow() - input argument 'ip' is nil")
+	}
+
+	wtsainet, err := createWtSockaddrInet(ip, 0)
+
+	if err != nil {
+		return nil, err
+	}
+
+	row := wtMibUnicastipaddressRow{Address: *wtsainet, InterfaceLuid: interfaceLuid}
+
+	result := getUnicastIpAddressEntry(&row)
+
+	if result == 0 {
+		return &row, nil
+	} else {
+		return nil, os.NewSyscallError("iphlpapi.GetUnicastIpAddressEntry", windows.Errno(result))
+	}
+}
+
 func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddressRow, error) {
 
 	if wtua == nil {
@@ -69,7 +94,7 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddress
 	}, nil
 }
 
-func getMatchingWtMibUnicastipaddressRow(ifc *Interface, ip *net.IP) (*wtMibUnicastipaddressRow, error) {
+func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow, error) {
 
 	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
 
@@ -78,7 +103,7 @@ func getMatchingWtMibUnicastipaddressRow(ifc *Interface, ip *net.IP) (*wtMibUnic
 	}
 
 	for _, wta := range wtas {
-		if (ifc == nil || wta.InterfaceLuid == ifc.Luid) && wta.Address.matches(ip) {
+		if wta.Address.matches(ip) {
 			return &wta, nil
 		}
 	}

@@ -105,7 +105,7 @@ func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 		return nil, fmt.Errorf("GetMatchingUnicastIpAddressRow() - input ip is nil")
 	}
 
-	row, err := getMatchingWtMibUnicastipaddressRow(nil, ip)
+	row, err := getMatchingWtMibUnicastipaddressRow(ip)
 
 	if err != nil {
 		return nil, err

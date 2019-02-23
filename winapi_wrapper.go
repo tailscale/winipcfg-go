@@ -28,10 +28,13 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex
 //sys	getIfTable2Ex(Level MibIfEntryLevel, Table unsafe.Pointer) (result int32) = iphlpapi.GetIfTable2Ex
 
-// IP address - related functions
+// Unicast IP address - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable
 //sys	getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetUnicastIpAddressTable
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry
+//sys	getUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.GetUnicastIpAddressEntry
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeunicastipaddressentry
 //sys	initializeUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.InitializeUnicastIpAddressEntry

@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const ifRow_print = true
+const ifRow_print = false
 
 func TestGetIfRow(t *testing.T) {
 

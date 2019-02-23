@@ -69,8 +69,8 @@ func (address *UnicastIpAddressRow) toWtMibUnicastipaddressRow() (*wtMibUnicasti
 	}, nil
 }
 
-// Corresponds to GetUnicastIpAddressTable function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable)
+// Returns all unicast IP addresses assigned to any interface. Corresponds to GetUnicastIpAddressTable function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable).
 func GetUnicastAddresses(family AddressFamily) ([]*UnicastIpAddressRow, error) {
 
 	wtas, err := getWtMibUnicastipaddressRows(family)
@@ -97,6 +97,8 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastIpAddressRow, error) {
 	return addresses, nil
 }
 
+// Returns UnicastIpAddressRow struct that matches to provided 'ip' argument, or nil if no such unicast address is found
+// on the system.
 func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 
 	if ip == nil {
@@ -122,6 +124,7 @@ func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 	return uad, nil
 }
 
+// Deletes unicast IP address from the system.
 func (address *UnicastIpAddressRow) Delete() error {
 
 	if address.Address == nil {

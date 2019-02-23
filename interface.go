@@ -177,8 +177,7 @@ func (ifc *Interface) Refresh() error {
 	return nil
 }
 
-// Returns corresponding IpInterface.
-// Argument 'family' has to be either AF_INET or AF_INET6.
+// Returns IpInterface struct that corresponds to the interface. Argument 'family' has to be either AF_INET or AF_INET6.
 func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error) {
 
 	row, err := getWtMibIpinterfaceRow(ifc.Luid, family)
@@ -190,12 +189,14 @@ func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error)
 	}
 }
 
-// Returns corresponding IfRow. Based on GetIfEntry2Ex function
-// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex)
+// Returns IfRow struct that corresponds to the interface. Based on GetIfEntry2Ex function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex).
 func (ifc *Interface) GetIfRow(level MibIfEntryLevel) (*IfRow, error) {
 	return GetIfRow(ifc.Luid, level)
 }
 
+// Returns UnicastIpAddressRow struct that matches to provided 'ip' argument, or nil if the interface does not have such
+// IP address assigned.
 func (ifc *Interface) GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 
 	if ifc == nil {
@@ -233,7 +234,7 @@ func (ifc *Interface) GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddr
 
 // Flush removes all, Add adds, Set flushes then adds.
 
-// Deletes all interface's unicast addresses.
+// Deletes all interface's unicast IP addresses.
 func (ifc *Interface) FlushAddresses() error {
 
 	if ifc == nil {
@@ -262,6 +263,7 @@ func (ifc *Interface) FlushAddresses() error {
 	return nil
 }
 
+// Adds new unicast IP addresses to the interface.
 func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 
 	if ifc == nil {
@@ -284,6 +286,7 @@ func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 	return nil
 }
 
+// Sets interface's unicast IP addresses.
 func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 
 	if ifc == nil {
@@ -305,6 +308,7 @@ func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 	return nil
 }
 
+// Deletes interface's unicast IP address.
 func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 
 	if ifc == nil {

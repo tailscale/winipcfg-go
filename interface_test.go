@@ -200,10 +200,10 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 		return
 	}
 
-	addr, err := ifc.GetMatchingUnicastAddressData(&unexistentIpAddresToAdd.IP)
+	addr, err := ifc.GetMatchingUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
-		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
+		t.Errorf("Interface.GetMatchingUnicastIpAddressRow() returned an error: %v", err)
 		return
 	}
 
@@ -237,10 +237,10 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 			len(ifc.UnicastAddresses))
 	}
 
-	addr, err = ifc.GetMatchingUnicastAddressData(&unexistentIpAddresToAdd.IP)
+	addr, err = ifc.GetMatchingUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
-		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
+		t.Errorf("Interface.GetMatchingUnicastIpAddressRow() returned an error: %v", err)
 	} else if addr == nil {
 		t.Errorf("Unicast address %s still doesn't exist, although it's added successfully.",
 			unexistentIpAddresToAdd.IP.String())
@@ -255,10 +255,10 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
 
-	addr, err = ifc.GetMatchingUnicastAddressData(&unexistentIpAddresToAdd.IP)
+	addr, err = ifc.GetMatchingUnicastIpAddressRow(&unexistentIpAddresToAdd.IP)
 
 	if err != nil {
-		t.Errorf("Interface.GetMatchingUnicastAddressData() returned an error: %v", err)
+		t.Errorf("Interface.GetMatchingUnicastIpAddressRow() returned an error: %v", err)
 	} else if addr != nil {
 		t.Errorf("Unicast address %s still exists, although it's deleted successfully.",
 			unexistentIpAddresToAdd.IP.String())

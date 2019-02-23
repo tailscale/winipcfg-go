@@ -10,7 +10,9 @@ import (
 	"net"
 )
 
-type UnicastAddressData struct {
+// Corresponds to MIB_UNICASTIPADDRESS_ROW defined in netioapi.h
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_unicastipaddress_row)
+type UnicastIpAddressRow struct {
 	Address            *SockaddrInet
 	InterfaceLuid      uint64
 	InterfaceIndex     uint32
@@ -25,7 +27,7 @@ type UnicastAddressData struct {
 	CreationTimeStamp  int64
 }
 
-func (address *UnicastAddressData) equal(other *UnicastAddressData) bool {
+func (address *UnicastIpAddressRow) equal(other *UnicastIpAddressRow) bool {
 
 	if address == nil || other == nil {
 		return false
@@ -39,7 +41,7 @@ func (address *UnicastAddressData) equal(other *UnicastAddressData) bool {
 		address.CreationTimeStamp == other.CreationTimeStamp && address.Address.equal(other.Address)
 }
 
-func (address *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastipaddressRow, error) {
+func (address *UnicastIpAddressRow) toWtMibUnicastipaddressRow() (*wtMibUnicastipaddressRow, error) {
 
 	if address == nil {
 		return nil, nil
@@ -69,7 +71,7 @@ func (address *UnicastAddressData) toWtMibUnicastipaddressRow() (*wtMibUnicastip
 
 // Corresponds to GetUnicastIpAddressTable function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable)
-func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
+func GetUnicastAddresses(family AddressFamily) ([]*UnicastIpAddressRow, error) {
 
 	wtas, err := getWtMibUnicastipaddressRows(family)
 
@@ -79,11 +81,11 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 
 	count := len(wtas)
 
-	addresses := make([]*UnicastAddressData, count, count)
+	addresses := make([]*UnicastIpAddressRow, count, count)
 
 	for idx, wta := range wtas {
 
-		address, err := wta.toUnicastAddressData()
+		address, err := wta.toUnicastIpAddressRow()
 
 		if err != nil {
 			return nil, err
@@ -95,13 +97,13 @@ func GetUnicastAddresses(family AddressFamily) ([]*UnicastAddressData, error) {
 	return addresses, nil
 }
 
-func GetMatchingUnicastAddressData(interfaceLuid uint64, ip *net.IP) (*UnicastAddressData, error) {
+func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 
 	if ip == nil {
-		return nil, fmt.Errorf("GetMatchingUnicastAddressData() - input ip is nil")
+		return nil, fmt.Errorf("GetMatchingUnicastIpAddressRow() - input ip is nil")
 	}
 
-	row, err := getMatchingWtMibUnicastipaddressRow(interfaceLuid, ip)
+	row, err := getMatchingWtMibUnicastipaddressRow(nil, ip)
 
 	if err != nil {
 		return nil, err
@@ -111,7 +113,7 @@ func GetMatchingUnicastAddressData(interfaceLuid uint64, ip *net.IP) (*UnicastAd
 		return nil, nil
 	}
 
-	uad, err := row.toUnicastAddressData()
+	uad, err := row.toUnicastIpAddressRow()
 
 	if err != nil {
 		return nil, err
@@ -120,10 +122,10 @@ func GetMatchingUnicastAddressData(interfaceLuid uint64, ip *net.IP) (*UnicastAd
 	return uad, nil
 }
 
-func (address *UnicastAddressData) Delete() error {
+func (address *UnicastIpAddressRow) Delete() error {
 
 	if address.Address == nil {
-		return fmt.Errorf("UnicastAddressData.Delete() - receiver argument or its Address field is nil")
+		return fmt.Errorf("UnicastIpAddressRow.Delete() - receiver argument or its Address field is nil")
 	}
 
 	wta, err := address.toWtMibUnicastipaddressRow()
@@ -144,10 +146,10 @@ func (address *UnicastAddressData) Delete() error {
 		}
 	}
 
-	return fmt.Errorf("UnicastAddressData.Delete() - address not found")
+	return fmt.Errorf("UnicastIpAddressRow.Delete() - address not found")
 }
 
-func (address *UnicastAddressData) String() string {
+func (address *UnicastIpAddressRow) String() string {
 
 	if address == nil {
 		return "<nil>"

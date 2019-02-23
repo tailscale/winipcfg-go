@@ -41,7 +41,7 @@ func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddress
 	return addresses, nil
 }
 
-func (wtua *wtMibUnicastipaddressRow) toUnicastAddressData() (*UnicastAddressData, error) {
+func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddressRow, error) {
 
 	if wtua == nil {
 		return nil, nil
@@ -53,7 +53,7 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastAddressData() (*UnicastAddressDat
 		return nil, err
 	}
 
-	return &UnicastAddressData{
+	return &UnicastIpAddressRow{
 		Address:            sai,
 		InterfaceLuid:      wtua.InterfaceLuid,
 		InterfaceIndex:     wtua.InterfaceIndex,
@@ -69,7 +69,7 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastAddressData() (*UnicastAddressDat
 	}, nil
 }
 
-func getMatchingWtMibUnicastipaddressRow(luid uint64, ip *net.IP) (*wtMibUnicastipaddressRow, error) {
+func getMatchingWtMibUnicastipaddressRow(ifc *Interface, ip *net.IP) (*wtMibUnicastipaddressRow, error) {
 
 	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
 
@@ -78,7 +78,7 @@ func getMatchingWtMibUnicastipaddressRow(luid uint64, ip *net.IP) (*wtMibUnicast
 	}
 
 	for _, wta := range wtas {
-		if wta.InterfaceLuid == luid && wta.Address.matches(ip) {
+		if (ifc == nil || wta.InterfaceLuid == ifc.Luid) && wta.Address.matches(ip) {
 			return &wta, nil
 		}
 	}

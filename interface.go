@@ -196,10 +196,10 @@ func (ifc *Interface) GetIfRow(level MibIfEntryLevel) (*IfRow, error) {
 	return GetIfRow(ifc.Luid, level)
 }
 
-func (ifc *Interface) GetMatchingUnicastAddressData(ip *net.IP) (*UnicastAddressData, error) {
+func (ifc *Interface) GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetMatchingUnicastAddressData() - receiver Interface argument is nil")
+		return nil, fmt.Errorf("Interface.GetMatchingUnicastIpAddressRow() - receiver Interface argument is nil")
 	}
 
 	wtas, err := getWtMibUnicastipaddressRows(AF_UNSPEC)
@@ -211,7 +211,7 @@ func (ifc *Interface) GetMatchingUnicastAddressData(ip *net.IP) (*UnicastAddress
 	for _, wta := range wtas {
 		if wta.InterfaceLuid == ifc.Luid && wta.Address.matches(ip) {
 
-			address, err := wta.toUnicastAddressData()
+			address, err := wta.toUnicastIpAddressRow()
 
 			if err == nil {
 				return address, nil
@@ -308,10 +308,11 @@ func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 
 	if ifc == nil {
-		return fmt.Errorf("Interface.DeleteAddress() - receiver Interface argument is nil")
+		// Here we need to panic because ifc == nil have another meaning in getMatchingWtMibUnicastipaddressRow function.
+		panic("Interface.FindRoute() - receiver argument is nil")
 	}
 
-	addr, err := getMatchingWtMibUnicastipaddressRow(ifc.Luid, ip)
+	addr, err := getMatchingWtMibUnicastipaddressRow(ifc, ip)
 
 	if err != nil {
 		return err

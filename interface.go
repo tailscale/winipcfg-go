@@ -272,10 +272,6 @@ func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 // Sets interface's unicast IP addresses.
 func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 
-	if ifc == nil {
-		return fmt.Errorf("Interface.SetAddresses() - receiver Interface argument is nil")
-	}
-
 	err := ifc.FlushAddresses()
 
 	if err != nil {

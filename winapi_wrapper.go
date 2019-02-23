@@ -36,6 +36,9 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry
 //sys	getUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.GetUnicastIpAddressEntry
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setunicastipaddressentry
+//sys	setUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.SetUnicastIpAddressEntry
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeunicastipaddressentry
 //sys	initializeUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.InitializeUnicastIpAddressEntry
 

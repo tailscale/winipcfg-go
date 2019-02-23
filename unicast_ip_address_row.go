@@ -124,6 +124,36 @@ func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 	return uad, nil
 }
 
+// Saves (activates) modified UnicastIpAddressRow. Corresponds to SetUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setunicastipaddressentry).
+//
+// Note that fields Address, InterfaceLuid and InterfaceIndex are used for identifying address to change, meaning that
+// they cannot be changed by using this method. Changing some of these fields would cause updating some other unicast IP
+// address. On the other side, fields DadState, ScopeId and CreationTimeStamp are read-only, so they also cannot be
+// changed. So fields that are "changeable" this way are: PrefixOrigin, SuffixOrigin, ValidLifetime, PreferredLifetime,
+// OnLinkPrefixLength and SkipAsSource.
+// The workflow of using this method is:
+// 1) Get UnicastIpAddressRow instance by using any of getter methods (i.e. GetMatchingUnicastIpAddressRow or any other);
+// 2) Change one or more of "changeable" fields enumerated above;
+// 3) Calling this method to activate the changes.
+func (address *UnicastIpAddressRow) Set() error {
+
+	old, err := getWtMibUnicastipaddressRow(address.InterfaceLuid, &address.Address.Address)
+
+	if err != nil {
+		return err
+	}
+
+	old.PrefixOrigin = address.PrefixOrigin
+	old.SuffixOrigin = address.SuffixOrigin
+	old.ValidLifetime = address.ValidLifetime
+	old.PreferredLifetime = address.PreferredLifetime
+	old.OnLinkPrefixLength = address.OnLinkPrefixLength
+	old.SkipAsSource = boolToUint8(address.SkipAsSource)
+
+	return old.set()
+}
+
 // Deletes unicast IP address from the system.
 func (address *UnicastIpAddressRow) Delete() error {
 

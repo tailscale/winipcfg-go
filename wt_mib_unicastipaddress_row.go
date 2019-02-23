@@ -66,6 +66,19 @@ func getWtMibUnicastipaddressRow(interfaceLuid uint64, ip *net.IP) (*wtMibUnicas
 	}
 }
 
+// Corresponds to SetUnicastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setunicastipaddressentry)
+func (wtua *wtMibUnicastipaddressRow) set() error {
+
+	result := setUnicastIpAddressEntry(wtua)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.SetUnicastIpAddressEntry", windows.Errno(result))
+	}
+}
+
 func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddressRow, error) {
 
 	if wtua == nil {

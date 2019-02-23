@@ -48,6 +48,7 @@ var (
 	procGetIfTable2Ex                   = modiphlpapi.NewProc("GetIfTable2Ex")
 	procGetUnicastIpAddressTable        = modiphlpapi.NewProc("GetUnicastIpAddressTable")
 	procGetUnicastIpAddressEntry        = modiphlpapi.NewProc("GetUnicastIpAddressEntry")
+	procSetUnicastIpAddressEntry        = modiphlpapi.NewProc("SetUnicastIpAddressEntry")
 	procInitializeUnicastIpAddressEntry = modiphlpapi.NewProc("InitializeUnicastIpAddressEntry")
 	procCreateUnicastIpAddressEntry     = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
 	procDeleteUnicastIpAddressEntry     = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
@@ -111,6 +112,12 @@ func getUnicastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (resul
 
 func getUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
 	r0, _, _ := syscall.Syscall(procGetUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func setUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procSetUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
 	result = int32(r0)
 	return
 }

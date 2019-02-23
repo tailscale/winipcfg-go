@@ -20,10 +20,6 @@ type InterfaceAndOperStatusFlags struct {
 
 func (iaosf *InterfaceAndOperStatusFlags) toInterfaceAndOperStatusFlagsByte() interfaceAndOperStatusFlagsByte {
 
-	if iaosf == nil {
-		panic("toInterfaceAndOperStatusFlagsByte() - receiver argument is nil")
-	}
-
 	result := uint8(0)
 
 	if iaosf.HardwareInterface {

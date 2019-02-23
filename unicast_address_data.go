@@ -122,7 +122,7 @@ func GetMatchingUnicastAddressData(interfaceLuid uint64, ip *net.IP) (*UnicastAd
 
 func (address *UnicastAddressData) Delete() error {
 
-	if address == nil || address.Address == nil {
+	if address.Address == nil {
 		return fmt.Errorf("UnicastAddressData.Delete() - receiver argument or its Address field is nil")
 	}
 

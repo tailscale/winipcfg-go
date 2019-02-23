@@ -162,10 +162,6 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 // Refreshes the interface by loading all it again from Windows.
 func (ifc *Interface) Refresh() error {
 
-	if ifc == nil {
-		return fmt.Errorf("Interface.Refresh() - receiver argument is nil")
-	}
-
 	ifcnew, err := InterfaceFromLUID(ifc.Luid)
 
 	if err != nil {
@@ -185,10 +181,6 @@ func (ifc *Interface) Refresh() error {
 // Argument 'family' has to be either AF_INET or AF_INET6.
 func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error) {
 
-	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetIpInterface() - receiver argument is nil")
-	}
-
 	row, err := getWtMibIpinterfaceRow(ifc.Luid, family)
 
 	if err != nil {
@@ -201,12 +193,7 @@ func (ifc *Interface) GetIpInterface(family AddressFamily) (*IpInterface, error)
 // Returns corresponding IfRow. Based on GetIfEntry2Ex function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getifentry2ex)
 func (ifc *Interface) GetIfRow(level MibIfEntryLevel) (*IfRow, error) {
-
-	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetIfRow() - receiver argument is nil")
-	} else {
-		return GetIfRow(ifc.Luid, level)
-	}
+	return GetIfRow(ifc.Luid, level)
 }
 
 func (ifc *Interface) GetMatchingUnicastAddressData(ip *net.IP) (*UnicastAddressData, error) {
@@ -344,18 +331,14 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 }
 
 func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
-
-	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetRoutes() - receiver argument is nil")
-	}
-
 	return getRoutes(family, ifc)
 }
 
 func (ifc *Interface) FindRoute(destination *net.IPNet) (*Route, error) {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.FindRoute() - receiver argument is nil")
+		// Here we need to panic because ifc == nil have another meaning in findRoute function.
+		panic("Interface.FindRoute() - receiver argument is nil")
 	}
 
 	if destination == nil {
@@ -371,7 +354,8 @@ func (ifc *Interface) FindRoute(destination *net.IPNet) (*Route, error) {
 func (ifc *Interface) FlushRoutes() error {
 
 	if ifc == nil {
-		return fmt.Errorf("Interface.FlushRoutes() - receiver argument is nil")
+		// Here we need to panic because ifc == nil have another meaning in getWtMibIpforwardRow2s function.
+		panic("Interface.FlushRoutes() - receiver argument is nil")
 	}
 
 	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC, ifc)
@@ -394,10 +378,6 @@ func (ifc *Interface) FlushRoutes() error {
 
 // Adds route. Note that routeData can be changed if splitting takes place.
 func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
-
-	if ifc == nil {
-		return fmt.Errorf("Interface.AddRoute() - receiver argument is nil")
-	}
 
 	if routeData == nil {
 		return fmt.Errorf("Interface.AddRoute() - input RouteData argument is nil")
@@ -464,10 +444,6 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
 func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) error {
 
-	if ifc == nil {
-		return fmt.Errorf("Interface.AddRoutes() - receiver argument is nil")
-	}
-
 	for _, rd := range routesData {
 
 		err := ifc.AddRoute(rd, splitDefault)
@@ -482,10 +458,6 @@ func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) erro
 
 func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) error {
 
-	if ifc == nil {
-		return fmt.Errorf("Interface.SetRoutes() - receiver argument is nil")
-	}
-
 	err := ifc.FlushRoutes()
 
 	if err != nil {
@@ -498,7 +470,8 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) erro
 func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 
 	if ifc == nil {
-		return fmt.Errorf("Interface.DeleteRoute() - receiver argument is nil")
+		// Here we need to panic because ifc == nil have another meaning in findWtMibIpforwardRow2 function.
+		panic("Interface.DeleteRoute() - receiver argument is nil")
 	}
 
 	if destination == nil {
@@ -521,7 +494,8 @@ func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
 func (ifc *Interface) GetNetworkAdapterConfiguration() (*NetworkAdapterConfiguration, error) {
 
 	if ifc == nil {
-		return nil, fmt.Errorf("Interface.GetNetworkAdapterConfiguration() - receiver argument is nil")
+		// Here we need to panic because ifc == nil have another meaning in getNetworkAdaptersConfigurations function.
+		panic("Interface.GetNetworkAdapterConfiguration() - receiver argument is nil")
 	}
 
 	nac, err := getNetworkAdaptersConfigurations(ifc)
@@ -536,28 +510,15 @@ func (ifc *Interface) GetNetworkAdapterConfiguration() (*NetworkAdapterConfigura
 }
 
 func (ifc *Interface) FlushDNS() error {
-	if ifc == nil {
-		return fmt.Errorf("Interface.FlushDNS() - receiver argument is nil")
-	} else {
-		return setDnses(ifc, nil, false)
-	}
+	return setDnses(ifc, nil, false)
 }
 
 func (ifc *Interface) AddDNS(dnses []net.IP) error {
-	if ifc == nil {
-		return fmt.Errorf("Interface.AddDNS() - receiver argument is nil")
-	} else {
-		return setDnses(ifc, dnses, true)
-	}
-
+	return setDnses(ifc, dnses, true)
 }
 
 func (ifc *Interface) SetDNS(dnses []net.IP) error {
-	if ifc == nil {
-		return fmt.Errorf("Interface.SetDNS() - receiver argument is nil")
-	} else {
-		return setDnses(ifc, dnses, false)
-	}
+	return setDnses(ifc, dnses, false)
 }
 
 //

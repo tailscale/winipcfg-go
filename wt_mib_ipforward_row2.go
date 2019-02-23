@@ -142,10 +142,6 @@ func addWtMibIpforwardRow2(ifc *Interface, routeData *RouteData) error {
 
 func (r *wtMibIpforwardRow2) delete() error {
 
-	if r == nil {
-		return fmt.Errorf("wtMibIpforwardRow2.delete() - receiver argument is nil")
-	}
-
 	result := deleteIpForwardEntry2(r)
 
 	if result == 0 {

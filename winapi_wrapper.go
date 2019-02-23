@@ -19,6 +19,9 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfacetable
 //sys	getIpInterfaceTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetIpInterfaceTable
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setipinterfaceentry
+//sys	setIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) = iphlpapi.SetIpInterfaceEntry
+
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
 //sys	freeMibTable(memory unsafe.Pointer) = iphlpapi.FreeMibTable
 

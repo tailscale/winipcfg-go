@@ -114,6 +114,48 @@ func GetIpInterface(interfaceLuid uint64, family AddressFamily) (*IpInterface, e
 	}
 }
 
+// Saves (activates) modified IpInterface. Corresponds to SetIpInterfaceEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setipinterfaceentry).
+//
+// Note that fields Family, InterfaceLuid and InterfaceIndex are used for identifying address to change, meaning that
+// they cannot be changed by using this method. Changing some of these fields would cause updating some other IP
+// interface. Fields which are "changeable" by this method are between AdvertisingEnabled and NlMtu, inclusive.
+// The workflow of using this method is:
+// 1) Get IpInterface instance by using any of getter methods (i.e. GetIpInterface or any other);
+// 2) Change one or more of "changeable" fields enumerated above;
+// 3) Calling this method to activate the changes.
+func (ipifc *IpInterface) Set() error {
+
+	old, err := getWtMibIpinterfaceRow(ipifc.InterfaceLuid, ipifc.Family)
+
+	if err != nil {
+		return err
+	}
+
+	old.AdvertisingEnabled = boolToUint8(ipifc.AdvertisingEnabled)
+	old.ForwardingEnabled = boolToUint8(ipifc.ForwardingEnabled)
+	old.WeakHostSend = boolToUint8(ipifc.WeakHostSend)
+	old.WeakHostReceive = boolToUint8(ipifc.WeakHostReceive)
+	old.UseAutomaticMetric = boolToUint8(ipifc.UseAutomaticMetric)
+	old.UseNeighborUnreachabilityDetection = boolToUint8(ipifc.UseNeighborUnreachabilityDetection)
+	old.ManagedAddressConfigurationSupported = boolToUint8(ipifc.ManagedAddressConfigurationSupported)
+	old.OtherStatefulConfigurationSupported = boolToUint8(ipifc.OtherStatefulConfigurationSupported)
+	old.AdvertiseDefaultRoute = boolToUint8(ipifc.AdvertiseDefaultRoute)
+	old.RouterDiscoveryBehavior = ipifc.RouterDiscoveryBehavior
+	old.DadTransmits = ipifc.DadTransmits
+	old.BaseReachableTime = ipifc.BaseReachableTime
+	old.RetransmitTime = ipifc.RetransmitTime
+	old.PathMtuDiscoveryTimeout = ipifc.PathMtuDiscoveryTimeout
+	old.LinkLocalAddressBehavior = ipifc.LinkLocalAddressBehavior
+	old.LinkLocalAddressTimeout = ipifc.LinkLocalAddressTimeout
+	old.ZoneIndices = ipifc.ZoneIndices
+	old.SitePrefixLength = ipifc.SitePrefixLength
+	old.Metric = ipifc.Metric
+	old.NlMtu = ipifc.NlMtu
+
+	return old.set()
+}
+
 func (mir *IpInterface) String() string {
 
 	if mir == nil {

@@ -64,47 +64,60 @@ func getWtMibIpinterfaceRow(interfaceLuid uint64, family AddressFamily) (*wtMibI
 	}
 }
 
-func (wt *wtMibIpinterfaceRow) toIpInterface() *IpInterface {
+// Corresponds to SetIpInterfaceEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setipinterfaceentry)
+func (wtipifc *wtMibIpinterfaceRow) set() error {
 
-	if wt == nil {
+	result := setIpInterfaceEntry(wtipifc)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.SetIpInterfaceEntry", windows.Errno(result))
+	}
+}
+
+func (wtipifc *wtMibIpinterfaceRow) toIpInterface() *IpInterface {
+
+	if wtipifc == nil {
 		return nil
 	}
 
 	return &IpInterface{
-		Family:                               wt.Family,
-		InterfaceLuid:                        wt.InterfaceLuid,
-		InterfaceIndex:                       wt.InterfaceIndex,
-		MaxReassemblySize:                    wt.MaxReassemblySize,
-		InterfaceIdentifier:                  wt.InterfaceIdentifier,
-		MinRouterAdvertisementInterval:       wt.MinRouterAdvertisementInterval,
-		MaxRouterAdvertisementInterval:       wt.MaxRouterAdvertisementInterval,
-		AdvertisingEnabled:                   uint8ToBool(wt.AdvertisingEnabled),
-		ForwardingEnabled:                    uint8ToBool(wt.ForwardingEnabled),
-		WeakHostSend:                         uint8ToBool(wt.WeakHostSend),
-		WeakHostReceive:                      uint8ToBool(wt.WeakHostReceive),
-		UseAutomaticMetric:                   uint8ToBool(wt.UseAutomaticMetric),
-		UseNeighborUnreachabilityDetection:   uint8ToBool(wt.UseNeighborUnreachabilityDetection),
-		ManagedAddressConfigurationSupported: uint8ToBool(wt.ManagedAddressConfigurationSupported),
-		OtherStatefulConfigurationSupported:  uint8ToBool(wt.OtherStatefulConfigurationSupported),
-		AdvertiseDefaultRoute:                uint8ToBool(wt.AdvertiseDefaultRoute),
-		RouterDiscoveryBehavior:              wt.RouterDiscoveryBehavior,
-		DadTransmits:                         wt.DadTransmits,
-		BaseReachableTime:                    wt.BaseReachableTime,
-		RetransmitTime:                       wt.RetransmitTime,
-		PathMtuDiscoveryTimeout:              wt.PathMtuDiscoveryTimeout,
-		LinkLocalAddressBehavior:             wt.LinkLocalAddressBehavior,
-		LinkLocalAddressTimeout:              wt.LinkLocalAddressTimeout,
-		ZoneIndices:                          wt.ZoneIndices,
-		SitePrefixLength:                     wt.SitePrefixLength,
-		Metric:                               wt.Metric,
-		NlMtu:                                wt.NlMtu,
-		Connected:                            uint8ToBool(wt.Connected),
-		SupportsWakeUpPatterns:               uint8ToBool(wt.SupportsWakeUpPatterns),
-		SupportsNeighborDiscovery:            uint8ToBool(wt.SupportsNeighborDiscovery),
-		SupportsRouterDiscovery:              uint8ToBool(wt.SupportsRouterDiscovery),
-		ReachableTime:                        wt.ReachableTime,
-		TransmitOffload:                      *wt.TransmitOffload.toNlInterfaceOffloadRodFlags(),
-		ReceiveOffload:                       *wt.ReceiveOffload.toNlInterfaceOffloadRodFlags(),
-		DisableDefaultRoutes:                 uint8ToBool(wt.DisableDefaultRoutes),
+		Family:                               wtipifc.Family,
+		InterfaceLuid:                        wtipifc.InterfaceLuid,
+		InterfaceIndex:                       wtipifc.InterfaceIndex,
+		MaxReassemblySize:                    wtipifc.MaxReassemblySize,
+		InterfaceIdentifier:                  wtipifc.InterfaceIdentifier,
+		MinRouterAdvertisementInterval:       wtipifc.MinRouterAdvertisementInterval,
+		MaxRouterAdvertisementInterval:       wtipifc.MaxRouterAdvertisementInterval,
+		AdvertisingEnabled:                   uint8ToBool(wtipifc.AdvertisingEnabled),
+		ForwardingEnabled:                    uint8ToBool(wtipifc.ForwardingEnabled),
+		WeakHostSend:                         uint8ToBool(wtipifc.WeakHostSend),
+		WeakHostReceive:                      uint8ToBool(wtipifc.WeakHostReceive),
+		UseAutomaticMetric:                   uint8ToBool(wtipifc.UseAutomaticMetric),
+		UseNeighborUnreachabilityDetection:   uint8ToBool(wtipifc.UseNeighborUnreachabilityDetection),
+		ManagedAddressConfigurationSupported: uint8ToBool(wtipifc.ManagedAddressConfigurationSupported),
+		OtherStatefulConfigurationSupported:  uint8ToBool(wtipifc.OtherStatefulConfigurationSupported),
+		AdvertiseDefaultRoute:                uint8ToBool(wtipifc.AdvertiseDefaultRoute),
+		RouterDiscoveryBehavior:              wtipifc.RouterDiscoveryBehavior,
+		DadTransmits:                         wtipifc.DadTransmits,
+		BaseReachableTime:                    wtipifc.BaseReachableTime,
+		RetransmitTime:                       wtipifc.RetransmitTime,
+		PathMtuDiscoveryTimeout:              wtipifc.PathMtuDiscoveryTimeout,
+		LinkLocalAddressBehavior:             wtipifc.LinkLocalAddressBehavior,
+		LinkLocalAddressTimeout:              wtipifc.LinkLocalAddressTimeout,
+		ZoneIndices:                          wtipifc.ZoneIndices,
+		SitePrefixLength:                     wtipifc.SitePrefixLength,
+		Metric:                               wtipifc.Metric,
+		NlMtu:                                wtipifc.NlMtu,
+		Connected:                            uint8ToBool(wtipifc.Connected),
+		SupportsWakeUpPatterns:               uint8ToBool(wtipifc.SupportsWakeUpPatterns),
+		SupportsNeighborDiscovery:            uint8ToBool(wtipifc.SupportsNeighborDiscovery),
+		SupportsRouterDiscovery:              uint8ToBool(wtipifc.SupportsRouterDiscovery),
+		ReachableTime:                        wtipifc.ReachableTime,
+		TransmitOffload:                      *wtipifc.TransmitOffload.toNlInterfaceOffloadRodFlags(),
+		ReceiveOffload:                       *wtipifc.ReceiveOffload.toNlInterfaceOffloadRodFlags(),
+		DisableDefaultRoutes:                 uint8ToBool(wtipifc.DisableDefaultRoutes),
 	}
 }

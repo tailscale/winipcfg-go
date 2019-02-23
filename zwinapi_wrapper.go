@@ -43,6 +43,7 @@ var (
 	procInitializeIpInterfaceEntry      = modiphlpapi.NewProc("InitializeIpInterfaceEntry")
 	procGetIpInterfaceEntry             = modiphlpapi.NewProc("GetIpInterfaceEntry")
 	procGetIpInterfaceTable             = modiphlpapi.NewProc("GetIpInterfaceTable")
+	procSetIpInterfaceEntry             = modiphlpapi.NewProc("SetIpInterfaceEntry")
 	procFreeMibTable                    = modiphlpapi.NewProc("FreeMibTable")
 	procGetIfEntry2Ex                   = modiphlpapi.NewProc("GetIfEntry2Ex")
 	procGetIfTable2Ex                   = modiphlpapi.NewProc("GetIfTable2Ex")
@@ -83,6 +84,12 @@ func getIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) {
 
 func getIpInterfaceTable(Family AddressFamily, Table unsafe.Pointer) (result int32) {
 	r0, _, _ := syscall.Syscall(procGetIpInterfaceTable.Addr(), 2, uintptr(Family), uintptr(Table), 0)
+	result = int32(r0)
+	return
+}
+
+func setIpInterfaceEntry(Row *wtMibIpinterfaceRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procSetIpInterfaceEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
 	result = int32(r0)
 	return
 }

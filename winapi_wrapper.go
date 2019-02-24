@@ -51,6 +51,20 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry
 //sys	deleteUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) = iphlpapi.DeleteUnicastIpAddressEntry
 
+// Anycast IP address - related functions
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getanycastipaddresstable
+//sys	getAnycastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) = iphlpapi.GetAnycastIpAddressTable
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getanycastipaddressentry
+//sys	getAnycastIpAddressEntry(Row *wtMibAnycastipaddressRow) (result int32) = iphlpapi.GetAnycastIpAddressEntry
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createanycastipaddressentry
+//sys	createAnycastIpAddressEntry(Row *wtMibAnycastipaddressRow) (result int32) = iphlpapi.CreateAnycastIpAddressEntry
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteanycastipaddressentry
+//sys	deleteAnycastIpAddressEntry(Row *wtMibAnycastipaddressRow) (result int32) = iphlpapi.DeleteAnycastIpAddressEntry
+
 // Routing - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2

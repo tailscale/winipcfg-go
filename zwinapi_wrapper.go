@@ -53,6 +53,10 @@ var (
 	procInitializeUnicastIpAddressEntry = modiphlpapi.NewProc("InitializeUnicastIpAddressEntry")
 	procCreateUnicastIpAddressEntry     = modiphlpapi.NewProc("CreateUnicastIpAddressEntry")
 	procDeleteUnicastIpAddressEntry     = modiphlpapi.NewProc("DeleteUnicastIpAddressEntry")
+	procGetAnycastIpAddressTable        = modiphlpapi.NewProc("GetAnycastIpAddressTable")
+	procGetAnycastIpAddressEntry        = modiphlpapi.NewProc("GetAnycastIpAddressEntry")
+	procCreateAnycastIpAddressEntry     = modiphlpapi.NewProc("CreateAnycastIpAddressEntry")
+	procDeleteAnycastIpAddressEntry     = modiphlpapi.NewProc("DeleteAnycastIpAddressEntry")
 	procGetIpForwardTable2              = modiphlpapi.NewProc("GetIpForwardTable2")
 	procGetIpForwardEntry2              = modiphlpapi.NewProc("GetIpForwardEntry2")
 	procInitializeIpForwardEntry        = modiphlpapi.NewProc("InitializeIpForwardEntry")
@@ -144,6 +148,30 @@ func createUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
 
 func deleteUnicastIpAddressEntry(Row *wtMibUnicastipaddressRow) (result int32) {
 	r0, _, _ := syscall.Syscall(procDeleteUnicastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func getAnycastIpAddressTable(Family AddressFamily, Table unsafe.Pointer) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetAnycastIpAddressTable.Addr(), 2, uintptr(Family), uintptr(Table), 0)
+	result = int32(r0)
+	return
+}
+
+func getAnycastIpAddressEntry(Row *wtMibAnycastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procGetAnycastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func createAnycastIpAddressEntry(Row *wtMibAnycastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procCreateAnycastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
+	result = int32(r0)
+	return
+}
+
+func deleteAnycastIpAddressEntry(Row *wtMibAnycastipaddressRow) (result int32) {
+	r0, _, _ := syscall.Syscall(procDeleteAnycastIpAddressEntry.Addr(), 1, uintptr(unsafe.Pointer(Row)), 0, 0)
 	result = int32(r0)
 	return
 }

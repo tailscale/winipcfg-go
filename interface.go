@@ -306,8 +306,15 @@ func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
 	return getRoutes(ifc.Luid, family)
 }
 
-func (ifc *Interface) FindRoute(destination *net.IPNet) (*Route, error) {
-	return findRoute(ifc.Luid, destination)
+// Returns route determined with the input arguments. Corresponds to GetIpForwardEntry2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardentry2).
+// NOTE: If the corresponding route isn't found, the method will return error.
+func (ifc *Interface) GetRoute(destination *net.IPNet, nextHop *net.IP) (*Route, error) {
+	return getRoute(ifc.Luid, destination, nextHop)
+}
+
+func (ifc *Interface) FindRoutes(destination *net.IPNet) ([]*Route, error) {
+	return findRoutes(ifc.Luid, destination)
 }
 
 // splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
@@ -424,16 +431,14 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) erro
 
 // Deletes a route that matches the criteria. Corresponds to DeleteIpForwardEntry2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2).
-func (ifc *Interface) DeleteRoute(destination *net.IPNet) error {
+func (ifc *Interface) DeleteRoute(destination *net.IPNet, nextHop *net.IP) error {
 
-	row, err := findWtMibIpforwardRow2(ifc.Luid, destination)
+	row, err := getWtMibIpforwardRow2(ifc.Luid, destination, nextHop)
 
-	if err != nil {
-		return err
-	} else if row == nil {
-		return fmt.Errorf("Interface.DeleteRoute() - matching route not found")
-	} else {
+	if err == nil {
 		return row.delete()
+	} else {
+		return err
 	}
 }
 

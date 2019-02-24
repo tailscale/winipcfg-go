@@ -56,40 +56,61 @@ func getRoutes(interfaceLuid uint64, family AddressFamily) ([]*Route, error) {
 	return routes, nil
 }
 
-func findRoute(interfaceLuid uint64, destination *net.IPNet) (*Route, error) {
+func findRoutes(interfaceLuid uint64, destination *net.IPNet) ([]*Route, error) {
 
-	row, err := findWtMibIpforwardRow2(interfaceLuid, destination)
+	rows, err := findWtMibIpforwardRow2s(interfaceLuid, destination)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if row == nil {
-		return nil, nil
+	length := len(rows)
+
+	routes := make([]*Route, length, length)
+
+	for idx, row := range rows {
+
+		route, err := row.toRoute()
+
+		if err != nil {
+			return nil, err
+		}
+
+		routes[idx] = route
 	}
 
-	route, err := row.toRoute()
+	return routes, nil
+}
+
+func getRoute(interfaceLuid uint64, destination *net.IPNet, nextHop *net.IP) (*Route, error) {
+
+	row, err := getWtMibIpforwardRow2(interfaceLuid, destination, nextHop)
 
 	if err == nil {
-		return route, nil
+		return row.toRoute()
 	} else {
 		return nil, err
 	}
 }
 
-func FindRoute(destination *net.IPNet) (*Route, error) {
-	return findRoute(0, destination)
+func FindRoutes(destination *net.IPNet) ([]*Route, error) {
+	return findRoutes(0, destination)
 }
-
-//func (route *Route) Add() error {
-//
-//}
 
 // Returns all the routes. Corresponds to GetIpForwardTable2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2).
 func GetRoutes(family AddressFamily) ([]*Route, error) {
 	return getRoutes(0, family)
 }
+
+//func (route *Route) Add() error {
+//
+//
+//}
+//
+//func (route *Route) Set() error {
+//
+//}
 
 func (r *Route) String() string {
 

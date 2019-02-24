@@ -313,13 +313,12 @@ func (ifc *Interface) GetRoute(destination *net.IPNet, nextHop *net.IP) (*Route,
 	return getRoute(ifc.Luid, destination, nextHop)
 }
 
+// Returns routes which are satisfying defined destination criterion.
 func (ifc *Interface) FindRoutes(destination *net.IPNet) ([]*Route, error) {
 	return findRoutes(ifc.Luid, destination)
 }
 
-// splitDefault converts 0.0.0.0/0 into 0.0.0.0/1 and 128.0.0.0/1,
-// and ::/0 into ::/1 and 8000::/1.
-
+// Deletes all interface's routes.
 func (ifc *Interface) FlushRoutes() error {
 
 	rows, err := getWtMibIpforwardRow2s(ifc.Luid, AF_UNSPEC)
@@ -340,8 +339,7 @@ func (ifc *Interface) FlushRoutes() error {
 	return nil
 }
 
-// Adds route. Note that routeData can be changed if splitting takes place.
-// Corresponds to CreateIpForwardEntry2 function, with added splitDefault feature.
+// Adds route to the interface. Corresponds to CreateIpForwardEntry2 function, with added splitDefault feature.
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2)
 func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
@@ -368,34 +366,42 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 
 				if allZeroBytes(dest6) {
 					// It is 0::/0, so we should split
-					routeData.Destination.Mask = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 0::/1
 
-					err := createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
+					// Copying routeData to avoid changing it:
+					rd := *routeData
+
+					rd.Destination.Mask = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 0::/1
+
+					err := createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
 
 					if err != nil {
 						return err
 					}
 
-					routeData.Destination.IP = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 8000::/1
+					rd.Destination.IP = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 8000::/1
 
-					return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
+					return createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
 				}
 
 			} else {
 				// IPv4 destination
 				if allZeroBytes(dest4) {
 					// It is 0.0.0.0/0, so we should split
-					routeData.Destination.Mask = []byte{128, 0, 0, 0} // It's now 0.0.0.0/1
 
-					err := createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
+					// Copying routeData to avoid changing it:
+					rd := *routeData
+
+					rd.Destination.Mask = []byte{128, 0, 0, 0} // It's now 0.0.0.0/1
+
+					err := createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
 
 					if err != nil {
 						return err
 					}
 
-					routeData.Destination.IP = []byte{128, 0, 0, 0} // It's now 128.0.0.0/1
+					rd.Destination.IP = []byte{128, 0, 0, 0} // It's now 128.0.0.0/1
 
-					return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
+					return createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
 				}
 			}
 		}
@@ -404,6 +410,7 @@ func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
 	return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 }
 
+// Adds multiple routes to the interface.
 func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) error {
 
 	for _, rd := range routesData {
@@ -418,6 +425,7 @@ func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) erro
 	return nil
 }
 
+// Sets (flush than add) multiple routes to the interface.
 func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) error {
 
 	err := ifc.FlushRoutes()

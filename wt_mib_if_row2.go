@@ -44,7 +44,7 @@ func (wtior interfaceAndOperStatusFlagsByte) toInterfaceAndOperStatusFlags() *In
 
 // Equivalent to GetIfTable2Ex function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex)
-func getWtMibIfRow2s(level MibIfEntryLevel) ([]wtMibIfRow2, error) {
+func getWtMibIfRow2s(level MibIfEntryLevel) ([]*wtMibIfRow2, error) {
 
 	var pTable *wtMibIfTable2 = nil
 
@@ -58,13 +58,15 @@ func getWtMibIfRow2s(level MibIfEntryLevel) ([]wtMibIfRow2, error) {
 		return nil, os.NewSyscallError("iphlpapi.GetIfTable2Ex", windows.Errno(result))
 	}
 
-	rows := make([]wtMibIfRow2, pTable.NumEntries, pTable.NumEntries)
+	rows := make([]*wtMibIfRow2, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibIfRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
-		rows[i] = *(*wtMibIfRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		// Dereferencing and rereferencing in order to force copying.
+		row := *(*wtMibIfRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		rows[i] = &row
 	}
 
 	return rows, nil

@@ -47,7 +47,7 @@ type wtMibIpforwardRow2 struct {
 
 // Uses GetIpForwardTable2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2).
-func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]wtMibIpforwardRow2, error) {
+func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]*wtMibIpforwardRow2, error) {
 
 	var pTable *wtMibIpforwardTable2 = nil
 
@@ -61,23 +61,24 @@ func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]wtMib
 		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
 	}
 
-	var rows []wtMibIpforwardRow2;
+	var rows []*wtMibIpforwardRow2;
 
 	if interfaceLuid == 0 {
-		rows = make([]wtMibIpforwardRow2, pTable.NumEntries, pTable.NumEntries)
+		rows = make([]*wtMibIpforwardRow2, pTable.NumEntries, pTable.NumEntries)
 	}
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
+		// Dereferencing and rereferencing in order to force copying.
 
-		row := (*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		row := *(*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
 
 		if interfaceLuid == 0 {
-			rows[i] = *row
+			rows[i] = &row
 		} else if row.InterfaceLuid == interfaceLuid {
-			rows = append(rows, *row)
+			rows = append(rows, &row)
 		}
 	}
 
@@ -127,7 +128,7 @@ func getWtMibIpforwardRow2(interfaceLuid uint64, destination *net.IPNet, nextHop
 	}
 }
 
-func findWtMibIpforwardRow2s(interfaceLuid uint64, destination *net.IPNet) ([]wtMibIpforwardRow2, error) {
+func findWtMibIpforwardRow2s(interfaceLuid uint64, destination *net.IPNet) ([]*wtMibIpforwardRow2, error) {
 
 	rows, err := getWtMibIpforwardRow2s(interfaceLuid, AF_UNSPEC)
 
@@ -137,7 +138,7 @@ func findWtMibIpforwardRow2s(interfaceLuid uint64, destination *net.IPNet) ([]wt
 
 	ones, _ := destination.Mask.Size()
 
-	matchingRows := make([]wtMibIpforwardRow2, 0)
+	matchingRows := make([]*wtMibIpforwardRow2, 0)
 
 	for _, row := range rows {
 		if row.DestinationPrefix.PrefixLength == uint8(ones) && row.DestinationPrefix.Prefix.matches(&destination.IP) {

@@ -14,7 +14,7 @@ import (
 
 // Corresponds to GetIpInterfaceTable function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfacetable)
-func getWtMibIpinterfaceRows(family AddressFamily) ([]wtMibIpinterfaceRow, error) {
+func getWtMibIpinterfaceRows(family AddressFamily) ([]*wtMibIpinterfaceRow, error) {
 
 	var pTable *wtMibIpinterfaceTable = nil
 
@@ -28,13 +28,15 @@ func getWtMibIpinterfaceRows(family AddressFamily) ([]wtMibIpinterfaceRow, error
 		return nil, os.NewSyscallError("iphlpapi.GetIpInterfaceTable", windows.Errno(result))
 	}
 
-	ipifcs := make([]wtMibIpinterfaceRow, pTable.NumEntries, pTable.NumEntries)
+	ipifcs := make([]*wtMibIpinterfaceRow, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibIpinterfaceRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
-		ipifcs[i] = *(*wtMibIpinterfaceRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		// Dereferencing and rereferencing in order to force copying.
+		row := *(*wtMibIpinterfaceRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		ipifcs[i] = &row
 	}
 
 	return ipifcs, nil

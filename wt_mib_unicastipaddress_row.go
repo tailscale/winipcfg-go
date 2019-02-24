@@ -15,7 +15,7 @@ import (
 
 // Corresponds to GetUnicastIpAddressTable function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable)
-func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddressRow, error) {
+func getWtMibUnicastipaddressRows(family AddressFamily) ([]*wtMibUnicastipaddressRow, error) {
 
 	var pTable *wtMibUnicastipaddressTable = nil
 
@@ -29,13 +29,15 @@ func getWtMibUnicastipaddressRows(family AddressFamily) ([]wtMibUnicastipaddress
 		return nil, os.NewSyscallError("iphlpapi.GetUnicastIpAddressTable", windows.Errno(result))
 	}
 
-	addresses := make([]wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
+	addresses := make([]*wtMibUnicastipaddressRow, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibUnicastipaddressRow_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
 
 	for i := uint32(0); i < pTable.NumEntries; i++ {
-		addresses[i] = *(*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		// Dereferencing and rereferencing in order to force copying.
+		row := *(*wtMibUnicastipaddressRow)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
+		addresses[i] = &row
 	}
 
 	return addresses, nil
@@ -72,7 +74,7 @@ func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow,
 
 	for _, wta := range wtas {
 		if wta.Address.matches(ip) {
-			return &wta, nil
+			return wta, nil
 		}
 	}
 
@@ -83,7 +85,7 @@ func getMatchingWtMibUnicastipaddressRow(ip *net.IP) (*wtMibUnicastipaddressRow,
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-initializeunicastipaddressentry).
 func getInitializedWtMibUnicastipaddressRow(interfaceLuid uint64) *wtMibUnicastipaddressRow {
 
-	row := wtMibUnicastipaddressRow{InterfaceLuid:interfaceLuid}
+	row := wtMibUnicastipaddressRow{InterfaceLuid: interfaceLuid}
 
 	_ = initializeUnicastIpAddressEntry(&row)
 

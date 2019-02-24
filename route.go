@@ -93,6 +93,7 @@ func getRoute(interfaceLuid uint64, destination *net.IPNet, nextHop *net.IP) (*R
 	}
 }
 
+// Returns routes which are matching defined destination criterion.
 func FindRoutes(destination *net.IPNet) ([]*Route, error) {
 	return findRoutes(0, destination)
 }

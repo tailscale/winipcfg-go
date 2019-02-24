@@ -6,6 +6,8 @@
 package winipcfg
 
 const (
+	anySize uint32 = 1 // ANY_SIZE defined in Iprtrmib.h
+
 	wtIn6Addr_Size = 16
 
 	wtInAddr_Size = 4

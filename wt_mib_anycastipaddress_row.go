@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"golang.org/x/sys/windows"
+	"net"
 	"os"
 	"unsafe"
 )
@@ -41,6 +42,61 @@ func getWtMibAnycastipaddressRows(family AddressFamily) ([]*wtMibAnycastipaddres
 	return addresses, nil
 }
 
+func getWtMibAnycastipaddressRowAlt(interfaceLuid uint64, ip *net.IP) (*wtMibAnycastipaddressRow, error) {
+
+	wtsainet, err := createWtSockaddrInet(ip, 0)
+
+	if err == nil {
+		return getWtMibAnycastipaddressRow(interfaceLuid, wtsainet)
+	} else {
+		return nil, err
+	}
+}
+
+// Corresponds to GetAnycastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getanycastipaddressentry)
+func getWtMibAnycastipaddressRow(interfaceLuid uint64, wtsainet *wtSockaddrInet) (*wtMibAnycastipaddressRow, error) {
+
+	row := &wtMibAnycastipaddressRow{
+		Address:       *wtsainet,
+		InterfaceLuid: interfaceLuid,
+	}
+
+	result := getAnycastIpAddressEntry(row)
+
+	if result == 0 {
+		return row, nil
+	} else {
+		return nil, os.NewSyscallError("iphlpapi.GetAnycastIpAddressEntry", windows.Errno(result))
+	}
+}
+
+// Uses CreateAnycastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createanycastipaddressentry)
+func (wtaia *wtMibAnycastipaddressRow) add() error {
+
+	result := createAnycastIpAddressEntry(wtaia)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.CreateAnycastIpAddressEntry", windows.Errno(result))
+	}
+}
+
+// Uses DeleteAnycastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteanycastipaddressentry)
+func (wtaia *wtMibAnycastipaddressRow) delete() error {
+
+	result := deleteAnycastIpAddressEntry(wtaia)
+
+	if result == 0 {
+		return nil
+	} else {
+		return os.NewSyscallError("iphlpapi.DeleteAnycastIpAddressEntry", windows.Errno(result))
+	}
+}
+
 func (wtaia *wtMibAnycastipaddressRow) toAnycastIpAddressRow() (*AnycastIpAddressRow, error) {
 
 	if wtaia == nil {
@@ -54,9 +110,9 @@ func (wtaia *wtMibAnycastipaddressRow) toAnycastIpAddressRow() (*AnycastIpAddres
 	}
 
 	return &AnycastIpAddressRow{
-		Address: *sainet,
-		InterfaceLuid: wtaia.InterfaceLuid,
+		Address:        *sainet,
+		InterfaceLuid:  wtaia.InterfaceLuid,
 		InterfaceIndex: wtaia.InterfaceIndex,
-		ScopeId: wtaia.ScopeId,
+		ScopeId:        wtaia.ScopeId,
 	}, nil
 }

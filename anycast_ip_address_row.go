@@ -5,7 +5,10 @@
 
 package winipcfg
 
-import "fmt"
+import (
+	"fmt"
+	"net"
+)
 
 // Corresponds to MIB_ANYCASTIPADDRESS_ROW defined in netioapi.h
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_anycastipaddress_row).
@@ -49,6 +52,57 @@ func GetAnycastIpAddressRows(family AddressFamily) ([]*AnycastIpAddressRow, erro
 	}
 
 	return addresses, nil
+}
+
+// Returns anycast IP address specified by the input criteria. Corresponds to GetAnycastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getanycastipaddressentry).
+func GetAnycastIpAddressRow(interfaceLuid uint64, ip *net.IP) (*AnycastIpAddressRow, error) {
+
+	row, err := getWtMibAnycastipaddressRowAlt(interfaceLuid, ip)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return row.toAnycastIpAddressRow()
+}
+
+// Adds new anycast IP address to system. Corresponds to CreateAnycastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createanycastipaddressentry)
+func (aia *AnycastIpAddressRow) Add() error {
+
+	wtsainet, err := aia.Address.toWtSockaddrInet()
+
+	if err != nil {
+		return err
+	}
+
+	row := wtMibAnycastipaddressRow{
+		Address:        *wtsainet,
+		InterfaceLuid:  aia.InterfaceLuid,
+		InterfaceIndex: aia.InterfaceIndex,
+	}
+
+	return row.add()
+}
+
+// Deletes anycast IP address from the system. Corresponds to DeleteAnycastIpAddressEntry function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteanycastipaddressentry).
+func (aia *AnycastIpAddressRow) Delete() error {
+
+	wtsainet, err := aia.Address.toWtSockaddrInet()
+
+	if err != nil {
+		return err
+	}
+
+	row, err := getWtMibAnycastipaddressRow(aia.InterfaceLuid, wtsainet)
+
+	if err == nil {
+		return row.delete()
+	} else {
+		return err
+	}
 }
 
 func (aia *AnycastIpAddressRow) String() string {

@@ -128,9 +128,9 @@ func (row *wtMibUnicastipaddressRow) add() error {
 
 // Corresponds to SetUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setunicastipaddressentry)
-func (wtua *wtMibUnicastipaddressRow) set() error {
+func (row *wtMibUnicastipaddressRow) set() error {
 
-	result := setUnicastIpAddressEntry(wtua)
+	result := setUnicastIpAddressEntry(row)
 
 	if result == 0 {
 		return nil
@@ -141,9 +141,9 @@ func (wtua *wtMibUnicastipaddressRow) set() error {
 
 // Corresponds to DeleteUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry)
-func (wtua *wtMibUnicastipaddressRow) delete() error {
+func (row *wtMibUnicastipaddressRow) delete() error {
 
-	result := deleteUnicastIpAddressEntry(wtua)
+	result := deleteUnicastIpAddressEntry(row)
 
 	if result == 0 {
 		return nil
@@ -152,13 +152,13 @@ func (wtua *wtMibUnicastipaddressRow) delete() error {
 	}
 }
 
-func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddressRow, error) {
+func (row *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddressRow, error) {
 
-	if wtua == nil {
+	if row == nil {
 		return nil, nil
 	}
 
-	sai, err := wtua.Address.toSockaddrInet()
+	sai, err := row.Address.toSockaddrInet()
 
 	if err != nil {
 		return nil, err
@@ -166,37 +166,37 @@ func (wtua *wtMibUnicastipaddressRow) toUnicastIpAddressRow() (*UnicastIpAddress
 
 	return &UnicastIpAddressRow{
 		Address:            sai,
-		InterfaceLuid:      wtua.InterfaceLuid,
-		InterfaceIndex:     wtua.InterfaceIndex,
-		PrefixOrigin:       wtua.PrefixOrigin,
-		SuffixOrigin:       wtua.SuffixOrigin,
-		ValidLifetime:      wtua.ValidLifetime,
-		PreferredLifetime:  wtua.PreferredLifetime,
-		OnLinkPrefixLength: wtua.OnLinkPrefixLength,
-		SkipAsSource:       uint8ToBool(wtua.SkipAsSource),
-		DadState:           wtua.DadState,
-		ScopeId:            wtua.ScopeId,
-		CreationTimeStamp:  wtua.CreationTimeStamp,
+		InterfaceLuid:      row.InterfaceLuid,
+		InterfaceIndex:     row.InterfaceIndex,
+		PrefixOrigin:       row.PrefixOrigin,
+		SuffixOrigin:       row.SuffixOrigin,
+		ValidLifetime:      row.ValidLifetime,
+		PreferredLifetime:  row.PreferredLifetime,
+		OnLinkPrefixLength: row.OnLinkPrefixLength,
+		SkipAsSource:       uint8ToBool(row.SkipAsSource),
+		DadState:           row.DadState,
+		ScopeId:            row.ScopeId,
+		CreationTimeStamp:  row.CreationTimeStamp,
 	}, nil
 }
 
-func (wtua *wtMibUnicastipaddressRow) equal(other *wtMibUnicastipaddressRow) bool {
+func (row *wtMibUnicastipaddressRow) equal(other *wtMibUnicastipaddressRow) bool {
 
-	if wtua == nil || other == nil {
+	if row == nil || other == nil {
 		return false
 	}
 
-	return wtua.InterfaceLuid == other.InterfaceLuid && wtua.InterfaceIndex == other.InterfaceIndex &&
-		wtua.PrefixOrigin == other.PrefixOrigin && wtua.SuffixOrigin == other.SuffixOrigin &&
-		wtua.ValidLifetime == other.ValidLifetime && wtua.PreferredLifetime == other.PreferredLifetime &&
-		wtua.OnLinkPrefixLength == other.OnLinkPrefixLength && wtua.SkipAsSource == other.SkipAsSource &&
-		wtua.DadState == other.DadState && wtua.ScopeId == other.ScopeId &&
-		wtua.CreationTimeStamp == other.CreationTimeStamp && wtua.Address.equal(&other.Address)
+	return row.InterfaceLuid == other.InterfaceLuid && row.InterfaceIndex == other.InterfaceIndex &&
+		row.PrefixOrigin == other.PrefixOrigin && row.SuffixOrigin == other.SuffixOrigin &&
+		row.ValidLifetime == other.ValidLifetime && row.PreferredLifetime == other.PreferredLifetime &&
+		row.OnLinkPrefixLength == other.OnLinkPrefixLength && row.SkipAsSource == other.SkipAsSource &&
+		row.DadState == other.DadState && row.ScopeId == other.ScopeId &&
+		row.CreationTimeStamp == other.CreationTimeStamp && row.Address.equal(&other.Address)
 }
 
-func (wtua *wtMibUnicastipaddressRow) String() string {
+func (row *wtMibUnicastipaddressRow) String() string {
 
-	if wtua == nil {
+	if row == nil {
 		return "<nil>"
 	}
 
@@ -211,7 +211,7 @@ SkipAsSource: %d
 DadState: %s
 ScopeId: %d
 CreationTimeStamp: %d
-`, wtua.Address.String(), wtua.OnLinkPrefixLength, wtua.InterfaceLuid, wtua.InterfaceIndex, wtua.PrefixOrigin.String(),
-		wtua.SuffixOrigin.String(), wtua.ValidLifetime, wtua.PreferredLifetime, wtua.SkipAsSource, wtua.DadState.String(),
-		wtua.SkipAsSource, wtua.CreationTimeStamp)
+`, row.Address.String(), row.OnLinkPrefixLength, row.InterfaceLuid, row.InterfaceIndex, row.PrefixOrigin.String(),
+		row.SuffixOrigin.String(), row.ValidLifetime, row.PreferredLifetime, row.SkipAsSource, row.DadState.String(),
+		row.SkipAsSource, row.CreationTimeStamp)
 }

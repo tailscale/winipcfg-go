@@ -11,6 +11,17 @@ import (
 	"net"
 )
 
+var (
+	gatewayIPv4 = net.IPNet{
+		IP: net.IPv4zero,
+		Mask: net.IPMask(net.IPv4zero),
+	}
+	gatewayIPv6 = net.IPNet{
+		IP: net.IPv6zero,
+		Mask: net.IPMask(net.IPv6zero),
+	}
+)
+
 // Corresponds to Windows struct IP_ADAPTER_ADDRESSES
 // (https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_addresses_lh)
 type Interface struct {
@@ -490,9 +501,42 @@ func (ifc *Interface) SetDNS(dnses []net.IP) error {
 //// or if the default interface's MTU changes.
 //func RegisterDefaultInterfaceNotifier(callback func(*Interface)) (windows.HANDLE, error)
 //func UnregisterDefaultInterfaceNotifier(handle windows.HANDLE) error
-//
-//// Returns the interface that has 0.0.0.0/0.
-//func DefaultInterface() (*Interface, error)
+
+// Returns the interface that has 0.0.0.0/0 or ::/0 (depending on 'family').
+func DefaultInterface(family AddressFamily) (*Interface, error) {
+
+	if family != AF_INET && family != AF_INET6 {
+		return nil, fmt.Errorf("DefaultInterface() - input argument 'family' has to be either AF_INET or AF_INET6")
+	}
+
+	destination := gatewayIPv4
+
+	if family == AF_INET6 {
+		destination = gatewayIPv6
+	}
+
+	routes, err := findWtMibIpforwardRow2s(0, &destination, family)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(routes) < 1 {
+		return nil, nil
+	}
+
+	interfaceLuid := uint64(0)
+	metric := uint32(0)
+
+	for _, route := range routes {
+		if interfaceLuid == 0 || metric > route.Metric {
+			interfaceLuid = route.InterfaceLuid
+			metric = route.Metric
+		}
+	}
+
+	return InterfaceFromLUID(interfaceLuid)
+}
 
 func (ifc *Interface) String() string {
 

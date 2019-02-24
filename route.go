@@ -58,7 +58,7 @@ func getRoutes(interfaceLuid uint64, family AddressFamily) ([]*Route, error) {
 
 func findRoutes(interfaceLuid uint64, destination *net.IPNet) ([]*Route, error) {
 
-	rows, err := findWtMibIpforwardRow2s(interfaceLuid, destination)
+	rows, err := findWtMibIpforwardRow2s(interfaceLuid, destination, AF_UNSPEC)
 
 	if err != nil {
 		return nil, err

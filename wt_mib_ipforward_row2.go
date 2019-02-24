@@ -133,9 +133,9 @@ func getWtMibIpforwardRow2(interfaceLuid uint64, destination *wtIpAddressPrefix,
 	}
 }
 
-func findWtMibIpforwardRow2s(interfaceLuid uint64, destination *net.IPNet) ([]*wtMibIpforwardRow2, error) {
+func findWtMibIpforwardRow2s(interfaceLuid uint64, destination *net.IPNet, family AddressFamily) ([]*wtMibIpforwardRow2, error) {
 
-	rows, err := getWtMibIpforwardRow2s(interfaceLuid, AF_UNSPEC)
+	rows, err := getWtMibIpforwardRow2s(interfaceLuid, family)
 
 	if err != nil {
 		return nil, err

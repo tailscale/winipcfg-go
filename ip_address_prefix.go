@@ -42,6 +42,24 @@ func (ap *IpAddressPrefix) toNetIpNet() (*net.IPNet, error) {
 	return nil, fmt.Errorf("IpAddressPrefix.toNetIpNet() - invalid receiver argument")
 }
 
+func (ap *IpAddressPrefix) toWtIpAddressPrefix() (*wtIpAddressPrefix, error) {
+
+	if ap == nil {
+		return nil, nil
+	}
+
+	wtsainet, err := ap.Prefix.toWtSockaddrInet()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &wtIpAddressPrefix{
+		Prefix:       *wtsainet,
+		PrefixLength: ap.PrefixLength,
+	}, nil
+}
+
 func (ap *IpAddressPrefix) String() string {
 	if ap == nil {
 		return "<nil>"

@@ -84,13 +84,26 @@ func findRoutes(interfaceLuid uint64, destination *net.IPNet) ([]*Route, error) 
 
 func getRoute(interfaceLuid uint64, destination *net.IPNet, nextHop *net.IP) (*Route, error) {
 
-	row, err := getWtMibIpforwardRow2(interfaceLuid, destination, nextHop)
+	row, err := getWtMibIpforwardRow2Alt(interfaceLuid, destination, nextHop)
 
 	if err == nil {
 		return row.toRoute()
 	} else {
 		return nil, err
 	}
+}
+
+func (route *Route) copyChangeableFieldsTo(row *wtMibIpforwardRow2) {
+
+	row.SitePrefixLength = route.SitePrefixLength
+	row.ValidLifetime = route.ValidLifetime
+	row.PreferredLifetime = route.PreferredLifetime
+	row.Metric = route.Metric
+	row.Protocol = route.Protocol
+	row.Loopback = boolToUint8(route.Loopback)
+	row.AutoconfigureAddress = boolToUint8(route.AutoconfigureAddress)
+	row.Publish = boolToUint8(route.Publish)
+	row.Immortal = boolToUint8(route.Immortal)
 }
 
 // Returns routes which are matching defined destination criterion.
@@ -104,14 +117,68 @@ func GetRoutes(family AddressFamily) ([]*Route, error) {
 	return getRoutes(0, family)
 }
 
-//func (route *Route) Add() error {
+// Adds new route to the system. Similar to Interface.AddRoute() method, but allows setting more options. Additional
+// options you can set by using this method are all "changeable" fields of Route struct (see Route.Set() method for more
+// details).
+func (route *Route) Add() error {
+
+	wtDest, err := route.DestinationPrefix.toWtIpAddressPrefix()
+
+	if err != nil {
+		return err
+	}
+
+	wtNextHop, err := route.NextHop.toWtSockaddrInet()
+
+	if err != nil {
+		return err
+	}
+
+	row := getInitializedWtMibIpforwardRow2(route.InterfaceLuid)
+
+	row.DestinationPrefix = *wtDest
+	row.NextHop = *wtNextHop
+
+	route.copyChangeableFieldsTo(row)
+
+	return row.add()
+}
+
+// Saves (activates) modified Route. Corresponds to SetIpForwardEntry2 function
+// (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setipforwardentry2).
 //
-//
-//}
-//
-//func (route *Route) Set() error {
-//
-//}
+// Note that fields InterfaceLuid, InterfaceIndex, DestinationPrefix and NextHop are used for identifying route to
+// change, meaning that they cannot be changed by using this method. Changing some of these fields would cause updating
+// some other route. On the other side, fields Age and Origin are read-only, so they also cannot be changed. So fields
+// that are "changeable" this way are all between SitePrefixLength and Immortal, inclusive.
+// The workflow of using this method is:
+// 1) Get Route instance by using any of getter methods (i.e. GetRoutes or any other);
+// 2) Change one or more of "changeable" fields enumerated above;
+// 3) Calling this method to activate the changes.
+func (route *Route) Set() error {
+
+	destination, err := route.DestinationPrefix.toWtIpAddressPrefix()
+
+	if err != nil {
+		return err
+	}
+
+	nextHop, err := route.NextHop.toWtSockaddrInet()
+
+	if err != nil {
+		return err
+	}
+
+	old, err := getWtMibIpforwardRow2(route.InterfaceLuid, destination, nextHop)
+
+	if err != nil {
+		return err
+	}
+
+	route.copyChangeableFieldsTo(old)
+
+	return old.set()
+}
 
 func (r *Route) String() string {
 

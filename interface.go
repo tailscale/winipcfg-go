@@ -441,7 +441,7 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) erro
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2).
 func (ifc *Interface) DeleteRoute(destination *net.IPNet, nextHop *net.IP) error {
 
-	row, err := getWtMibIpforwardRow2(ifc.Luid, destination, nextHop)
+	row, err := getWtMibIpforwardRow2Alt(ifc.Luid, destination, nextHop)
 
 	if err == nil {
 		return row.delete()

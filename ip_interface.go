@@ -153,6 +153,12 @@ func (ipifc *IpInterface) Set() error {
 	old.Metric = ipifc.Metric
 	old.NlMtu = ipifc.NlMtu
 
+	// Patch that fixes SitePrefixLength issue
+	// (https://stackoverflow.com/questions/54857292/setipinterfaceentry-returns-error-invalid-parameter?noredirect=1)
+	if old.SitePrefixLength > 128 || (old.SitePrefixLength > 32 && old.Family == AF_INET) {
+		old.SitePrefixLength = 0
+	}
+
 	return old.set()
 }
 

@@ -819,3 +819,24 @@ func TestInterface_SetDNS(t *testing.T) {
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
 }
+
+func TestDefaultInterface(t *testing.T) {
+
+	ifc, err := DefaultInterface(AF_INET)
+
+	if err != nil {
+		t.Errorf("DefaultInterface() returned an error: %v", err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("DefaultInterface() returned nil.")
+		return
+	}
+
+	if interface_print {
+		fmt.Println("======================== INTERFACE OUTPUT START ========================")
+		fmt.Println(ifc)
+		fmt.Println("========================= INTERFACE OUTPUT END =========================")
+	}
+}

@@ -12,7 +12,7 @@ import (
 
 // Example callback
 var interfaceChangeCallbackExample InterfaceChangeCallback = func(notificationType MibNotificationType, interfaceLuid uint64) {
-	fmt.Printf("INTERFACE CHANGED! LUID: %d", interfaceLuid)
+	fmt.Printf("INTERFACE CHANGED! LUID: %d\n", interfaceLuid)
 }
 
 func TestRegisterUnregisterInterfaceChangeCallback(t *testing.T) {

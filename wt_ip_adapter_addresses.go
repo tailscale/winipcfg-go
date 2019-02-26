@@ -12,8 +12,26 @@ import (
 	"unsafe"
 )
 
+// Defined in IPTypes.h
+type getAdapterAddressesFlagsBytes uint32
+
 const (
-	max_adapter_address_length = 8 // MAX_ADAPTER_ADDRESS_LENGTH defined in iptypes.h
+	gaa_flag_skip_unicast                getAdapterAddressesFlagsBytes = 0x0001 // GAA_FLAG_SKIP_UNICAST
+	gaa_flag_skip_anycast                getAdapterAddressesFlagsBytes = 0x0002 // GAA_FLAG_SKIP_ANYCAST
+	gaa_flag_skip_multicast              getAdapterAddressesFlagsBytes = 0x0004 // GAA_FLAG_SKIP_MULTICAST
+	gaa_flag_skip_dns_server             getAdapterAddressesFlagsBytes = 0x0008 // GAA_FLAG_SKIP_DNS_SERVER
+	gaa_flag_include_prefix              getAdapterAddressesFlagsBytes = 0x0010 // GAA_FLAG_INCLUDE_PREFIX
+	gaa_flag_skip_friendly_name          getAdapterAddressesFlagsBytes = 0x0020 // GAA_FLAG_SKIP_FRIENDLY_NAME
+	gaa_flag_include_wins_info           getAdapterAddressesFlagsBytes = 0x0040 // GAA_FLAG_INCLUDE_WINS_INFO
+	gaa_flag_include_gateways            getAdapterAddressesFlagsBytes = 0x0080 // GAA_FLAG_INCLUDE_GATEWAYS
+	gaa_flag_include_all_interfaces      getAdapterAddressesFlagsBytes = 0x0100 // GAA_FLAG_INCLUDE_ALL_INTERFACES
+	gaa_flag_include_all_compartments    getAdapterAddressesFlagsBytes = 0x0200 // GAA_FLAG_INCLUDE_ALL_COMPARTMENTS
+	gaa_flag_include_tunnel_bindingorder getAdapterAddressesFlagsBytes = 0x0400 // GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER
+	gaa_flag_skip_dns_info               getAdapterAddressesFlagsBytes = 0x0800 // GAA_FLAG_SKIP_DNS_INFO
+)
+
+const (
+	max_adapter_address_length = 8   // MAX_ADAPTER_ADDRESS_LENGTH defined in iptypes.h
 	max_dhcpv6_duid_length     = 130 // MAX_DHCPV6_DUID_LENGTH defined in iptypes.h
 )
 
@@ -22,7 +40,7 @@ type wtIpAdapterAddresses wtIpAdapterAddressesLh
 
 // Corresponds to GetAdaptersAddresses function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses)
-func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
+func getWtIpAdapterAddresses(gaaFlags getAdapterAddressesFlagsBytes) ([]*wtIpAdapterAddresses, error) {
 
 	var b []byte
 
@@ -32,7 +50,7 @@ func getWtIpAdapterAddresses() ([]*wtIpAdapterAddresses, error) {
 
 		b = make([]byte, size)
 
-		result := getAdaptersAddresses(windows.AF_UNSPEC, windows.GAA_FLAG_INCLUDE_PREFIX, 0,
+		result := getAdaptersAddresses(windows.AF_UNSPEC, uint32(gaaFlags), 0,
 			(*wtIpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
 
 		if result == 0 {

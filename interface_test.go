@@ -47,7 +47,7 @@ var (
 
 func TestGetInterfaces(t *testing.T) {
 
-	ifcs, err := GetInterfaces()
+	ifcs, err := GetInterfacesEx(FullGetAdapterAddressesFlags())
 
 	if err != nil {
 		t.Errorf("GetInterfaces() returned error: %v", err)
@@ -229,6 +229,8 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
+
+	ifc, _ = InterfaceFromLUID(ifc.Luid)
 
 	if count+1 != len(ifc.UnicastAddresses) {
 		t.Errorf("Number of unicast addresses before adding is %d, while number after adding is %d.", count,
@@ -619,11 +621,7 @@ func TestInterface_FlushDNS(t *testing.T) {
 		return
 	}
 
-	err = ifc.Refresh()
-
-	if err != nil {
-		t.Errorf("Interface.Refresh() returned an error: %v", err)
-	}
+	ifc, _ = InterfaceFromLUID(ifc.Luid)
 
 	if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
@@ -679,11 +677,7 @@ func TestInterface_AddDNS(t *testing.T) {
 		return
 	}
 
-	err = ifc.Refresh()
-
-	if err != nil {
-		t.Errorf("Interface.Refresh() returned an error: %v", err)
-	}
+	ifc, _ = InterfaceFromLUID(ifc.Luid)
 
 	if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")
@@ -774,11 +768,7 @@ func TestInterface_SetDNS(t *testing.T) {
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
 
-	err = ifc.Refresh()
-
-	if err != nil {
-		t.Errorf("Interface.Refresh() returned an error: %v", err)
-	}
+	ifc, _ = InterfaceFromLUID(ifc.Luid)
 
 	if interface_print {
 		fmt.Println("======================== INTERFACE OUTPUT START ========================")

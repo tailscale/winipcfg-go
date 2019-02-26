@@ -60,11 +60,16 @@ type Interface struct {
 	DnsSuffixes         []string
 }
 
+// The same as GetInterfacesEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
+func GetInterfaces() ([]*Interface, error) {
+	return GetInterfacesEx(DefaultGetAdapterAddressesFlags())
+}
+
 // Returns all available interfaces. Corresponds to GetAdaptersAddresses function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses)
-func GetInterfaces() ([]*Interface, error) {
+func GetInterfacesEx(flags *GetAdapterAddressesFlags) ([]*Interface, error) {
 
-	wtiaas, err := getWtIpAdapterAddresses()
+	wtiaas, err := getWtIpAdapterAddresses(flags.toGetAdapterAddressesFlagsBytes())
 
 	if err != nil {
 		return nil, err
@@ -88,10 +93,15 @@ func GetInterfaces() ([]*Interface, error) {
 	return ifcs, nil
 }
 
-// Returns interface with specified LUID.
+// The same as InterfaceFromLUIDEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
 func InterfaceFromLUID(luid uint64) (*Interface, error) {
+	return InterfaceFromLUIDEx(luid, DefaultGetAdapterAddressesFlags())
+}
 
-	wtiaas, err := getWtIpAdapterAddresses()
+// Returns interface with specified LUID.
+func InterfaceFromLUIDEx(luid uint64, flags *GetAdapterAddressesFlags) (*Interface, error) {
+
+	wtiaas, err := getWtIpAdapterAddresses(flags.toGetAdapterAddressesFlagsBytes())
 
 	if err != nil {
 		return nil, err
@@ -113,10 +123,15 @@ func InterfaceFromLUID(luid uint64) (*Interface, error) {
 	return nil, nil
 }
 
-// Returns interface at specified index.
+// The same as InterfaceFromIndexEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
 func InterfaceFromIndex(index uint32) (*Interface, error) {
+	return InterfaceFromIndexEx(index, DefaultGetAdapterAddressesFlags())
+}
 
-	wtiaas, err := getWtIpAdapterAddresses()
+// Returns interface at specified index.
+func InterfaceFromIndexEx(index uint32, flags *GetAdapterAddressesFlags) (*Interface, error) {
+
+	wtiaas, err := getWtIpAdapterAddresses(flags.toGetAdapterAddressesFlagsBytes())
 
 	if err != nil {
 		return nil, err
@@ -145,10 +160,17 @@ func InterfaceFromIndex(index uint32) (*Interface, error) {
 	return nil, nil
 }
 
-// Returns interface with specified friendly name.
+// The same as InterfaceFromFriendlyNameEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
 func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
+	return InterfaceFromFriendlyNameEx(friendlyName, DefaultGetAdapterAddressesFlags())
+}
 
-	wtiaas, err := getWtIpAdapterAddresses()
+// Returns interface with specified friendly name.
+func InterfaceFromFriendlyNameEx(friendlyName string, flags *GetAdapterAddressesFlags) (*Interface, error) {
+
+	flags.GAA_FLAG_SKIP_FRIENDLY_NAME = false
+
+	wtiaas, err := getWtIpAdapterAddresses(flags.toGetAdapterAddressesFlagsBytes())
 
 	if err != nil {
 		return nil, err
@@ -168,24 +190,6 @@ func InterfaceFromFriendlyName(friendlyName string) (*Interface, error) {
 	}
 
 	return nil, nil
-}
-
-// Refreshes the interface by loading all it again from Windows.
-func (ifc *Interface) Refresh() error {
-
-	ifcnew, err := InterfaceFromLUID(ifc.Luid)
-
-	if err != nil {
-		return err
-	}
-
-	if ifcnew == nil {
-		return fmt.Errorf("Interface.Refresh() - InterfaceFromLUID() returned nil")
-	}
-
-	*ifc = *ifcnew
-
-	return nil
 }
 
 // Returns IpInterface struct that corresponds to the interface. Corresponds to GetIpInterfaceEntry function
@@ -243,8 +247,6 @@ func (ifc *Interface) FlushAddresses() error {
 		}
 	}
 
-	_ = ifc.Refresh()
-
 	return nil
 }
 
@@ -268,8 +270,6 @@ func (ifc *Interface) AddAddresses(addresses []*net.IPNet) error {
 			}
 		}
 	}
-
-	_ = ifc.Refresh()
 
 	return nil
 }
@@ -302,13 +302,7 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 		return err
 	}
 
-	err = addr.delete()
-
-	if err == nil {
-		_ = ifc.Refresh()
-	}
-
-	return err
+	return addr.delete()
 }
 
 // Returns all the interface's routes. Corresponds to GetIpForwardTable2 function, but filtered by interface.
@@ -535,7 +529,11 @@ func DefaultInterface(family AddressFamily) (*Interface, error) {
 		}
 	}
 
-	return InterfaceFromLUID(interfaceLuid)
+	gaaflags := DefaultGetAdapterAddressesFlags()
+
+	gaaflags.GAA_FLAG_INCLUDE_GATEWAYS = true
+
+	return InterfaceFromLUIDEx(interfaceLuid, gaaflags)
 }
 
 func (ifc *Interface) String() string {

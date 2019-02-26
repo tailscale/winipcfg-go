@@ -149,8 +149,7 @@ OutErrors: %d
 OutUcastOctets: %d
 OutMulticastOctets: %d
 OutBroadcastOctets: %d
-OutQLen: %d
-`, ifr.InterfaceLuid, ifr.InterfaceIndex, guidToString(ifr.InterfaceGuid), ifr.Alias, ifr.Description,
+OutQLen: %d`, ifr.InterfaceLuid, ifr.InterfaceIndex, guidToString(ifr.InterfaceGuid), ifr.Alias, ifr.Description,
 		ifr.PhysicalAddress, ifr.PermanentPhysicalAddress, ifr.Mtu, ifr.Type.String(), ifr.TunnelType.String(),
 		ifr.MediaType.String(), ifr.PhysicalMediumType.String(), ifr.AccessType.String(), ifr.DirectionType.String(),
 		toIndentedText(ifr.InterfaceAndOperStatusFlags.String(), "    "), ifr.OperStatus.String(),

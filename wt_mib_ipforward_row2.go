@@ -304,8 +304,7 @@ AutoconfigureAddress: %d
 Publish: %d
 Immortal: %d
 Age: %d
-Origin: %s
-`, r.InterfaceLuid, r.InterfaceIndex, r.DestinationPrefix.String(), r.NextHop.String(), r.SitePrefixLength,
+Origin: %s`, r.InterfaceLuid, r.InterfaceIndex, r.DestinationPrefix.String(), r.NextHop.String(), r.SitePrefixLength,
 		r.ValidLifetime, r.PreferredLifetime, r.Metric, r.Protocol.String(), r.Loopback, r.AutoconfigureAddress,
 		r.Publish, r.Immortal, r.Age, r.Origin.String())
 }

@@ -1183,12 +1183,11 @@ WINSEnableLMHostsLookup: %v
 WINSHostLookupFile: %s
 WINSPrimaryServer: %s
 WINSScopeID: %s
-WINSSecondaryServer: %s
-`, nac.IPXVirtualNetNumber, nac.KeepAliveInterval, nac.KeepAliveTime, nac.MACAddress, nac.MTU, nac.NumForwardPackets,
-		nac.PMTUBHDetectEnabled, nac.PMTUDiscoveryEnabled, nac.ServiceName, nac.TcpipNetbiosOptions,
-		nac.TcpMaxConnectRetransmissions, nac.TcpMaxDataRetransmissions, nac.TcpNumConnections, nac.TcpUseRFC1122UrgentPointer,
-		nac.TcpWindowSize, nac.WINSEnableLMHostsLookup, nac.WINSHostLookupFile, nac.WINSPrimaryServer, nac.WINSScopeID,
-		nac.WINSSecondaryServer))
+WINSSecondaryServer: %s`, nac.IPXVirtualNetNumber, nac.KeepAliveInterval, nac.KeepAliveTime, nac.MACAddress, nac.MTU,
+		nac.NumForwardPackets, nac.PMTUBHDetectEnabled, nac.PMTUDiscoveryEnabled, nac.ServiceName,
+		nac.TcpipNetbiosOptions, nac.TcpMaxConnectRetransmissions, nac.TcpMaxDataRetransmissions, nac.TcpNumConnections,
+		nac.TcpUseRFC1122UrgentPointer,	nac.TcpWindowSize, nac.WINSEnableLMHostsLookup, nac.WINSHostLookupFile,
+		nac.WINSPrimaryServer, nac.WINSScopeID,	nac.WINSSecondaryServer))
 
 	return buffer.String()
 }

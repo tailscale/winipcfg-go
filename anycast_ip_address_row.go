@@ -112,7 +112,6 @@ func (aia *AnycastIpAddressRow) String() string {
 		return fmt.Sprintf(`Address: %s
 InterfaceLuid: %d
 InterfaceIndex: %d
-ScopeId: %d
-`, aia.Address.String(), aia.InterfaceLuid, aia.InterfaceIndex, aia.ScopeId)
+ScopeId: %d`, aia.Address.String(), aia.InterfaceLuid, aia.InterfaceIndex, aia.ScopeId)
 	}
 }

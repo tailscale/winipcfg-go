@@ -196,8 +196,8 @@ PreferredLifetime: %d
 SkipAsSource: %v
 DadState: %s
 ScopeId: %d
-CreationTimeStamp: %d
-`, address.Address.String(), address.OnLinkPrefixLength, address.InterfaceLuid, address.InterfaceIndex, address.PrefixOrigin.String(),
-		address.SuffixOrigin.String(), address.ValidLifetime, address.PreferredLifetime, address.SkipAsSource, address.DadState.String(),
-		address.ScopeId, address.CreationTimeStamp)
+CreationTimeStamp: %d`, address.Address.String(), address.OnLinkPrefixLength, address.InterfaceLuid,
+		address.InterfaceIndex, address.PrefixOrigin.String(), address.SuffixOrigin.String(), address.ValidLifetime,
+		address.PreferredLifetime, address.SkipAsSource, address.DadState.String(),	address.ScopeId,
+		address.CreationTimeStamp)
 }

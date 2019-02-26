@@ -204,10 +204,9 @@ TransmitOffload:
 %s
 ReceiveOffload:
 %s
-DisableDefaultRoutes: %v
-	`, mir.Family.String(), mir.InterfaceLuid, mir.InterfaceIndex, mir.MaxReassemblySize, mir.InterfaceIdentifier,
-		mir.MinRouterAdvertisementInterval, mir.MaxRouterAdvertisementInterval, mir.AdvertisingEnabled,
-		mir.ForwardingEnabled, mir.WeakHostSend, mir.WeakHostReceive, mir.UseAutomaticMetric,
+DisableDefaultRoutes: %v`, mir.Family.String(), mir.InterfaceLuid, mir.InterfaceIndex, mir.MaxReassemblySize,
+		mir.InterfaceIdentifier, mir.MinRouterAdvertisementInterval, mir.MaxRouterAdvertisementInterval,
+		mir.AdvertisingEnabled, mir.ForwardingEnabled, mir.WeakHostSend, mir.WeakHostReceive, mir.UseAutomaticMetric,
 		mir.UseNeighborUnreachabilityDetection, mir.ManagedAddressConfigurationSupported,
 		mir.OtherStatefulConfigurationSupported, mir.AdvertiseDefaultRoute, mir.RouterDiscoveryBehavior.String(),
 		mir.DadTransmits, mir.BaseReachableTime, mir.RetransmitTime, mir.PathMtuDiscoveryTimeout,

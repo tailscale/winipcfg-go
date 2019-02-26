@@ -7,19 +7,6 @@ package winipcfg
 
 import "fmt"
 
-type nlInterfaceOffloadRod uint8
-
-const (
-	nlChecksumSupported         nlInterfaceOffloadRod = 1
-	nlOptionsSupported          nlInterfaceOffloadRod = 2
-	tlDatagramChecksumSupported nlInterfaceOffloadRod = 4
-	tlStreamChecksumSupported   nlInterfaceOffloadRod = 8
-	tlStreamOptionsSupported    nlInterfaceOffloadRod = 16
-	fastPathCompatible          nlInterfaceOffloadRod = 32
-	tlLargeSendOffloadSupported nlInterfaceOffloadRod = 64
-	tlGiantSendOffloadSupported nlInterfaceOffloadRod = 128
-)
-
 type NlInterfaceOffloadRodFlags struct {
 	NlChecksumSupported         bool
 	NlOptionsSupported          bool
@@ -31,43 +18,43 @@ type NlInterfaceOffloadRodFlags struct {
 	TlGiantSendOffloadSupported bool
 }
 
-func (ior *NlInterfaceOffloadRodFlags) toWtNlInterfaceOffloadRod() wtNlInterfaceOffloadRod {
+func (iorf *NlInterfaceOffloadRodFlags) toWtNlInterfaceOffloadRod() wtNlInterfaceOffloadRodByte {
 
-	uint8Val := uint8(0)
+	result := wtNlInterfaceOffloadRodByte(0)
 
-	if ior.NlChecksumSupported {
-		uint8Val |= uint8(nlChecksumSupported)
+	if iorf.NlChecksumSupported {
+		result |= nlChecksumSupported
 	}
 
-	if ior.NlOptionsSupported {
-		uint8Val |= uint8(nlOptionsSupported)
+	if iorf.NlOptionsSupported {
+		result |= nlOptionsSupported
 	}
 
-	if ior.TlDatagramChecksumSupported {
-		uint8Val |= uint8(tlDatagramChecksumSupported)
+	if iorf.TlDatagramChecksumSupported {
+		result |= tlDatagramChecksumSupported
 	}
 
-	if ior.TlStreamChecksumSupported {
-		uint8Val |= uint8(tlStreamChecksumSupported)
+	if iorf.TlStreamChecksumSupported {
+		result |= tlStreamChecksumSupported
 	}
 
-	if ior.TlStreamOptionsSupported {
-		uint8Val |= uint8(tlStreamOptionsSupported)
+	if iorf.TlStreamOptionsSupported {
+		result |= tlStreamOptionsSupported
 	}
 
-	if ior.FastPathCompatible {
-		uint8Val |= uint8(fastPathCompatible)
+	if iorf.FastPathCompatible {
+		result |= fastPathCompatible
 	}
 
-	if ior.TlLargeSendOffloadSupported {
-		uint8Val |= uint8(tlLargeSendOffloadSupported)
+	if iorf.TlLargeSendOffloadSupported {
+		result |= tlLargeSendOffloadSupported
 	}
 
-	if ior.TlGiantSendOffloadSupported {
-		uint8Val |= uint8(tlGiantSendOffloadSupported)
+	if iorf.TlGiantSendOffloadSupported {
+		result |= tlGiantSendOffloadSupported
 	}
 
-	return wtNlInterfaceOffloadRod(uint8Val)
+	return result
 }
 
 func (iorf *NlInterfaceOffloadRodFlags) String() string {

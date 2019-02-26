@@ -19,26 +19,26 @@ const (
 type interfaceAndOperStatusFlagsByte uint8
 
 const (
-	hardwareInterface interfaceAndOperStatusFlagsByte = 1
-	filterInterface   interfaceAndOperStatusFlagsByte = 2
-	connectorPresent  interfaceAndOperStatusFlagsByte = 4
-	notAuthenticated  interfaceAndOperStatusFlagsByte = 8
-	notMediaConnected interfaceAndOperStatusFlagsByte = 16
-	paused            interfaceAndOperStatusFlagsByte = 32
-	lowPower          interfaceAndOperStatusFlagsByte = 64
-	endPointInterface interfaceAndOperStatusFlagsByte = 128
+	hardwareInterface interfaceAndOperStatusFlagsByte = 0x01
+	filterInterface   interfaceAndOperStatusFlagsByte = 0x02
+	connectorPresent  interfaceAndOperStatusFlagsByte = 0x04
+	notAuthenticated  interfaceAndOperStatusFlagsByte = 0x08
+	notMediaConnected interfaceAndOperStatusFlagsByte = 0x10
+	paused            interfaceAndOperStatusFlagsByte = 0x20
+	lowPower          interfaceAndOperStatusFlagsByte = 0x40
+	endPointInterface interfaceAndOperStatusFlagsByte = 0x80
 )
 
 func (wtior interfaceAndOperStatusFlagsByte) toInterfaceAndOperStatusFlags() *InterfaceAndOperStatusFlags {
 	return &InterfaceAndOperStatusFlags{
-		HardwareInterface: uint8ToBool(uint8(wtior) & uint8(hardwareInterface)),
-		FilterInterface:   uint8ToBool(uint8(wtior) & uint8(filterInterface)),
-		ConnectorPresent:  uint8ToBool(uint8(wtior) & uint8(connectorPresent)),
-		NotAuthenticated:  uint8ToBool(uint8(wtior) & uint8(notAuthenticated)),
-		NotMediaConnected: uint8ToBool(uint8(wtior) & uint8(notMediaConnected)),
-		Paused:            uint8ToBool(uint8(wtior) & uint8(paused)),
-		LowPower:          uint8ToBool(uint8(wtior) & uint8(lowPower)),
-		EndPointInterface: uint8ToBool(uint8(wtior) & uint8(endPointInterface)),
+		HardwareInterface: uint8ToBool(uint8(wtior & hardwareInterface)),
+		FilterInterface:   uint8ToBool(uint8(wtior & filterInterface)),
+		ConnectorPresent:  uint8ToBool(uint8(wtior & connectorPresent)),
+		NotAuthenticated:  uint8ToBool(uint8(wtior & notAuthenticated)),
+		NotMediaConnected: uint8ToBool(uint8(wtior & notMediaConnected)),
+		Paused:            uint8ToBool(uint8(wtior & paused)),
+		LowPower:          uint8ToBool(uint8(wtior & lowPower)),
+		EndPointInterface: uint8ToBool(uint8(wtior & endPointInterface)),
 	}
 }
 

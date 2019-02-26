@@ -20,41 +20,41 @@ type InterfaceAndOperStatusFlags struct {
 
 func (iaosf *InterfaceAndOperStatusFlags) toInterfaceAndOperStatusFlagsByte() interfaceAndOperStatusFlagsByte {
 
-	result := uint8(0)
+	result := interfaceAndOperStatusFlagsByte(0)
 
 	if iaosf.HardwareInterface {
-		result |= uint8(hardwareInterface)
+		result |= hardwareInterface
 	}
 
 	if iaosf.FilterInterface {
-		result |= uint8(filterInterface)
+		result |= filterInterface
 	}
 
 	if iaosf.ConnectorPresent {
-		result |= uint8(connectorPresent)
+		result |= connectorPresent
 	}
 
 	if iaosf.NotAuthenticated {
-		result |= uint8(notAuthenticated)
+		result |= notAuthenticated
 	}
 
 	if iaosf.NotMediaConnected {
-		result |= uint8(notMediaConnected)
+		result |= notMediaConnected
 	}
 
 	if iaosf.Paused {
-		result |= uint8(paused)
+		result |= paused
 	}
 
 	if iaosf.LowPower {
-		result |= uint8(lowPower)
+		result |= lowPower
 	}
 
 	if iaosf.EndPointInterface {
-		result |= uint8(endPointInterface)
+		result |= endPointInterface
 	}
 
-	return interfaceAndOperStatusFlagsByte(result)
+	return result
 }
 
 func (iaosf *InterfaceAndOperStatusFlags) String() string {
@@ -70,7 +70,6 @@ NotAuthenticated: %v
 NotMediaConnected: %v
 Paused: %v
 LowPower: %v
-EndPointInterface: %v
-`, iaosf.HardwareInterface, iaosf.FilterInterface, iaosf.ConnectorPresent, iaosf.NotAuthenticated,
+EndPointInterface: %v`, iaosf.HardwareInterface, iaosf.FilterInterface, iaosf.ConnectorPresent, iaosf.NotAuthenticated,
 		iaosf.NotMediaConnected, iaosf.Paused, iaosf.LowPower, iaosf.EndPointInterface)
 }

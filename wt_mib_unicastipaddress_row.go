@@ -210,8 +210,7 @@ PreferredLifetime: %d
 SkipAsSource: %d
 DadState: %s
 ScopeId: %d
-CreationTimeStamp: %d
-`, row.Address.String(), row.OnLinkPrefixLength, row.InterfaceLuid, row.InterfaceIndex, row.PrefixOrigin.String(),
-		row.SuffixOrigin.String(), row.ValidLifetime, row.PreferredLifetime, row.SkipAsSource, row.DadState.String(),
-		row.SkipAsSource, row.CreationTimeStamp)
+CreationTimeStamp: %d`, row.Address.String(), row.OnLinkPrefixLength, row.InterfaceLuid, row.InterfaceIndex,
+		row.PrefixOrigin.String(), row.SuffixOrigin.String(), row.ValidLifetime, row.PreferredLifetime,
+		row.SkipAsSource, row.DadState.String(), row.SkipAsSource, row.CreationTimeStamp)
 }

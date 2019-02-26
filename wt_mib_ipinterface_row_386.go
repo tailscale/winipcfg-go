@@ -70,8 +70,8 @@ type wtMibIpinterfaceRow struct {
 
 	ReachableTime uint32 // Windows type: ULONG
 
-	TransmitOffload wtNlInterfaceOffloadRod
-	ReceiveOffload  wtNlInterfaceOffloadRod
+	TransmitOffload wtNlInterfaceOffloadRodByte
+	ReceiveOffload  wtNlInterfaceOffloadRodByte
 
 	//
 	// Disables using default route on the interface. This flag

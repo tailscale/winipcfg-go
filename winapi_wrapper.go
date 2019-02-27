@@ -31,6 +31,12 @@ package winipcfg
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex
 //sys	getIfTable2Ex(Level MibIfEntryLevel, Table unsafe.Pointer) (result int32) = iphlpapi.GetIfTable2Ex
 
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-convertinterfaceluidtoguid
+//sys	convertInterfaceLuidToGuid(InterfaceLuid *uint64, InterfaceGuid *windows.GUID) (result int32) = iphlpapi.ConvertInterfaceLuidToGuid
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-convertinterfaceguidtoluid
+//sys	convertInterfaceGuidToLuid(InterfaceGuid *windows.GUID, InterfaceLuid *uint64) (result int32) = iphlpapi.ConvertInterfaceGuidToLuid
+
 // Unicast IP address - related functions
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddresstable

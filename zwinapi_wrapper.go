@@ -47,6 +47,8 @@ var (
 	procFreeMibTable                    = modiphlpapi.NewProc("FreeMibTable")
 	procGetIfEntry2Ex                   = modiphlpapi.NewProc("GetIfEntry2Ex")
 	procGetIfTable2Ex                   = modiphlpapi.NewProc("GetIfTable2Ex")
+	procConvertInterfaceLuidToGuid      = modiphlpapi.NewProc("ConvertInterfaceLuidToGuid")
+	procConvertInterfaceGuidToLuid      = modiphlpapi.NewProc("ConvertInterfaceGuidToLuid")
 	procGetUnicastIpAddressTable        = modiphlpapi.NewProc("GetUnicastIpAddressTable")
 	procGetUnicastIpAddressEntry        = modiphlpapi.NewProc("GetUnicastIpAddressEntry")
 	procSetUnicastIpAddressEntry        = modiphlpapi.NewProc("SetUnicastIpAddressEntry")
@@ -112,6 +114,18 @@ func getIfEntry2Ex(Level MibIfEntryLevel, Row *wtMibIfRow2) (result int32) {
 
 func getIfTable2Ex(Level MibIfEntryLevel, Table unsafe.Pointer) (result int32) {
 	r0, _, _ := syscall.Syscall(procGetIfTable2Ex.Addr(), 2, uintptr(Level), uintptr(Table), 0)
+	result = int32(r0)
+	return
+}
+
+func convertInterfaceLuidToGuid(InterfaceLuid *uint64, InterfaceGuid *windows.GUID) (result int32) {
+	r0, _, _ := syscall.Syscall(procConvertInterfaceLuidToGuid.Addr(), 2, uintptr(unsafe.Pointer(InterfaceLuid)), uintptr(unsafe.Pointer(InterfaceGuid)), 0)
+	result = int32(r0)
+	return
+}
+
+func convertInterfaceGuidToLuid(InterfaceGuid *windows.GUID, InterfaceLuid *uint64) (result int32) {
+	r0, _, _ := syscall.Syscall(procConvertInterfaceGuidToLuid.Addr(), 2, uintptr(unsafe.Pointer(InterfaceGuid)), uintptr(unsafe.Pointer(InterfaceLuid)), 0)
 	result = int32(r0)
 	return
 }

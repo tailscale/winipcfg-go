@@ -192,6 +192,23 @@ func InterfaceFromFriendlyNameEx(friendlyName string, flags *GetAdapterAddresses
 	return nil, nil
 }
 
+// The same as InterfaceFromGUIDEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
+func InterfaceFromGUID(guid *windows.GUID) (*Interface, error) {
+	return InterfaceFromGUIDEx(guid, DefaultGetAdapterAddressesFlags())
+}
+
+// Returns interface with specified GUID. Note that Interface struct doesn't contain interface GUID field.
+func InterfaceFromGUIDEx(guid *windows.GUID, flags *GetAdapterAddressesFlags) (*Interface, error) {
+
+	luid, err := InterfaceGuidToLuid(guid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return InterfaceFromLUIDEx(luid, flags)
+}
+
 // Returns IpInterface struct that corresponds to the interface. Corresponds to GetIpInterfaceEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipinterfaceentry).
 // Argument 'family' has to be either AF_INET or AF_INET6.
@@ -608,7 +625,7 @@ TunnelType: %s
 Dhcpv6Server: %s
 Dhcpv6ClientDuid: %v
 Dhcpv6Iaid: %d
-`, ifc.Ipv4Metric, ifc.Ipv6Metric, ifc.Dhcpv4Server.String(), ifc.CompartmentId, guidToString(ifc.NetworkGuid),
+`, ifc.Ipv4Metric, ifc.Ipv6Metric, ifc.Dhcpv4Server.String(), ifc.CompartmentId, guidToString(&ifc.NetworkGuid),
 		ifc.ConnectionType.String(), ifc.TunnelType.String(), ifc.Dhcpv6Server.String(), ifc.Dhcpv6ClientDuid, ifc.Dhcpv6Iaid)
 
 	result += "DnsSuffixes:\n"

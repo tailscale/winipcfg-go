@@ -156,6 +156,40 @@ func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 	}
 }
 
+func TestInterfaceFromGUID(t *testing.T) {
+
+	luid := existingLuid
+
+	guid, err := InterfaceLuidToGuid(luid)
+
+	if err != nil {
+		t.Errorf("InterfaceLuidToGuid() returned an error: %v. Have you forgot to set existingLuid appropriately?",
+			err)
+		return
+	}
+
+	if guid == nil {
+		t.Error("InterfaceLuidToGuid() returned nil.")
+		return
+	}
+
+	ifc, err := InterfaceFromGUID(guid)
+
+	if err != nil {
+		t.Errorf("InterfaceFromGUID() returned an error: %v", err)
+		return
+	}
+
+	if ifc == nil {
+		t.Error("InterfaceFromGUID() returned nil. Have you forgot to set existingLuid appropriately?")
+		return
+	}
+
+	if ifc.Luid != luid {
+		t.Errorf("LUID mismatch. Expected: %d; actual: %d.", luid, ifc.Luid)
+	}
+}
+
 func TestInterface_GetData(t *testing.T) {
 
 	ifc, err := InterfaceFromLUID(existingLuid)

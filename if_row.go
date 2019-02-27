@@ -86,7 +86,7 @@ func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex).
 func GetIfRows(level MibIfEntryLevel) ([]*IfRow, error) {
 
-	rows, err := getWtMibIfRow2s(level)
+	rows, err := getWtMibIfRow2s(level, nil)
 
 	if err != nil {
 		return nil, err
@@ -101,6 +101,28 @@ func GetIfRows(level MibIfEntryLevel) ([]*IfRow, error) {
 	}
 
 	return ifrows, nil
+}
+
+func GetIfRowByGuid(guid *windows.GUID, level MibIfEntryLevel) (*IfRow, error) {
+
+	if guid == nil {
+		return nil, fmt.Errorf("GetIfRowByGuid() - input argument 'guid' is nil")
+	}
+
+	rows, err := getWtMibIfRow2s(level, guid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	switch len(rows) {
+	case 0:
+		return nil, nil
+	case 1:
+		return rows[0].toIfRow(), nil
+	default:
+		return nil, fmt.Errorf("Multiple interfaces (%d) have the same guid %s.", len(rows), guidToString(guid))
+	}
 }
 
 func (ifr *IfRow) String() string {
@@ -149,11 +171,11 @@ OutErrors: %d
 OutUcastOctets: %d
 OutMulticastOctets: %d
 OutBroadcastOctets: %d
-OutQLen: %d`, ifr.InterfaceLuid, ifr.InterfaceIndex, guidToString(ifr.InterfaceGuid), ifr.Alias, ifr.Description,
+OutQLen: %d`, ifr.InterfaceLuid, ifr.InterfaceIndex, guidToString(&ifr.InterfaceGuid), ifr.Alias, ifr.Description,
 		ifr.PhysicalAddress, ifr.PermanentPhysicalAddress, ifr.Mtu, ifr.Type.String(), ifr.TunnelType.String(),
 		ifr.MediaType.String(), ifr.PhysicalMediumType.String(), ifr.AccessType.String(), ifr.DirectionType.String(),
 		toIndentedText(ifr.InterfaceAndOperStatusFlags.String(), "    "), ifr.OperStatus.String(),
-		ifr.AdminStatus.String(), ifr.MediaConnectState.String(), guidToString(ifr.NetworkGuid),
+		ifr.AdminStatus.String(), ifr.MediaConnectState.String(), guidToString(&ifr.NetworkGuid),
 		ifr.ConnectionType.String(), ifr.TransmitLinkSpeed, ifr.ReceiveLinkSpeed, ifr.InOctets, ifr.InUcastPkts,
 		ifr.InNUcastPkts, ifr.InDiscards, ifr.InErrors, ifr.InUnknownProtos, ifr.InUcastOctets, ifr.InMulticastOctets,
 		ifr.InBroadcastOctets, ifr.OutOctets, ifr.OutUcastPkts, ifr.OutNUcastPkts, ifr.OutDiscards, ifr.OutErrors,

@@ -86,11 +86,11 @@ func TestInterfaceFromLUIDNonExisting(t *testing.T) {
 
 	ifc, err := InterfaceFromLUID(unexistingLuid)
 
-	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned error: %v", err)
-	} else if ifc != nil {
+	if err == nil {
 		t.Errorf("InterfaceFromLUID() returned an interface with LUID=%d, although requested LUID was %d.",
 			ifc.Luid, unexistingLuid)
+	} else if err.Error() != "InterfaceFromIndexEx() - interface with specified LUID not found" {
+		t.Errorf("InterfaceFromLUID() returned error: %v", err)
 	}
 }
 
@@ -117,11 +117,11 @@ func TestInterfaceFromIndexNonExisting(t *testing.T) {
 
 	ifc, err := InterfaceFromIndex(unexistingIndex)
 
-	if err != nil {
-		t.Errorf("InterfaceFromIndex() returned error: %v", err)
-	} else if ifc != nil {
+	if err == nil {
 		t.Errorf("InterfaceFromIndex() returned an interface with index=%d, although requested index was %d.",
 			ifc.Index, unexistingIndex)
+	} else if err.Error() != "InterfaceFromIndexEx() - interface with specified index not found" {
+		t.Errorf("InterfaceFromIndex() returned error: %v", err)
 	}
 }
 
@@ -148,11 +148,11 @@ func TestInterfaceFromFriendlyNameNonExisting(t *testing.T) {
 
 	ifc, err := InterfaceFromFriendlyName(unexistingInterfaceName)
 
-	if err != nil {
-		t.Errorf("InterfaceFromFriendlyName() returned error: %v", err)
-	} else if ifc != nil {
+	if err == nil {
 		t.Errorf("InterfaceFromFriendlyName() returned an interface with name=%s, although requested name was %s.",
 			ifc.FriendlyName, unexistingInterfaceName)
+	} else if err.Error() != "InterfaceFromFriendlyNameEx() - interface with specified friendly name not found" {
+		t.Errorf("InterfaceFromFriendlyName() returned error: %v", err)
 	}
 }
 

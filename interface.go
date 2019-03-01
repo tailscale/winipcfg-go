@@ -153,7 +153,7 @@ func InterfaceFromLUIDEx(luid uint64, flags *GetAdapterAddressesFlags) (*Interfa
 	wtiaa := interfaceWithLuid(luid, wtiaas)
 
 	if wtiaa == nil {
-		return nil, nil
+		return nil, fmt.Errorf("InterfaceFromIndexEx() - interface with specified LUID not found")
 	} else {
 		return wtiaa.toInterface()
 	}
@@ -193,7 +193,7 @@ func InterfaceFromIndexEx(index uint32, flags *GetAdapterAddressesFlags) (*Inter
 		}
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("InterfaceFromIndexEx() - interface with specified index not found")
 }
 
 // The same as InterfaceFromFriendlyNameEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
@@ -225,7 +225,7 @@ func InterfaceFromFriendlyNameEx(friendlyName string, flags *GetAdapterAddresses
 		}
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("InterfaceFromFriendlyNameEx() - interface with specified friendly name not found")
 }
 
 // The same as InterfaceFromGUIDEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().

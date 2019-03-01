@@ -60,6 +60,49 @@ type Interface struct {
 	DnsSuffixes         []string
 }
 
+func interfaceWithLuid(luid uint64, wtiaas []*wtIpAdapterAddresses) *wtIpAdapterAddresses {
+
+	for _, wtiaa := range wtiaas {
+		if wtiaa.Luid == luid {
+			return wtiaa
+		}
+	}
+
+	return nil
+}
+
+func interfacesFromLuids(luids []uint64, flags *GetAdapterAddressesFlags) ([]*Interface, error) {
+
+	wtiaas, err := getWtIpAdapterAddresses(flags.toGetAdapterAddressesFlagsBytes())
+
+	if err != nil {
+		return nil, err
+	}
+
+	length := len(luids)
+
+	ifcs := make([]*Interface, length, length)
+
+	for idx, luid := range luids {
+
+		wtiaa := interfaceWithLuid(luid, wtiaas)
+
+		if wtiaa == nil {
+			return nil, fmt.Errorf("interfacesFromLuids() - interface with Luid=%d not found", luid)
+		}
+
+		ifc, err := wtiaa.toInterface()
+
+		if err != nil {
+			return nil, err
+		}
+
+		ifcs[idx] = ifc
+	}
+
+	return ifcs, nil
+}
+
 // The same as GetInterfacesEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
 func GetInterfaces() ([]*Interface, error) {
 	return GetInterfacesEx(DefaultGetAdapterAddressesFlags())
@@ -107,20 +150,13 @@ func InterfaceFromLUIDEx(luid uint64, flags *GetAdapterAddressesFlags) (*Interfa
 		return nil, err
 	}
 
-	for _, wtiaa := range wtiaas {
-		if wtiaa.Luid == luid {
+	wtiaa := interfaceWithLuid(luid, wtiaas)
 
-			ifc, err := wtiaa.toInterface()
-
-			if err != nil {
-				return nil, err
-			}
-
-			return ifc, nil
-		}
+	if wtiaa == nil {
+		return nil, nil
+	} else {
+		return wtiaa.toInterface()
 	}
-
-	return nil, nil
 }
 
 // The same as InterfaceFromIndexEx() with 'flags' input argument gotten from DefaultGetAdapterAddressesFlags().
@@ -513,12 +549,20 @@ func (ifc *Interface) SetDNS(dnses []net.IP) error {
 //func RegisterDefaultInterfaceNotifier(callback func(*Interface)) (windows.HANDLE, error)
 //func UnregisterDefaultInterfaceNotifier(handle windows.HANDLE) error
 
-// Returns the interface that has 0.0.0.0/0 or ::/0 (depending on 'family').
-func DefaultInterface(family AddressFamily) (*Interface, error) {
+// The same as DefaultInterfacesEx with 'flags' argument gotten from DefaultGetAdapterAddressesFlags().
+func DefaultInterfaces(family AddressFamily) ([]*Interface, error) {
+	return DefaultInterfacesEx(family, DefaultGetAdapterAddressesFlags())
+}
+
+// Returns all default interfaces (interfaces with 0.0.0.0/0 or ::/0 route, depending on 'family'), ordered by the route
+// metric.
+func DefaultInterfacesEx(family AddressFamily, flags *GetAdapterAddressesFlags) ([]*Interface, error) {
 
 	if family != AF_INET && family != AF_INET6 {
-		return nil, fmt.Errorf("DefaultInterface() - input argument 'family' has to be either AF_INET or AF_INET6")
+		return nil, fmt.Errorf("DefaultInterfacesEx() - input argument 'family' has to be either AF_INET or AF_INET6")
 	}
+
+	flags.GAA_FLAG_INCLUDE_GATEWAYS = true
 
 	destination := gatewayIPv4
 
@@ -532,25 +576,60 @@ func DefaultInterface(family AddressFamily) (*Interface, error) {
 		return nil, err
 	}
 
-	if len(routes) < 1 {
-		return nil, nil
+	numberOfRoutes := len(routes)
+
+	if numberOfRoutes < 1 {
+		return make([]*Interface, 0), nil
 	}
 
-	interfaceLuid := uint64(0)
-	metric := uint32(0)
+	sortWtMibIpforwardRow2sByMetric(routes)
+
+	ifcLuids := make([]uint64, numberOfRoutes, numberOfRoutes)
+
+	ifccounter := 0
 
 	for _, route := range routes {
-		if interfaceLuid == 0 || metric > route.Metric {
-			interfaceLuid = route.InterfaceLuid
-			metric = route.Metric
+
+		added := false
+
+		for i := 0; i < ifccounter; i++ {
+			if route.InterfaceLuid == ifcLuids[i] {
+				added = true
+				break
+			}
+		}
+
+		if !added {
+			ifcLuids[ifccounter] = route.InterfaceLuid
+			ifccounter++
 		}
 	}
 
-	gaaflags := DefaultGetAdapterAddressesFlags()
+	if ifccounter < numberOfRoutes {
+		ifcLuids = ifcLuids[:ifccounter]
+	}
 
-	gaaflags.GAA_FLAG_INCLUDE_GATEWAYS = true
+	return interfacesFromLuids(ifcLuids, flags)
+}
 
-	return InterfaceFromLUIDEx(interfaceLuid, gaaflags)
+// Returns the interface that has 0.0.0.0/0 or ::/0 (depending on 'family').
+func DefaultInterface(family AddressFamily) (*Interface, error) {
+	return DefaultInterfaceEx(family, DefaultGetAdapterAddressesFlags())
+}
+
+// Returns the first item from the slice returned by DefaultInterfacesEx() function, or nil if the returned slice is
+// empty.
+func DefaultInterfaceEx(family AddressFamily, flags *GetAdapterAddressesFlags) (*Interface, error) {
+
+	ifcs, err := DefaultInterfacesEx(family, flags)
+
+	if err != nil {
+		return nil, err
+	} else if ifcs == nil || len(ifcs) < 1 {
+		return nil, nil
+	} else {
+		return ifcs[0], nil
+	}
 }
 
 func (ifc *Interface) String() string {

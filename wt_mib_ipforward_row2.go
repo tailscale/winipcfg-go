@@ -308,3 +308,8 @@ Origin: %s`, r.InterfaceLuid, r.InterfaceIndex, r.DestinationPrefix.String(), r.
 		r.ValidLifetime, r.PreferredLifetime, r.Metric, r.Protocol.String(), r.Loopback, r.AutoconfigureAddress,
 		r.Publish, r.Immortal, r.Age, r.Origin.String())
 }
+
+type planetSorter struct {
+	planets []*wtMibIpforwardRow2
+	by      func(p1, p2 *wtMibIpforwardRow2) bool // Closure used in the Less method.
+}

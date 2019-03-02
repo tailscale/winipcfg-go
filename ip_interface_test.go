@@ -15,6 +15,11 @@ const (
 	ipInterface_print = false
 )
 
+func interfaceChangeCallbackExample(notificationType MibNotificationType, interfaceLuid uint64) {
+	fmt.Printf("INTERFACE CHANGED! MibNotificationType: %s; LUID: %d.\n", notificationType.String(),
+		interfaceLuid)
+}
+
 func TestGetIpInterfaces(t *testing.T) {
 
 	ipifcs, err := GetIpInterfaces(AF_UNSPEC)
@@ -52,7 +57,7 @@ func TestChangeMetric(t *testing.T) {
 		return
 	}
 
-	err = RegisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
+	cb, err := RegisterInterfaceChangeCallback(interfaceChangeCallbackExample)
 
 	if err != nil {
 		t.Errorf("RegisterInterfaceChangeCallback() returned error: %v", err)
@@ -60,7 +65,7 @@ func TestChangeMetric(t *testing.T) {
 	}
 
 	defer func() {
-		err = UnregisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
+		err = UnregisterInterfaceChangeCallback(cb)
 
 		if err != nil {
 			t.Errorf("UnregisterInterfaceChangeCallback() returned error: %v", err)
@@ -160,7 +165,7 @@ func TestChangeMtu(t *testing.T) {
 
 	prevMtu := ipifc.NlMtu
 
-	err = RegisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
+	cb, err := RegisterInterfaceChangeCallback(interfaceChangeCallbackExample)
 
 	if err != nil {
 		t.Errorf("RegisterInterfaceChangeCallback() returned error: %v", err)
@@ -168,7 +173,7 @@ func TestChangeMtu(t *testing.T) {
 	}
 
 	defer func() {
-		err = UnregisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
+		err = UnregisterInterfaceChangeCallback(cb)
 
 		if err != nil {
 			t.Errorf("UnregisterInterfaceChangeCallback() returned error: %v", err)

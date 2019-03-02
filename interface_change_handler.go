@@ -12,30 +12,42 @@ import (
 	"unsafe"
 )
 
-// Defines function that can be used as a callback.
-type InterfaceChangeCallback func(notificationType MibNotificationType, interfaceLuid uint64)
+type InterfaceChangeCallback struct {
+	cb func(notificationType MibNotificationType, interfaceLuid uint64)
+}
 
 var (
 	interfaceChangeMutex     = sync.Mutex{}
-	interfaceChangeCallbacks = make([]*InterfaceChangeCallback, 0)
+	interfaceChangeCallbacks = make(map[*InterfaceChangeCallback]bool)
 	interfaceChangeHandle    = uintptr(0)
 )
 
 // Registering new InterfaceChangeCallback. If this particular callback is already registered, the function will
-// silently return.
-func RegisterInterfaceChangeCallback(callback *InterfaceChangeCallback) error {
+// silently return. Returned InterfaceChangeCallback structure should be used with UnregisterInterfaceChangeCallback
+// function to unregister.
+func RegisterInterfaceChangeCallback(callback func(notificationType MibNotificationType,
+	interfaceLuid uint64)) (*InterfaceChangeCallback, error) {
+
+	cb := &InterfaceChangeCallback{callback}
 
 	interfaceChangeMutex.Lock()
 	defer interfaceChangeMutex.Unlock()
 
-	if indexOfInterfaceChangeCallback(callback) < 0 {
+	interfaceChangeCallbacks[cb] = true
 
-		interfaceChangeCallbacks = append(interfaceChangeCallbacks, callback)
+	if interfaceChangeHandle == 0 {
 
-		return checkInterfaceChangeSubscribed()
+		result := notifyIpInterfaceChange(AF_UNSPEC, windows.NewCallback(interfaceChanged), 0,
+			false, unsafe.Pointer(&interfaceChangeHandle))
+
+		if result != 0 {
+			delete(interfaceChangeCallbacks, cb)
+			interfaceChangeHandle = 0
+			return nil, os.NewSyscallError("iphlpapi.NotifyIpInterfaceChange", windows.Errno(result))
+		}
 	}
 
-	return nil
+	return cb, nil
 }
 
 // Unregistering InterfaceChangeCallback.
@@ -44,112 +56,36 @@ func UnregisterInterfaceChangeCallback(callback *InterfaceChangeCallback) error 
 	interfaceChangeMutex.Lock()
 	defer interfaceChangeMutex.Unlock()
 
-	index := indexOfInterfaceChangeCallback(callback)
+	delete(interfaceChangeCallbacks, callback)
 
-	if index < 0 {
-		// It isn't registered at all, so simply return:
-		return nil
-	}
+	if len(interfaceChangeCallbacks) < 1 && interfaceChangeHandle != 0 {
 
-	count := len(interfaceChangeCallbacks)
+		result := cancelMibChangeNotify2(interfaceChangeHandle)
 
-	if count == 1 {
-		// The last one, so empty the slice:
-		interfaceChangeCallbacks = make([]*InterfaceChangeCallback, 0)
-
-		err := checkInterfaceChangeSubscribed()
-
-		if err != nil {
-			return err
+		if result != 0 {
+			return os.NewSyscallError("iphlpapi.CancelMibChangeNotify2", windows.Errno(result))
 		}
-	} else if index == 0 {
-		interfaceChangeCallbacks = interfaceChangeCallbacks[1:]
-	} else if index == count-1 {
-		interfaceChangeCallbacks = interfaceChangeCallbacks[:index]
-	} else {
-		interfaceChangeCallbacks = append(interfaceChangeCallbacks[:index], interfaceChangeCallbacks[index+1:]...)
+
+		interfaceChangeHandle = uintptr(0)
 	}
 
 	return nil
 }
 
-// For checking if particular handler is already registered.
-func InterfaceChangeCallbackRegistered(callback *InterfaceChangeCallback) bool {
+func interfaceChanged(callerContext unsafe.Pointer, wtIfc *wtMibIpinterfaceRow,
+	notificationType MibNotificationType) uintptr {
 
-	interfaceChangeMutex.Lock()
-	defer interfaceChangeMutex.Unlock()
-
-	return indexOfInterfaceChangeCallback(callback) >= 0
-}
-
-// Unsubscribes all subscribed callbacks, and aborts listening for interface changes.
-func StopListeningForInterfaceChange() {
-
-	interfaceChangeMutex.Lock()
-	defer interfaceChangeMutex.Unlock()
-
-	interfaceChangeCallbacks = make([]*InterfaceChangeCallback, 0)
-
-	_ = checkInterfaceChangeSubscribed()
-}
-
-// Should be called from a locked code!
-func indexOfInterfaceChangeCallback(callback *InterfaceChangeCallback) int {
-
-	for idx, c := range interfaceChangeCallbacks {
-		if callback == c {
-			return idx
-		}
+	if wtIfc == nil {
+		return 0
 	}
 
-	return -1
-}
+	interfaceChangeMutex.Lock()
 
-// Should be called from a locked code!
-func checkInterfaceChangeSubscribed() error {
-
-	if interfaceChangeHandle == 0 {
-		// We aren't subscribed.
-		if len(interfaceChangeCallbacks) > 0 {
-			// We should subscribe!
-			result := notifyIpInterfaceChange(AF_UNSPEC, windows.NewCallback(interfaceChanged), 0,
-				false, unsafe.Pointer(&interfaceChangeHandle))
-
-			if result != 0 {
-				return os.NewSyscallError("iphlpapi.NotifyIpInterfaceChange", windows.Errno(result))
-			}
-		}
-	} else {
-		// We are subscribed.
-		if len(interfaceChangeCallbacks) < 1 {
-			// We should unsubscribe!
-			result := cancelMibChangeNotify2(interfaceChangeHandle)
-
-			if result != 0 {
-				return os.NewSyscallError("iphlpapi.CancelMibChangeNotify2", windows.Errno(result))
-			}
-
-			interfaceChangeHandle = uintptr(0)
-		}
+	for cb := range interfaceChangeCallbacks {
+		cb.cb(notificationType, wtIfc.InterfaceLuid)
 	}
 
-	return nil
-}
-
-func interfaceChanged(callerContext unsafe.Pointer, wtIfc *wtMibIpinterfaceRow, notificationType MibNotificationType) uintptr {
-
-	// go routine used to avoid blocking OS call.
-	go notifyInterfaceChangedCallbacks(notificationType, wtIfc.InterfaceLuid)
+	interfaceChangeMutex.Unlock()
 
 	return 0
-}
-
-func notifyInterfaceChangedCallbacks(notificationType MibNotificationType, interfaceLuid uint64) {
-
-	interfaceChangeMutex.Lock()
-	defer interfaceChangeMutex.Unlock()
-
-	for _, c := range interfaceChangeCallbacks {
-		(*c)(notificationType, interfaceLuid)
-	}
 }

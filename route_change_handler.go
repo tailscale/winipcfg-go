@@ -28,9 +28,11 @@ func RegisterRouteChangeCallback(cb func(notificationType MibNotificationType, r
 	s := &RouteChangeCallback{cb}
 	routeChangeCallbacks[s] = true
 	if routeChangeHandle == 0 {
-		result := notifyRouteChange2(AF_UNSPEC, windows.NewCallback(routeChanged), 0, false, unsafe.Pointer(&routeChangeHandle))
+		result := notifyRouteChange2(AF_UNSPEC, windows.NewCallback(routeChanged), 0, false,
+			unsafe.Pointer(&routeChangeHandle))
 		if result != 0 {
 			delete(routeChangeCallbacks, s)
+			routeChangeHandle = 0
 			return nil, os.NewSyscallError("iphlpapi.NotifyRouteChange2", windows.Errno(result))
 		}
 	}

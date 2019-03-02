@@ -44,6 +44,10 @@ var (
 		net.IPv4(8, 8, 4, 4),
 	}
 )
+func unicastAddressChangeCallbackExample(notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP) {
+	fmt.Printf("UNICAST ADDRESS CHANGED! MibNotificationType: %s; interface LUID: %d; IP: %s\n",
+		notificationType.String(), interfaceLuid, ip.String())
+}
 
 func TestGetInterfaces(t *testing.T) {
 
@@ -245,10 +249,11 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 		return
 	}
 
-	err = RegisterUnicastAddressChangeCallback(&unicastAddressChangeCallbackExample)
-	defer UnregisterUnicastAddressChangeCallback(&unicastAddressChangeCallbackExample)
+	cb, err := RegisterUnicastAddressChangeCallback(unicastAddressChangeCallbackExample)
 
-	if err != nil {
+	if err == nil {
+		defer UnregisterUnicastAddressChangeCallback(cb)
+	} else {
 		t.Errorf("RegisterUnicastAddressChangeCallback() returned an error: %v", err)
 	}
 
@@ -734,21 +739,6 @@ func TestInterface_SetDNS(t *testing.T) {
 		t.Error("InterfaceFromLUID() returned nil, so Interface.SetDNS() testing cannot be performed.")
 		return
 	}
-
-	err = RegisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
-
-	if err != nil {
-		t.Errorf("RegisterInterfaceChangeCallback() returned an error: %v", err)
-		return
-	}
-
-	defer func() {
-		err := UnregisterInterfaceChangeCallback(&interfaceChangeCallbackExample)
-
-		if err != nil {
-			t.Errorf("UnregisterInterfaceChangeCallback() returned an error: %v", err)
-		}
-	}()
 
 	prevDnsesCount := 0
 

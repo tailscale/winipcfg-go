@@ -381,21 +381,6 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		return
 	}
 
-	err = RegisterRouteChangeCallback(&routeChangeCallbackExample)
-
-	if err != nil {
-		t.Errorf("RegisterRouteChangeCallback() returned an error: %v", err)
-		return
-	}
-
-	defer func() {
-		err := UnregisterRouteChangeCallback(&routeChangeCallbackExample)
-
-		if err != nil {
-			t.Errorf("UnregisterRouteChangeCallback() returned an error: %v", err)
-		}
-	}()
-
 	err = ifc.AddRoute(&unexistentRouteIPv4ToAdd, true)
 
 	if err != nil {
@@ -521,21 +506,6 @@ func TestInterface_AddRoute_DeleteRoute_SplitDefault(t *testing.T) {
 		t.Errorf("Route to %s already exists!", expect2.String())
 		return
 	}
-
-	err = RegisterRouteChangeCallback(&routeChangeCallbackExample)
-
-	if err != nil {
-		t.Errorf("RegisterRouteChangeCallback() returned an error: %v", err)
-		return
-	}
-
-	defer func() {
-		err := UnregisterRouteChangeCallback(&routeChangeCallbackExample)
-
-		if err != nil {
-			t.Errorf("UnregisterRouteChangeCallback() returned an error: %v", err)
-		}
-	}()
 
 	err = ifc.AddRoute(&routeToAdd, true)
 

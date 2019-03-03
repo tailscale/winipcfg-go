@@ -252,7 +252,7 @@ func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 	cb, err := RegisterUnicastAddressChangeCallback(unicastAddressChangeCallbackExample)
 
 	if err == nil {
-		defer UnregisterUnicastAddressChangeCallback(cb)
+		defer cb.Unregister()
 	} else {
 		t.Errorf("RegisterUnicastAddressChangeCallback() returned an error: %v", err)
 	}

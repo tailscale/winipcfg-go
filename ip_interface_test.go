@@ -65,7 +65,7 @@ func TestChangeMetric(t *testing.T) {
 	}
 
 	defer func() {
-		err = UnregisterInterfaceChangeCallback(cb)
+		err = cb.Unregister()
 
 		if err != nil {
 			t.Errorf("UnregisterInterfaceChangeCallback() returned error: %v", err)
@@ -173,7 +173,7 @@ func TestChangeMtu(t *testing.T) {
 	}
 
 	defer func() {
-		err = UnregisterInterfaceChangeCallback(cb)
+		err = cb.Unregister()
 
 		if err != nil {
 			t.Errorf("UnregisterInterfaceChangeCallback() returned error: %v", err)

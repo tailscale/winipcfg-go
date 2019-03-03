@@ -51,8 +51,7 @@ func RegisterUnicastAddressChangeCallback(
 	return cb, nil
 }
 
-// Unregistering UnicastAddressChangeCallback.
-func UnregisterUnicastAddressChangeCallback(callback *UnicastAddressChangeCallback) error {
+func (callback *UnicastAddressChangeCallback) Unregister() error {
 
 	unicastAddressChangeMutex.Lock()
 	defer unicastAddressChangeMutex.Unlock()

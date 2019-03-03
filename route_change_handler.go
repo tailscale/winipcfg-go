@@ -39,7 +39,7 @@ func RegisterRouteChangeCallback(cb func(notificationType MibNotificationType, r
 	return s, nil
 }
 
-func UnregisterRouteChangeCallback(cb *RouteChangeCallback) error {
+func (cb *RouteChangeCallback) Unregister() error {
 	routeChangeMutex.Lock()
 	defer routeChangeMutex.Unlock()
 	delete(routeChangeCallbacks, cb)

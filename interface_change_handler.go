@@ -50,8 +50,7 @@ func RegisterInterfaceChangeCallback(callback func(notificationType MibNotificat
 	return cb, nil
 }
 
-// Unregistering InterfaceChangeCallback.
-func UnregisterInterfaceChangeCallback(callback *InterfaceChangeCallback) error {
+func (callback *InterfaceChangeCallback) Unregister() error {
 
 	interfaceChangeMutex.Lock()
 	defer interfaceChangeMutex.Unlock()

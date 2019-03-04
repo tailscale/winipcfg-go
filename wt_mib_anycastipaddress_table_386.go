@@ -10,7 +10,7 @@ package winipcfg
 type wtMibAnycastipaddressTable struct {
 	NumEntries uint32 // Windows type: ULONG
 
-	offset1    [4]byte // Layout correction field
+	offset1 [4]byte // Layout correction field
 
-	Table      [anySize]wtMibAnycastipaddressRow;
+	Table [anySize]wtMibAnycastipaddressRow
 }

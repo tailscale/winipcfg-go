@@ -11,12 +11,12 @@ type wtMibUnicastipaddressRow struct {
 	//
 	// Key Structure.
 	//
-	Address        wtSockaddrInet
+	Address wtSockaddrInet
 
-	offset1        [4]uint8 // Layout correction field
+	offset1 [4]uint8 // Layout correction field
 
-	InterfaceLuid  uint64   // Windows type: NET_LUID
-	InterfaceIndex uint32   // Windows type: NET_IFINDEX
+	InterfaceLuid  uint64 // Windows type: NET_LUID
+	InterfaceIndex uint32 // Windows type: NET_IFINDEX
 
 	//
 	// Read-Write Fileds.

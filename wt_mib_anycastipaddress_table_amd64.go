@@ -9,5 +9,5 @@ package winipcfg
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-mib_anycastipaddress_table)
 type wtMibAnycastipaddressTable struct {
 	NumEntries uint32 // Windows type: ULONG
-	Table      [anySize]wtMibAnycastipaddressRow;
+	Table      [anySize]wtMibAnycastipaddressRow
 }

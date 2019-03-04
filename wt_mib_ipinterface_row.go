@@ -7,8 +7,8 @@ package winipcfg
 
 import (
 	"fmt"
-	"os"
 	"golang.org/x/sys/windows"
+	"os"
 	"unsafe"
 )
 

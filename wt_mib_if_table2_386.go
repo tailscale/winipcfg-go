@@ -12,5 +12,5 @@ type wtMibIfTable2 struct {
 
 	offset1 [4]byte // Layout correction field
 
-	Table      [anySize]wtMibIfRow2
+	Table [anySize]wtMibIfRow2
 }

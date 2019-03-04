@@ -125,7 +125,7 @@ func GetMatchingUnicastIpAddressRow(ip *net.IP) (*UnicastIpAddressRow, error) {
 // Adds new unicast IP address to the system. Similar to Interface.AddAddress() method, but allows setting more options.
 // Additional options you can set by using this method are all "changeable" fields of UnicastIpAddressRow struct (see
 // UnicastIpAddressRow.Set() method for more details).
-func (address *UnicastIpAddressRow) Add() error{
+func (address *UnicastIpAddressRow) Add() error {
 
 	wtsainet, err := address.Address.toWtSockaddrInet()
 
@@ -198,6 +198,6 @@ DadState: %s
 ScopeId: %d
 CreationTimeStamp: %d`, address.Address.String(), address.OnLinkPrefixLength, address.InterfaceLuid,
 		address.InterfaceIndex, address.PrefixOrigin.String(), address.SuffixOrigin.String(), address.ValidLifetime,
-		address.PreferredLifetime, address.SkipAsSource, address.DadState.String(),	address.ScopeId,
+		address.PreferredLifetime, address.SkipAsSource, address.DadState.String(), address.ScopeId,
 		address.CreationTimeStamp)
 }

@@ -22,9 +22,9 @@ const (
 
 	wtMibAnycastipaddressRow_Size = 48
 
-	wtMibAnycastipaddressRow_InterfaceLuid_Offset = 32
+	wtMibAnycastipaddressRow_InterfaceLuid_Offset  = 32
 	wtMibAnycastipaddressRow_InterfaceIndex_Offset = 40
-	wtMibAnycastipaddressRow_ScopeId_Offset = 44
+	wtMibAnycastipaddressRow_ScopeId_Offset        = 44
 
 	wtMibAnycastipaddressTable_Size = 56
 

@@ -319,7 +319,7 @@ func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
 			i++
 		}
 	}
-	return routes, nil
+	return matches[:i], nil
 }
 
 // Returns route determined with the input arguments. Corresponds to GetIpForwardEntry2 function

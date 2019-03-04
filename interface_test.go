@@ -44,9 +44,15 @@ var (
 		net.IPv4(8, 8, 4, 4),
 	}
 )
+
 func unicastAddressChangeCallbackExample(notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP) {
 	fmt.Printf("UNICAST ADDRESS CHANGED! MibNotificationType: %s; interface LUID: %d; IP: %s\n",
 		notificationType.String(), interfaceLuid, ip.String())
+}
+
+func routeChangeCallbackExample(notificationType MibNotificationType, route *Route) {
+	fmt.Printf("ROUTE CHANGED! MibNotificationType: %s; destination: %s; next hop: %s\n",
+		notificationType.String(), route.DestinationPrefix.String(), route.NextHop.String())
 }
 
 func TestGetInterfaces(t *testing.T) {
@@ -401,6 +407,14 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		t.Errorf("Interface.FindRoutes() returned %d items although the route isn't added yet. Have you forgot to set unexistentRouteIPv4ToAdd appropriately?",
 			len(routes))
 		return
+	}
+
+	cb, err := RegisterRouteChangeCallback(routeChangeCallbackExample)
+
+	if err == nil {
+		defer cb.Unregister()
+	} else {
+		t.Errorf("RegisterRouteChangeCallback() returned an error: %v", err)
 	}
 
 	err = ifc.AddRoute(&unexistentRouteIPv4ToAdd)

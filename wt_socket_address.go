@@ -27,41 +27,10 @@ type wtSockaddr struct {
 func (sa *wtSocketAddress) getWtSockaddrInet() (*wtSockaddrInet, error) {
 
 	if sa.lpSockaddr == nil {
-		// TODO: The following check is unnecessary. Only for curiosity...
-		if sa.iSockaddrLength == 0 {
-			return nil, nil
-		} else {
-			return nil, fmt.Errorf(
-				"getWtSockaddrInet() - unexpected: lpSockaddr is nil while although iSockaddrLength is %d (0 expected)",
-				sa.iSockaddrLength)
-		}
+		return nil, nil
 	}
 
-	switch sa.lpSockaddr.sa_family {
-
-	case AF_INET:
-
-		// TODO: Remove this check once it's confirmed that it works OK.
-		if sa.iSockaddrLength != wtSockaddrIn_Size {
-			return nil,
-				fmt.Errorf("getWtSockaddrInet() - lpSockaddr.sa_family is %s but iSockaddrLength is %d (%d expected)",
-					AF_INET.String(), sa.iSockaddrLength, wtSockaddrIn_Size)
-		}
-
-		break
-
-	case AF_INET6:
-
-		// TODO: Remove this check once it's confirmed that it works OK.
-		if sa.iSockaddrLength != wtSockaddrIn6Lh_Size {
-			return nil,
-				fmt.Errorf("getWtSockaddrInet() - lpSockaddr.sa_family is %s but iSockaddrLength is %d (%d expected)",
-					AF_INET6.String(), sa.iSockaddrLength, wtSockaddrIn6Lh_Size)
-		}
-
-		break
-
-	default:
+	if sa.lpSockaddr.sa_family != AF_INET && sa.lpSockaddr.sa_family != AF_INET6 {
 		return nil, fmt.Errorf("getWtSockaddrInet() - receiver's argument family has to be AF_INET or AF_INET6")
 	}
 

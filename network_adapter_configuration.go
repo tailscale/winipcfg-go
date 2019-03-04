@@ -260,31 +260,10 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 	}
 
 	if stringArr == nil {
-		// TODO: Remove the following check:
-		if uint16Arr != nil && len(uint16Arr) != 0 {
-			return nil, fmt.Errorf(
-				"itemRawToNetworkAdaptersConfigurations() - DefaultIPGateway property is nil while GatewayCostMetric contains %d items",
-				len(uint16Arr))
-		}
-
 		nac.DefaultIPGateway = nil
 	} else {
 
 		length := len(stringArr)
-
-		// TODO: Remove the following check:
-		if uint16Arr == nil {
-			return nil, fmt.Errorf(
-				"itemRawToNetworkAdaptersConfigurations() - DefaultIPGateway property contains %d items while GatewayCostMetric is nil",
-				length)
-		}
-
-		// TODO: Remove the following check:
-		if uint16Arr == nil || len(uint16Arr) != length {
-			return nil, fmt.Errorf(
-				"itemRawToNetworkAdaptersConfigurations() - DefaultIPGateway property contains %d items while GatewayCostMetric contains %d",
-				length, len(uint16Arr))
-		}
 
 		nac.DefaultIPGateway = make([]GatewayCost, length, length)
 
@@ -456,31 +435,10 @@ func itemRawToNetworkAdaptersConfigurations(itemRaw *ole.VARIANT, settingId stri
 	}
 
 	if stringArr == nil {
-		// TODO: Remove the following check:
-		if subnetArr != nil && len(subnetArr) > 0 {
-			return nil, fmt.Errorf(
-				"itemRawToNetworkAdaptersConfigurations() - IPAddress property is nil while IPSubnet property contains %d items",
-				len(subnetArr))
-		}
-
 		nac.IPAddress = nil
 	} else {
 
 		length := len(stringArr)
-
-		// TODO: Remove the following check:
-		if subnetArr == nil {
-			return nil, fmt.Errorf(
-				"itemRawToNetworkAdaptersConfigurations() - IPAddress property contains %d items while IPSubnet is nil",
-				length)
-		}
-
-		// TODO: Remove the following check:
-		if len(subnetArr) != length {
-			return nil, fmt.Errorf(
-				"itemRawToNetworkAdaptersConfigurations() - IPAddress property contains %d items while IPSubnet contains %d",
-				length, len(subnetArr))
-		}
 
 		nac.IPAddress = make([]net.IPNet, length, length)
 

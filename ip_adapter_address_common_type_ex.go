@@ -11,7 +11,6 @@ type IpAdapterAddressCommonTypeEx struct {
 	// It extends IpAdapterAddressCommonType
 	IpAdapterAddressCommonType
 
-	// TODO: Documentation missing. What is it?
 	Flags uint32
 }
 

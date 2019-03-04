@@ -204,8 +204,6 @@ func (ifc *Interface) GetIfRow(level MibIfEntryLevel) (*IfRow, error) {
 	return GetIfRow(ifc.Luid, level)
 }
 
-// TODO: Check interfaceTable method from 'net' module, interface_windows.go file - it may be useful...
-
 //// Sets up the interface to be totally blank, with no settings. If the user has
 //// subsequently edited the interface particulars or added/removed parts using
 //// the "Properties" view, this wipes out those changes.

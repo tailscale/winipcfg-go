@@ -12,7 +12,6 @@ type IpAdapterAddressCommonType struct {
 	InterfaceLuid  uint64
 	InterfaceIndex uint32
 
-	// TODO: Documentation missing. What is it?
 	Length uint32
 
 	// The address.

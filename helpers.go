@@ -6,6 +6,7 @@
 package winipcfg
 
 import (
+	"bytes"
 	"fmt"
 	"golang.org/x/sys/windows"
 	"os"
@@ -14,67 +15,16 @@ import (
 )
 
 func wcharToString(wchar *uint16, maxLength uint32) string {
-
-	buffer := make([]uint16, maxLength, maxLength)
-
-	const size = uintptr(2) // unsafe.Sizeof(uint16(0))
-
-	start := unsafe.Pointer(wchar)
-
-	var i uint32
-
-	for i = 0; i < maxLength ; i++ {
-
-		letter := *(*uint16)(unsafe.Pointer(uintptr(start) + size*uintptr(i)))
-
-		if letter == 0 {
-			break
-		}
-
-		buffer[i] = letter
-	}
-
-	if i == 0 {
-		return ""
-	}
-
-	if i < maxLength {
-		buffer = buffer[:i]
-	}
-
-	return windows.UTF16ToString(buffer)
+	return windows.UTF16ToString((*(*[1<<31]uint16)(unsafe.Pointer(wchar)))[:maxLength])
 }
 
 func charToString(char *uint8, maxLength uint32) string {
-
-	buffer := make([]byte, maxLength, maxLength)
-
-	const size = uintptr(1) // unsafe.Sizeof(uint8(0))
-
-	start := unsafe.Pointer(char)
-
-	var i uint32
-
-	for i = 0; i < maxLength; i++ {
-
-		letter := *(*uint8)(unsafe.Pointer(uintptr(start) + size*uintptr(i)))
-
-		if letter == 0 {
-			break
-		}
-
-		buffer[i] = byte(letter)
+	slice := (*(*[1<<31]uint8)(unsafe.Pointer(char)))[:maxLength]
+	null := bytes.IndexByte(slice, 0)
+	if null != -1 {
+		slice = slice[:null]
 	}
-
-	if i == 0 {
-		return ""
-	}
-
-	if i < maxLength {
-		buffer = buffer[:i]
-	}
-
-	return string(buffer)
+	return string(slice)
 }
 
 func guidToString(guid *windows.GUID) string {
@@ -87,11 +37,8 @@ func guidToString(guid *windows.GUID) string {
 }
 
 func toIndentedText(text, indent string) string {
-
 	indented := strings.TrimSpace(text)
-
 	indented = strings.Replace(indented, "\n", fmt.Sprintf("\n%s", indent), -1)
-
 	return indent + indented
 }
 
@@ -108,7 +55,6 @@ func boolToUint8(val bool) uint8 {
 }
 
 func allZeroBytes(bytes []byte) bool {
-
 	for _, b := range bytes {
 		if b != 0 {
 			return false
@@ -119,7 +65,6 @@ func allZeroBytes(bytes []byte) bool {
 }
 
 func guidsEqual(guid1, guid2 *windows.GUID) bool {
-
 	if guid1 == nil {
 		return guid2 == nil
 	}
@@ -133,7 +78,6 @@ func guidsEqual(guid1, guid2 *windows.GUID) bool {
 }
 
 func InterfaceLuidToGuid(luid uint64) (*windows.GUID, error) {
-
 	guid := windows.GUID{}
 
 	result := convertInterfaceLuidToGuid(&luid, &guid)
@@ -146,7 +90,6 @@ func InterfaceLuidToGuid(luid uint64) (*windows.GUID, error) {
 }
 
 func InterfaceGuidToLuid(guid *windows.GUID) (uint64, error) {
-
 	luid := uint64(0)
 
 	result := convertInterfaceGuidToLuid(guid, &luid)

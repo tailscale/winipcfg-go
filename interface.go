@@ -11,17 +11,6 @@ import (
 	"net"
 )
 
-var (
-	gatewayIPv4 = net.IPNet{
-		IP: net.IPv4zero,
-		Mask: net.IPMask(net.IPv4zero),
-	}
-	gatewayIPv6 = net.IPNet{
-		IP: net.IPv6zero,
-		Mask: net.IPMask(net.IPv6zero),
-	}
-)
-
 // Corresponds to Windows struct IP_ADAPTER_ADDRESSES
 // (https://docs.microsoft.com/en-us/windows/desktop/api/iptypes/ns-iptypes-_ip_adapter_addresses_lh)
 type Interface struct {
@@ -318,7 +307,19 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 // Returns all the interface's routes. Corresponds to GetIpForwardTable2 function, but filtered by interface.
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2)
 func (ifc *Interface) GetRoutes(family AddressFamily) ([]*Route, error) {
-	return getRoutes(ifc.Luid, family)
+	routes, err := getRoutes(family)
+	if err != nil {
+		return nil, err
+	}
+	matches := make([]*Route, len(routes))
+	i := 0
+	for _, route := range routes {
+		if route.InterfaceLuid == ifc.Luid {
+			matches[i] = route
+			i++
+		}
+	}
+	return matches[:i], nil
 }
 
 // Returns route determined with the input arguments. Corresponds to GetIpForwardEntry2 function
@@ -328,22 +329,19 @@ func (ifc *Interface) GetRoute(destination *net.IPNet, nextHop *net.IP) (*Route,
 	return getRoute(ifc.Luid, destination, nextHop)
 }
 
-// Returns routes which are satisfying defined destination criterion.
-func (ifc *Interface) FindRoutes(destination *net.IPNet) ([]*Route, error) {
-	return findRoutes(ifc.Luid, destination)
-}
-
 // Deletes all interface's routes.
 func (ifc *Interface) FlushRoutes() error {
 
-	rows, err := getWtMibIpforwardRow2s(ifc.Luid, AF_UNSPEC)
+	rows, err := getWtMibIpforwardRow2s(AF_UNSPEC)
 
 	if err != nil {
 		return err
 	}
 
 	for _, row := range rows {
-
+		if row.InterfaceLuid != ifc.Luid {
+			continue
+		}
 		err = row.delete()
 
 		if err != nil {
@@ -356,81 +354,16 @@ func (ifc *Interface) FlushRoutes() error {
 
 // Adds route to the interface. Corresponds to CreateIpForwardEntry2 function, with added splitDefault feature.
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2)
-func (ifc *Interface) AddRoute(routeData *RouteData, splitDefault bool) error {
-
-	if splitDefault {
-
-		ones, bits := routeData.Destination.Mask.Size()
-
-		if bits < 1 {
-			return fmt.Errorf("Interface.AddRoute() - invalid destination (bits = %d)", bits)
-		}
-
-		if ones == 0 {
-			// Destination prefix length is 0, so it may be splittable
-			dest4 := routeData.Destination.IP.To4()
-
-			if dest4 == nil {
-				// IPv6 destination
-				dest6 := routeData.Destination.IP.To16()
-
-				if dest6 == nil {
-					return fmt.Errorf("Interface.AddRoute() - invalid destination (len = %d)",
-						len(routeData.Destination.IP))
-				}
-
-				if allZeroBytes(dest6) {
-					// It is 0::/0, so we should split
-
-					// Copying routeData to avoid changing it:
-					rd := *routeData
-
-					rd.Destination.Mask = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 0::/1
-
-					err := createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
-
-					if err != nil {
-						return err
-					}
-
-					rd.Destination.IP = []byte{128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // It's now 8000::/1
-
-					return createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
-				}
-
-			} else {
-				// IPv4 destination
-				if allZeroBytes(dest4) {
-					// It is 0.0.0.0/0, so we should split
-
-					// Copying routeData to avoid changing it:
-					rd := *routeData
-
-					rd.Destination.Mask = []byte{128, 0, 0, 0} // It's now 0.0.0.0/1
-
-					err := createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
-
-					if err != nil {
-						return err
-					}
-
-					rd.Destination.IP = []byte{128, 0, 0, 0} // It's now 128.0.0.0/1
-
-					return createAndAddWtMibIpforwardRow2(ifc.Luid, &rd)
-				}
-			}
-		}
-	}
-
+func (ifc *Interface) AddRoute(routeData *RouteData) error {
 	return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 }
 
 // Adds multiple routes to the interface.
-func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) error {
+func (ifc *Interface) AddRoutes(routesData []*RouteData) error {
 
 	for _, rd := range routesData {
 
-		err := ifc.AddRoute(rd, splitDefault)
+		err := ifc.AddRoute(rd)
 
 		if err != nil {
 			return err
@@ -441,7 +374,7 @@ func (ifc *Interface) AddRoutes(routesData []*RouteData, splitDefault bool) erro
 }
 
 // Sets (flush than add) multiple routes to the interface.
-func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) error {
+func (ifc *Interface) SetRoutes(routesData []*RouteData) error {
 
 	err := ifc.FlushRoutes()
 
@@ -449,7 +382,7 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData, splitDefault bool) erro
 		return err
 	}
 
-	return ifc.AddRoutes(routesData, splitDefault)
+	return ifc.AddRoutes(routesData)
 }
 
 // Deletes a route that matches the criteria. Corresponds to DeleteIpForwardEntry2 function
@@ -488,66 +421,6 @@ func (ifc *Interface) AddDNS(dnses []net.IP) error {
 
 func (ifc *Interface) SetDNS(dnses []net.IP) error {
 	return setDnses(ifc, dnses, false)
-}
-
-//
-//// These make sure we don't leak through another interface's resolver.
-//func (iface *Interface) ForceDNSPriority() (windows.HANDLE, error)
-//func UnforceDNSPriority(handle windows.HANDLE) error
-//
-//func (iface *Interface) func SetMTU(mtu uint16) error
-//
-//// If metric is zero, then UseAutomaticMetric=true; otherwise
-//// UseAutomaticMetric=false and the metric is set for the interface.
-//func (iface *Interface) func SetMetric(metric uint32) error
-//
-//// Calls callback with a default interface if the route to 0.0.0.0/0 changes,
-//// or if the default interface's MTU changes.
-//func RegisterDefaultInterfaceNotifier(callback func(*Interface)) (windows.HANDLE, error)
-//func UnregisterDefaultInterfaceNotifier(handle windows.HANDLE) error
-
-// Returns the interface that has 0.0.0.0/0 or ::/0 (depending on 'family').
-func DefaultInterface(family AddressFamily) (*Interface, error) {
-	return DefaultInterfaceEx(family, DefaultGetAdapterAddressesFlags())
-}
-
-// Returns the first item from the slice returned by DefaultInterfacesEx() function, or nil if the returned slice is
-// empty.
-func DefaultInterfaceEx(family AddressFamily, flags *GetAdapterAddressesFlags) (*Interface, error) {
-
-	if family != AF_INET && family != AF_INET6 {
-		return nil, fmt.Errorf("DefaultInterfaceEx() - input argument 'family' has to be either AF_INET or AF_INET6")
-	}
-
-	flags.GAA_FLAG_INCLUDE_GATEWAYS = true
-
-	destination := gatewayIPv4
-
-	if family == AF_INET6 {
-		destination = gatewayIPv6
-	}
-
-	routes, err := findWtMibIpforwardRow2s(0, &destination, family)
-
-	if err != nil {
-		return nil, err
-	}
-
-	luid := uint64(0)
-	metric := uint32(0)
-
-	for _, route := range routes {
-		if luid == 0 || route.Metric < metric {
-			luid = route.InterfaceLuid
-			metric = route.Metric
-		}
-	}
-
-	if luid > 0 {
-		return InterfaceFromLUIDEx(luid, flags)
-	} else {
-		return nil, nil
-	}
 }
 
 func (ifc *Interface) String() string {

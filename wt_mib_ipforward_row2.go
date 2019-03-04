@@ -47,7 +47,7 @@ type wtMibIpforwardRow2 struct {
 
 // Uses GetIpForwardTable2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2).
-func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]*wtMibIpforwardRow2, error) {
+func getWtMibIpforwardRow2s(family AddressFamily) ([]*wtMibIpforwardRow2, error) {
 
 	var pTable *wtMibIpforwardTable2 = nil
 
@@ -61,10 +61,7 @@ func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]*wtMi
 		return nil, os.NewSyscallError("iphlpapi.GetIpForwardTable2", windows.Errno(result))
 	}
 
-	var rows []*wtMibIpforwardRow2;
-	if interfaceLuid == 0 {
-		rows = make([]*wtMibIpforwardRow2, pTable.NumEntries, pTable.NumEntries)
-	}
+	rows := make([]*wtMibIpforwardRow2, pTable.NumEntries, pTable.NumEntries)
 
 	pFirstRow := uintptr(unsafe.Pointer(&pTable.Table[0]))
 	rowSize := uintptr(wtMibIpforwardRow2_Size) // Should be equal to unsafe.Sizeof(pTable.Table[0])
@@ -73,12 +70,7 @@ func getWtMibIpforwardRow2s(interfaceLuid uint64, family AddressFamily) ([]*wtMi
 		// Dereferencing and rereferencing in order to force copying.
 
 		row := *(*wtMibIpforwardRow2)(unsafe.Pointer(pFirstRow + rowSize*uintptr(i)))
-
-		if interfaceLuid == 0 {
-			rows[i] = &row
-		} else if row.InterfaceLuid == interfaceLuid {
-			rows = append(rows, &row)
-		}
+		rows[i] = &row
 	}
 
 	return rows, nil
@@ -131,27 +123,6 @@ func getWtMibIpforwardRow2(interfaceLuid uint64, destination *wtIpAddressPrefix,
 	} else {
 		return nil, os.NewSyscallError("iphlpapi.GetIpForwardEntry2", windows.Errno(result))
 	}
-}
-
-func findWtMibIpforwardRow2s(interfaceLuid uint64, destination *net.IPNet, family AddressFamily) ([]*wtMibIpforwardRow2, error) {
-
-	rows, err := getWtMibIpforwardRow2s(interfaceLuid, family)
-
-	if err != nil {
-		return nil, err
-	}
-
-	ones, _ := destination.Mask.Size()
-
-	matchingRows := make([]*wtMibIpforwardRow2, 0)
-
-	for _, row := range rows {
-		if row.DestinationPrefix.PrefixLength == uint8(ones) && row.DestinationPrefix.Prefix.matches(&destination.IP) {
-			matchingRows = append(matchingRows, row)
-		}
-	}
-
-	return matchingRows, nil
 }
 
 func createAndAddWtMibIpforwardRow2(interfaceLuid uint64, routeData *RouteData) error {

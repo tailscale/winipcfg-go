@@ -10,7 +10,6 @@ import (
 )
 
 type UnicastAddress struct {
-	// It extends IpAdapterAddressCommonTypeEx
 	IpAdapterAddressCommonTypeEx
 
 	PrefixOrigin IpPrefixOrigin

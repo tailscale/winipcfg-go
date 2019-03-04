@@ -8,7 +8,6 @@ package winipcfg
 import "fmt"
 
 type IpAdapterPrefix struct {
-	// It extends IpAdapterAddressCommonTypeEx
 	IpAdapterAddressCommonTypeEx
 
 	// Prefix length.

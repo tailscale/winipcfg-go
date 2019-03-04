@@ -30,56 +30,28 @@ type Route struct {
 	Origin               NlRouteOrigin
 }
 
-func getRoutes(interfaceLuid uint64, family AddressFamily) ([]*Route, error) {
+func getRoutes(family AddressFamily) ([]*Route, error) {
 
-	rows, err := getWtMibIpforwardRow2s(interfaceLuid, family)
+	rows, err := getWtMibIpforwardRow2s(family)
 
 	if err != nil {
 		return nil, err
 	}
 
-	length := len(rows)
-
-	routes := make([]*Route, length, length)
-
-	for idx, row := range rows {
-
+	routes := make([]*Route, len(rows))
+	i := 0
+	for _, row := range rows {
 		route, err := row.toRoute()
 
 		if err != nil {
 			return nil, err
 		}
 
-		routes[idx] = route
+		routes[i] = route
+		i++
 	}
 
-	return routes, nil
-}
-
-func findRoutes(interfaceLuid uint64, destination *net.IPNet) ([]*Route, error) {
-
-	rows, err := findWtMibIpforwardRow2s(interfaceLuid, destination, AF_UNSPEC)
-
-	if err != nil {
-		return nil, err
-	}
-
-	length := len(rows)
-
-	routes := make([]*Route, length, length)
-
-	for idx, row := range rows {
-
-		route, err := row.toRoute()
-
-		if err != nil {
-			return nil, err
-		}
-
-		routes[idx] = route
-	}
-
-	return routes, nil
+	return routes[:i], nil
 }
 
 func getRoute(interfaceLuid uint64, destination *net.IPNet, nextHop *net.IP) (*Route, error) {
@@ -106,15 +78,10 @@ func (route *Route) copyChangeableFieldsTo(row *wtMibIpforwardRow2) {
 	row.Immortal = boolToUint8(route.Immortal)
 }
 
-// Returns routes which are matching defined destination criterion.
-func FindRoutes(destination *net.IPNet) ([]*Route, error) {
-	return findRoutes(0, destination)
-}
-
 // Returns all the routes. Corresponds to GetIpForwardTable2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardtable2).
 func GetRoutes(family AddressFamily) ([]*Route, error) {
-	return getRoutes(0, family)
+	return getRoutes(family)
 }
 
 // Adds new route to the system. Similar to Interface.AddRoute() method, but allows setting more options. Additional

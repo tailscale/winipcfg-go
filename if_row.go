@@ -86,7 +86,7 @@ func GetIfRow(interfaceLuid uint64, level MibIfEntryLevel) (*IfRow, error) {
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getiftable2ex).
 func GetIfRows(level MibIfEntryLevel) ([]*IfRow, error) {
 
-	rows, err := getWtMibIfRow2s(level, nil)
+	rows, err := getWtMibIfRow2s(level)
 
 	if err != nil {
 		return nil, err
@@ -101,28 +101,6 @@ func GetIfRows(level MibIfEntryLevel) ([]*IfRow, error) {
 	}
 
 	return ifrows, nil
-}
-
-func GetIfRowByGuid(guid *windows.GUID, level MibIfEntryLevel) (*IfRow, error) {
-
-	if guid == nil {
-		return nil, fmt.Errorf("GetIfRowByGuid() - input argument 'guid' is nil")
-	}
-
-	rows, err := getWtMibIfRow2s(level, guid)
-
-	if err != nil {
-		return nil, err
-	}
-
-	switch len(rows) {
-	case 0:
-		return nil, nil
-	case 1:
-		return rows[0].toIfRow(), nil
-	default:
-		return nil, fmt.Errorf("Multiple interfaces (%d) have the same guid %s.", len(rows), guidToString(guid))
-	}
 }
 
 func (ifr *IfRow) String() string {

@@ -62,36 +62,3 @@ func TestGetIfRows(t *testing.T) {
 		}
 	}
 }
-
-func TestGetIfRowByGuid(t *testing.T) {
-
-	luidToConvert := existingLuid
-
-	guid, err := InterfaceLuidToGuid(luidToConvert)
-
-	if err != nil {
-		t.Errorf("InterfaceLuidToGuid() returned an error: %v", err)
-		return
-	}
-
-	if guid == nil {
-		t.Error("InterfaceLuidToGuid() returned nil.")
-		return
-	}
-
-	ifrow, err := GetIfRowByGuid(guid, MibIfEntryNormal)
-
-	if err != nil {
-		t.Errorf("GetIfRowByGuid() returned an error: %v", err)
-		return
-	}
-
-	if ifrow == nil {
-		t.Errorf("GetIfRowByGuid() for guid=%s returned nil.", guidToString(guid))
-		return
-	}
-
-	if ifrow.InterfaceLuid != luidToConvert {
-		t.Errorf("LUID mismatch. Expected: %d; actual: %d.", luidToConvert, ifrow.InterfaceLuid)
-	}
-}

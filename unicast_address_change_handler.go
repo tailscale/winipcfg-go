@@ -24,8 +24,6 @@ var (
 	unicastAddressChangeHandle    = uintptr(0)
 )
 
-// Registering new UnicastAddressChangeCallback. If this particular callback is already registered, the function will
-// silently return.
 func RegisterUnicastAddressChangeCallback(
 	callback func(notificationType MibNotificationType, interfaceLuid uint64, ip *net.IP)) (*UnicastAddressChangeCallback, error) {
 

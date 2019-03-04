@@ -350,6 +350,23 @@ func TestInterface_GetRoutes(t *testing.T) {
 
 func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 
+	findRoute := func(ifc *Interface, dest *net.IPNet) ([]*Route, error) {
+		routes, err := ifc.GetRoutes(AF_INET)
+		if err != nil {
+			return nil, err
+		}
+		matches := make([]*Route, len(routes))
+		i := 0
+		ones, _ := dest.Mask.Size()
+		for _, route := range routes {
+			if route.DestinationPrefix.PrefixLength == uint8(ones) && route.DestinationPrefix.Prefix.Address.Equal(dest.IP) {
+				matches[i] = route
+				i++
+			}
+		}
+		return matches[:i], nil
+	}
+
 	ifc, err := InterfaceFromLUID(existingLuid)
 
 	if err != nil {
@@ -373,7 +390,7 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		return
 	}
 
-	routes, err := ifc.FindRoutes(&unexistentRouteIPv4ToAdd.Destination)
+	routes, err := findRoute(ifc, &unexistentRouteIPv4ToAdd.Destination)
 
 	if err != nil {
 		t.Errorf("Interface.FindRoutes() returned an error: %v", err)
@@ -386,7 +403,7 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		return
 	}
 
-	err = ifc.AddRoute(&unexistentRouteIPv4ToAdd, true)
+	err = ifc.AddRoute(&unexistentRouteIPv4ToAdd)
 
 	if err != nil {
 		t.Errorf("Interface.AddRoute() returned an error: %v", err)
@@ -409,7 +426,7 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		t.Error("Interface.GetRoute() returned a wrong route!")
 	}
 
-	routes, err = ifc.FindRoutes(&unexistentRouteIPv4ToAdd.Destination)
+	routes, err = findRoute(ifc, &unexistentRouteIPv4ToAdd.Destination)
 
 	if err != nil {
 		t.Errorf("Interface.FindRoutes() returned an error: %v", err)
@@ -441,7 +458,7 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		t.Errorf("Interface.GetRoute() returned an error: %v", err)
 	}
 
-	routes, err = ifc.FindRoutes(&unexistentRouteIPv4ToAdd.Destination)
+	routes, err = findRoute(ifc, &unexistentRouteIPv4ToAdd.Destination)
 
 	if err != nil {
 		t.Errorf("Interface.FindRoutes() returned an error: %v", err)
@@ -452,108 +469,6 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 		t.Errorf("Interface.FindRoutes() returned %d items although the route is deleted successfully.",
 			len(routes))
 	}
-}
-
-func TestInterface_AddRoute_DeleteRoute_SplitDefault(t *testing.T) {
-
-	ifc, err := InterfaceFromLUID(existingLuid)
-
-	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so add/delete route testing cannot be performed.",
-			err)
-		return
-	}
-
-	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so add/delete route testing cannot be performed.")
-		return
-	}
-
-	routeToAdd := RouteData{
-		Destination: net.IPNet{
-			IP:   net.IP{0, 0, 0, 0},
-			Mask: net.IPMask{0, 0, 0, 0},
-		},
-		NextHop: net.IP{172, 16, 1, 2},
-		Metric:  0,
-	}
-
-	expect1 := net.IPNet{
-		IP:   net.IP{0, 0, 0, 0},
-		Mask: net.CIDRMask(1, 32),
-	}
-
-	expect2 := net.IPNet{
-		IP:   net.IP{128, 0, 0, 0},
-		Mask: net.CIDRMask(1, 32),
-	}
-
-	routes, err := ifc.FindRoutes(&expect1)
-
-	if err != nil {
-		t.Errorf("Interface.FindRoutes() returned an error: %v", err)
-		return
-	}
-
-	if len(routes) != 0 {
-		t.Errorf("Route to add (%s) already exists!", expect1.String())
-		return
-	}
-
-	routes, err = ifc.FindRoutes(&expect2)
-
-	if err != nil {
-		t.Errorf("Interface.FindRoutes() returned an error: %v", err)
-		return
-	}
-
-	if len(routes) != 0 {
-		t.Errorf("Route to %s already exists!", expect2.String())
-		return
-	}
-
-	err = ifc.AddRoute(&routeToAdd, true)
-
-	if err != nil {
-		t.Errorf("Interface.AddRoute() returned an error: %v", err)
-		return
-	}
-
-	// Giving some time to callbacks.
-	time.Sleep(500 * time.Millisecond)
-
-	routes, err = ifc.FindRoutes(&expect1)
-
-	if err != nil {
-		t.Errorf("Interface.FindRoute() returned an error: %v", err)
-	} else if len(routes) == 0 {
-		t.Errorf("Route %s not found although it's added successfully", expect1.String())
-	} else {
-
-		err = ifc.DeleteRoute(&expect1, &routeToAdd.NextHop)
-
-		if err != nil {
-			t.Errorf("Interface.DeleteRoute() returned an error: %v", err)
-		}
-	}
-
-	routes, err = ifc.FindRoutes(&expect2)
-
-	if err != nil {
-		t.Errorf("Interface.FindRoute() returned an error: %v", err)
-	} else if len(routes) == 0 {
-		t.Errorf("Route %s not found although it's added successfully", expect2.String())
-	} else {
-
-		err = ifc.DeleteRoute(&expect2, &routeToAdd.NextHop)
-
-		if err != nil {
-			t.Errorf("Interface.DeleteRoute() returned an error: %v", err)
-		}
-	}
-
-	// Giving some time to callbacks.
-	time.Sleep(500 * time.Millisecond)
 }
 
 func TestInterface_GetNetworkAdapterConfiguration(t *testing.T) {
@@ -802,25 +717,4 @@ func TestInterface_SetDNS(t *testing.T) {
 
 	// Giving some time to callbacks.
 	time.Sleep(500 * time.Millisecond)
-}
-
-func TestDefaultInterface(t *testing.T) {
-
-	ifc, err := DefaultInterface(AF_INET)
-
-	if err != nil {
-		t.Errorf("DefaultInterface() returned an error: %v", err)
-		return
-	}
-
-	if ifc == nil {
-		t.Error("DefaultInterface() returned nil.")
-		return
-	}
-
-	if interface_print {
-		fmt.Println("======================== INTERFACE OUTPUT START ========================")
-		fmt.Println(ifc)
-		fmt.Println("========================= INTERFACE OUTPUT END =========================")
-	}
 }

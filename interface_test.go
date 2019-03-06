@@ -8,7 +8,6 @@ package winipcfg
 import (
 	"fmt"
 	"net"
-	"strings"
 	"testing"
 	"time"
 )
@@ -482,46 +481,6 @@ func TestInterface_AddRoute_DeleteRoute(t *testing.T) {
 	if len(routes) != 0 {
 		t.Errorf("Interface.FindRoutes() returned %d items although the route is deleted successfully.",
 			len(routes))
-	}
-}
-
-func TestInterface_GetNetworkAdapterConfiguration(t *testing.T) {
-
-	ifc, err := InterfaceFromLUID(existingLuid)
-
-	if err != nil {
-		t.Errorf("InterfaceFromLUID() returned an error (%v), so Interface.GetNetworkAdapterConfiguration() testing cannot be performed.",
-			err)
-		return
-	}
-
-	if ifc == nil {
-		t.Error("InterfaceFromLUID() returned nil, so Interface.GetNetworkAdapterConfiguration() testing cannot be performed.")
-		return
-	}
-
-	nac, err := ifc.GetNetworkAdapterConfiguration()
-
-	if err != nil {
-		t.Errorf("Interface.GetNetworkAdapterConfiguration() returned an error: %v", err)
-		return
-	}
-
-	if nac == nil {
-		t.Error("Interface.GetNetworkAdapterConfiguration() returned nil")
-		return
-	}
-
-	if strings.ToUpper(strings.TrimSpace(ifc.AdapterName)) != strings.ToUpper(strings.TrimSpace(nac.SettingID)) {
-		t.Errorf("Interface.GetNetworkAdapterConfiguration() returned NetworkAdapterConfiguration.SettingID = %s, although Interface.AdapterName = %s.",
-			nac.SettingID, ifc.AdapterName)
-		return
-	}
-
-	if interface_printNetworkAdaptersConfigurations {
-		fmt.Println("============== NETWORK ADAPTER CONFIGURATION OUTPUT START ==============")
-		fmt.Println(nac)
-		fmt.Println("=============== NETWORK ADAPTER CONFIGURATION OUTPUT END ===============")
 	}
 }
 

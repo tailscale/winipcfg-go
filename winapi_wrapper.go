@@ -104,3 +104,7 @@ package winipcfg
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-cancelmibchangenotify2
 //sys	cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) = iphlpapi.CancelMibChangeNotify2
+
+// Paths - related functions
+// https://docs.microsoft.com/en-us/windows/desktop/api/sysinfoapi/nf-sysinfoapi-getsystemdirectoryw
+//sys	getSystemDirectory(dir *uint16, size uint) (len uint, err error) = kernel32.GetSystemDirectoryW

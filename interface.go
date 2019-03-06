@@ -396,29 +396,16 @@ func (ifc *Interface) DeleteRoute(destination *net.IPNet, nextHop *net.IP) error
 	}
 }
 
-func (ifc *Interface) GetNetworkAdapterConfiguration() (*NetworkAdapterConfiguration, error) {
-
-	nac, err := getNetworkAdaptersConfigurations(ifc.AdapterName)
-
-	if err != nil {
-		return nil, err
-	} else if nac == nil {
-		return nil, fmt.Errorf("GetNetworkAdapterConfiguration() - interface not found")
-	} else {
-		return nac.(*NetworkAdapterConfiguration), nil
-	}
-}
-
 func (ifc *Interface) FlushDNS() error {
-	return setDnses(ifc, nil, false)
+	return runNetsh(flushDnsCmds(ifc))
 }
 
 func (ifc *Interface) AddDNS(dnses []net.IP) error {
-	return setDnses(ifc, dnses, true)
+	return runNetsh(addDnsCmds(ifc, dnses))
 }
 
 func (ifc *Interface) SetDNS(dnses []net.IP) error {
-	return setDnses(ifc, dnses, false)
+	return runNetsh(append(flushDnsCmds(ifc), addDnsCmds(ifc, dnses)...))
 }
 
 func (ifc *Interface) String() string {

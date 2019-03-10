@@ -38,7 +38,6 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
-	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
 	procGetAdaptersAddresses            = modiphlpapi.NewProc("GetAdaptersAddresses")
 	procInitializeIpInterfaceEntry      = modiphlpapi.NewProc("InitializeIpInterfaceEntry")
@@ -70,7 +69,6 @@ var (
 	procNotifyUnicastIpAddressChange    = modiphlpapi.NewProc("NotifyUnicastIpAddressChange")
 	procNotifyRouteChange2              = modiphlpapi.NewProc("NotifyRouteChange2")
 	procCancelMibChangeNotify2          = modiphlpapi.NewProc("CancelMibChangeNotify2")
-	procGetSystemDirectoryW             = modkernel32.NewProc("GetSystemDirectoryW")
 )
 
 func getAdaptersAddresses(Family uint32, Flags uint32, Reserved uintptr, AdapterAddresses *wtIpAdapterAddresses, SizePointer *uint32) (result uint32) {
@@ -267,18 +265,5 @@ func notifyRouteChange2(Family AddressFamily, Callback uintptr, CallerContext ui
 func cancelMibChangeNotify2(NotificationHandle uintptr) (result int32) {
 	r0, _, _ := syscall.Syscall(procCancelMibChangeNotify2.Addr(), 1, uintptr(NotificationHandle), 0, 0)
 	result = int32(r0)
-	return
-}
-
-func getSystemDirectory(dir *uint16, size uint) (len uint, err error) {
-	r0, _, e1 := syscall.Syscall(procGetSystemDirectoryW.Addr(), 2, uintptr(unsafe.Pointer(dir)), uintptr(size), 0)
-	len = uint(r0)
-	if len == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
 	return
 }

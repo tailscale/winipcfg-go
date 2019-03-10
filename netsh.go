@@ -14,30 +14,17 @@ import (
 	"net"
 	"os/exec"
 	"strings"
-	"unsafe"
 )
-
-func getSystemToolPath(tool string) (string, error) {
-	var buf [windows.MAX_PATH * 2]uint16
-	ret, err := getSystemDirectory((*uint16)(unsafe.Pointer(&buf[0])), uint(len(buf)))
-	if err != nil {
-		return "", err
-	}
-	if ret > uint(len(buf)) {
-		return "", errors.New("getSystemToolPath - Buffer too small")
-	}
-	return windows.UTF16ToString(buf[:ret]) + "\\" + tool, nil
-}
 
 // I wish we didn't have to do this. netiohlp.dll (what's used by netsh.exe) has some nice tricks with writing directly
 // to the registry and the nsi kernel object, but it's not clear copying those makes for a stable interface. WMI doesn't
 // work with v6. CMI isn't in Windows 7.
 func runNetsh(cmds []string) error {
-	netsh, err := getSystemToolPath("netsh.exe")
+	system32, err := windows.GetSystemDirectory()
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(netsh) // I wish we could append (, "-f", "CONIN$") but Go sets up the process context wrong.
+	cmd := exec.Command(system32 + "\\netsh.exe") // I wish we could append (, "-f", "CONIN$") but Go sets up the process context wrong.
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return errors.New(fmt.Sprintf("runNetsh stdin pipe - %v", err))

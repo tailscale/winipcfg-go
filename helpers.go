@@ -15,11 +15,11 @@ import (
 )
 
 func wcharToString(wchar *uint16, maxLength uint32) string {
-	return windows.UTF16ToString((*(*[1<<31 - 1]uint16)(unsafe.Pointer(wchar)))[:maxLength])
+	return windows.UTF16ToString((*(*[1<<30 - 1]uint16)(unsafe.Pointer(wchar)))[:maxLength])
 }
 
 func charToString(char *uint8, maxLength uint32) string {
-	slice := (*(*[1<<31 - 1]uint8)(unsafe.Pointer(char)))[:maxLength]
+	slice := (*(*[1<<30 - 1]uint8)(unsafe.Pointer(char)))[:maxLength]
 	null := bytes.IndexByte(slice, 0)
 	if null != -1 {
 		slice = slice[:null]

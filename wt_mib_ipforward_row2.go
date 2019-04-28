@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"log"
 	"net"
 	"os"
 	"unsafe"
@@ -145,6 +146,7 @@ func createAndAddWtMibIpforwardRow2(interfaceLuid uint64, routeData *RouteData) 
 	row.NextHop = *wtsaNextHop
 	row.Metric = routeData.Metric
 
+	log.Printf("Add forward row: %v\n", routeData)
 	return row.add()
 }
 

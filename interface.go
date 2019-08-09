@@ -364,7 +364,7 @@ func (ifc *Interface) AddRoutes(routesData []*RouteData) error {
 		err := ifc.AddRoute(rd)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("%v: %v", rd, err)
 		}
 	}
 

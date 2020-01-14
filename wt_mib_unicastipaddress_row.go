@@ -122,7 +122,7 @@ func (row *wtMibUnicastipaddressRow) add() error {
 	if result == 0 {
 		return nil
 	} else {
-		return os.NewSyscallError("iphlpapi.CreateUnicastIpAddressEntry", windows.Errno(result))
+		return os.NewSyscallError("iphlpapi.CreateUnicastIpAddressEntry: " + row.Address.String(), windows.Errno(result))
 	}
 }
 

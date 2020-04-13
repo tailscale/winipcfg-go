@@ -224,33 +224,15 @@ func (r *wtMibIpforwardRow2) toRoute() (*Route, error) {
 	}, nil
 }
 
-func (r *wtMibIpforwardRow2) extractRouteData() (*RouteData, error) {
-
-	if r == nil {
-		return nil, nil
-	}
-
-	iap, err := r.DestinationPrefix.toIpAddressPrefix()
-
-	if err != nil {
-		return nil, err
-	}
-
-	destination, err := iap.toNetIpNet()
-
-	if err != nil {
-		return nil, err
-	}
-
-	sainet, err := r.NextHop.toSockaddrInet()
-
+func (r *Route) ToRouteData() (*RouteData, error) {
+	dest, err := r.DestinationPrefix.toNetIpNet()
 	if err != nil {
 		return nil, err
 	}
 
 	return &RouteData{
-		Destination: *destination,
-		NextHop:     sainet.Address,
+		Destination: *dest,
+		NextHop:     r.NextHop.Address,
 		Metric:      r.Metric,
 	}, nil
 }

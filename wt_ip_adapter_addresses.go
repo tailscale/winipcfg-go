@@ -124,6 +124,7 @@ func (wtiaa *wtIpAdapterAddresses) toInterface() (*Interface, error) {
 	}
 
 	ifc.UnicastAddresses = unicastAddresses
+	ifc.UnicastIPNets = unicastAddressesToIPNets(unicastAddresses)
 
 	var anycastAddresses []*IpAdapterAddressCommonTypeEx
 

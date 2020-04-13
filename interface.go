@@ -6,9 +6,11 @@
 package winipcfg
 
 import (
+	"bytes"
 	"fmt"
 	"golang.org/x/sys/windows"
 	"net"
+	"sort"
 )
 
 // Corresponds to Windows struct IP_ADAPTER_ADDRESSES
@@ -19,6 +21,7 @@ type Interface struct {
 	AdapterName         string
 	FriendlyName        string
 	UnicastAddresses    []*UnicastAddress
+	UnicastIPNets       []*net.IPNet
 	AnycastAddresses    []*IpAdapterAddressCommonTypeEx
 	MulticastAddresses  []*IpAdapterAddressCommonTypeEx
 	DnsServerAddresses  []*IpAdapterAddressCommonType
@@ -289,6 +292,31 @@ func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 	return nil
 }
 
+// Incrementally sets interface's unicase IP addresses.
+// This avoids the full FlushAddresses().
+func (ifc *Interface) SyncAddresses(want []*net.IPNet) error {
+	var erracc error
+
+	got := ifc.UnicastIPNets
+	add, del := deltaNets(got, want)
+
+	for _, a := range del {
+		err := ifc.DeleteAddress(&a.IP)
+		if err != nil {
+			erracc = err
+		}
+	}
+
+	err := ifc.AddAddresses(add)
+	if err != nil {
+		erracc = err
+	}
+
+	ifc.UnicastIPNets = make([]*net.IPNet, len(want))
+	copy(ifc.UnicastIPNets, want)
+	return erracc
+}
+
 // Deletes interface's unicast IP address. Corresponds to DeleteUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
 func (ifc *Interface) DeleteAddress(ip *net.IP) error {
@@ -300,6 +328,68 @@ func (ifc *Interface) DeleteAddress(ip *net.IP) error {
 	}
 
 	return addr.delete()
+}
+
+func unicastAddressesToIPNets(a []*UnicastAddress) []*net.IPNet {
+	out := make([]*net.IPNet, 0, len(a))
+	for _, u := range a {
+		w := 32
+		if u.Address.Address.To4() == nil {
+			w = 128
+		}
+		out = append(out, &net.IPNet{
+			IP:   u.Address.Address,
+			Mask: net.CIDRMask(int(u.OnLinkPrefixLength), w),
+		})
+	}
+	return out
+}
+
+func netCompare(a, b net.IPNet) int {
+	v := bytes.Compare(a.IP, b.IP)
+	if v != 0 {
+		return v
+	}
+
+	// narrower first
+	return -bytes.Compare(a.Mask, b.Mask)
+}
+
+func sortNets(a []*net.IPNet) {
+	sort.Slice(a, func(i, j int) bool {
+		return netCompare(*a[i], *a[j]) == -1
+	})
+}
+
+func deltaNets(a, b []*net.IPNet) (add, del []*net.IPNet) {
+	add = make([]*net.IPNet, 0, len(b))
+	del = make([]*net.IPNet, 0, len(a))
+	sortNets(a)
+	sortNets(b)
+
+	i := 0
+	j := 0
+	for i < len(a) && j < len(b) {
+		switch netCompare(*a[i], *b[j]) {
+		case -1:
+			// a < b, delete
+			del = append(del, a[i])
+			i++
+		case 0:
+			// a == b, no diff
+			i++
+			j++
+		case 1:
+			// a > b, add missing entry
+			add = append(add, b[j])
+			j++
+		default:
+			panic("unexpected compare result")
+		}
+	}
+	del = append(del, a[i:]...)
+	add = append(add, b[j:]...)
+	return
 }
 
 // Returns all the interface's routes. Corresponds to GetIpForwardTable2 function, but filtered by interface.
@@ -383,6 +473,42 @@ func (ifc *Interface) SetRoutes(routesData []*RouteData) error {
 	return ifc.AddRoutes(routesData)
 }
 
+// Incrementally sets multiples routes on an interface.
+// This avoids the full FlushRoutes().
+func (ifc *Interface) SyncRoutes(want []*RouteData) error {
+	var erracc error
+
+	routes, err := ifc.GetRoutes(AF_INET)
+	if err != nil {
+		return err
+	}
+
+	got := make([]*RouteData, 0, len(routes))
+	for _, r := range routes {
+		v, err := r.ToRouteData()
+		if err != nil {
+			return err
+		}
+		got = append(got, v)
+	}
+
+	add, del := deltaRouteData(got, want)
+
+	for _, a := range del {
+		err := ifc.DeleteRoute(&a.Destination, &a.NextHop)
+		if err != nil {
+			erracc = err
+		}
+	}
+
+	err = ifc.AddRoutes(add)
+	if err != nil {
+		erracc = err
+	}
+
+	return erracc
+}
+
 // Deletes a route that matches the criteria. Corresponds to DeleteIpForwardEntry2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2).
 func (ifc *Interface) DeleteRoute(destination *net.IPNet, nextHop *net.IP) error {
@@ -394,6 +520,88 @@ func (ifc *Interface) DeleteRoute(destination *net.IPNet, nextHop *net.IP) error
 	} else {
 		return err
 	}
+}
+
+func routeDataCompare(a, b *RouteData) int {
+	v := bytes.Compare(a.Destination.IP, b.Destination.IP)
+	if v != 0 {
+		return v
+	}
+
+	// Narrower masks first
+	v = bytes.Compare(a.Destination.Mask, b.Destination.Mask)
+	if v != 0 {
+		return -v
+	}
+
+	// No nexthop before non-empty nexthop
+	v = bytes.Compare(a.NextHop, b.NextHop)
+	if v != 0 {
+		return v
+	}
+
+	// Lower metrics first
+	if a.Metric < b.Metric {
+		return -1
+	} else if a.Metric > b.Metric {
+		return 1
+	}
+
+	return 0
+}
+
+func sortRouteData(a []*RouteData) {
+	sort.Slice(a, func(i, j int) bool {
+		return routeDataCompare(a[i], a[j]) < 0
+	})
+}
+
+func dedupeRouteData(a []*RouteData) []*RouteData {
+	out := make([]*RouteData, 0, len(a))
+
+	for i := range a {
+		// There's only one way to get to a given IP+Mask, so delete
+		// all matches after the first.
+		if i > 0 &&
+			bytes.Equal(a[i].Destination.IP, a[i-1].Destination.IP) &&
+			bytes.Equal(a[i].Destination.Mask, a[i-1].Destination.Mask) {
+			continue
+		}
+		out = append(out, a[i])
+	}
+
+	return out
+}
+
+func deltaRouteData(a, b []*RouteData) (add, del []*RouteData) {
+	add = make([]*RouteData, 0, len(b))
+	del = make([]*RouteData, 0, len(a))
+	sortRouteData(a)
+	sortRouteData(b)
+
+	i := 0
+	j := 0
+	for i < len(a) && j < len(b) {
+		switch routeDataCompare(a[i], b[j]) {
+		case -1:
+			// a < b, delete
+			del = append(del, a[i])
+			i++
+		case 0:
+			// a == b, no diff
+			i++
+			j++
+		case 1:
+			// a > b, add missing entry
+			add = append(add, b[j])
+			j++
+		default:
+			panic("unexpected compare result")
+		}
+	}
+	del = append(del, a[i:]...)
+	add = append(add, b[j:]...)
+	return
 }
 
 func (ifc *Interface) FlushDNS() error {

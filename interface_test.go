@@ -228,6 +228,103 @@ func TestInterface_GetData(t *testing.T) {
 	}
 }
 
+func equalNetIPs(a, b []*net.IPNet) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if netCompare(*a[i], *b[i]) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func ipnet4(ip string, bits int) *net.IPNet {
+	return &net.IPNet{
+		IP:   net.ParseIP(ip),
+		Mask: net.CIDRMask(bits, 32),
+	}
+}
+
+func TestInterface_DeltaNets(t *testing.T) {
+	a := []*net.IPNet{
+		ipnet4("1.2.3.4", 24),
+		ipnet4("1.2.3.4", 31),
+		ipnet4("1.2.3.3", 32),
+		ipnet4("10.0.1.1", 32),
+		ipnet4("100.0.1.1", 32),
+	}
+	b := []*net.IPNet{
+		ipnet4("10.0.1.1", 32),
+		ipnet4("100.0.2.1", 32),
+		ipnet4("1.2.3.3", 32),
+		ipnet4("1.2.3.4", 24),
+	}
+	add, del := deltaNets(a, b)
+
+	expect_add := []*net.IPNet{
+		ipnet4("100.0.2.1", 32),
+	}
+	expect_del := []*net.IPNet{
+		ipnet4("1.2.3.4", 31),
+		ipnet4("100.0.1.1", 32),
+	}
+
+	if !equalNetIPs(expect_add, add) {
+		t.Errorf("add:\n  want: %v\n   got: %v\n", expect_add, add)
+	}
+	if !equalNetIPs(expect_del, del) {
+		t.Errorf("del:\n  want: %v\n   got: %v\n", expect_del, del)
+	}
+}
+
+func equalRouteDatas(a, b []*RouteData) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if routeDataCompare(a[i], b[i]) != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func TestInterface_DeltaRouteData(t *testing.T) {
+	var h0 net.IP
+	h1 := net.ParseIP("99.99.99.99")
+	h2 := net.ParseIP("99.99.9.99")
+
+	a := []*RouteData{
+		&RouteData{*ipnet4("1.2.3.4", 32), h0, 1},
+		&RouteData{*ipnet4("1.2.3.4", 24), h1, 2},
+		&RouteData{*ipnet4("1.2.3.4", 24), h2, 1},
+		&RouteData{*ipnet4("1.2.3.5", 32), h0, 1},
+	}
+	b := []*RouteData{
+		&RouteData{*ipnet4("1.2.3.5", 32), h0, 1},
+		&RouteData{*ipnet4("1.2.3.4", 24), h1, 2},
+		&RouteData{*ipnet4("1.2.3.4", 24), h2, 2},
+	}
+	add, del := deltaRouteData(a, b)
+
+	expect_add := []*RouteData{
+		&RouteData{*ipnet4("1.2.3.4", 24), h2, 2},
+	}
+	expect_del := []*RouteData{
+		&RouteData{*ipnet4("1.2.3.4", 32), h0, 1},
+		&RouteData{*ipnet4("1.2.3.4", 24), h2, 1},
+	}
+
+	if !equalRouteDatas(expect_add, add) {
+		t.Errorf("add:\n  want: %v\n   got: %v\n", expect_add, add)
+	}
+	if !equalRouteDatas(expect_del, del) {
+		t.Errorf("del:\n  want: %v\n   got: %v\n", expect_del, del)
+	}
+}
+
 func TestInterface_AddAddresses_DeleteAddress(t *testing.T) {
 
 	ifc, err := InterfaceFromLUID(existingLuid)

@@ -9,11 +9,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"golang.org/x/sys/windows"
 	"io"
 	"net"
 	"os/exec"
 	"strings"
+	"syscall"
+
+	"golang.org/x/sys/windows"
 )
 
 // I wish we didn't have to do this. netiohlp.dll (what's used by netsh.exe) has some nice tricks with writing directly
@@ -25,6 +27,7 @@ func runNetsh(cmds []string) error {
 		return err
 	}
 	cmd := exec.Command(system32 + "\\netsh.exe") // I wish we could append (, "-f", "CONIN$") but Go sets up the process context wrong.
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return errors.New(fmt.Sprintf("runNetsh stdin pipe - %v", err))

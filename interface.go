@@ -8,9 +8,11 @@ package winipcfg
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/sys/windows"
 	"net"
 	"sort"
+	"strings"
+
+	"golang.org/x/sys/windows"
 )
 
 // Corresponds to Windows struct IP_ADAPTER_ADDRESSES
@@ -446,19 +448,35 @@ func (ifc *Interface) AddRoute(routeData *RouteData) error {
 	return createAndAddWtMibIpforwardRow2(ifc.Luid, routeData)
 }
 
-// Adds multiple routes to the interface.
+// AddRoutes adds multiple routes to the interface.
 func (ifc *Interface) AddRoutes(routesData []*RouteData) error {
-
+	var errs []error
 	for _, rd := range routesData {
-
-		err := ifc.AddRoute(rd)
-
-		if err != nil {
-			return fmt.Errorf("%v: %v", rd, err)
+		if err := ifc.AddRoute(rd); err != nil {
+			errs = append(errs, fmt.Errorf("%v: %w", rd, err))
 		}
 	}
+	if len(errs) == 0 {
+		return nil
+	}
+	if len(errs) == 1 {
+		return errs[0]
+	}
+	return multiError(errs)
+}
 
-	return nil
+type multiError []error
+
+func (me multiError) Error() string {
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "%d errors: ", len(me))
+	for i, e := range me {
+		if i > 0 {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(e.Error())
+	}
+	return sb.String()
 }
 
 // Sets (flush than add) multiple routes to the interface.

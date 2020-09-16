@@ -294,14 +294,17 @@ func (ifc *Interface) SetAddresses(addresses []*net.IPNet) error {
 	return nil
 }
 
-// Incrementally sets interface's unicase IP addresses.
-// This avoids the full FlushAddresses().
+// SyncAddresses incrementally sets the interface's unicast IP addresses,
+// doing the minimum number of AddAddresses & DeleteAddress calls.
+// This avoids the full FlushAddresses.
+//
+// Any IPv6 link-local addresses are not deleted.
 func (ifc *Interface) SyncAddresses(want []*net.IPNet) error {
 	var erracc error
 
 	got := ifc.UnicastIPNets
 	add, del := deltaNets(got, want)
-
+	del = excludeIPv6LinkLocal(del)
 	for _, a := range del {
 		err := ifc.DeleteAddress(&a.IP)
 		if err != nil {
@@ -347,14 +350,36 @@ func unicastAddressesToIPNets(a []*UnicastAddress) []*net.IPNet {
 	return out
 }
 
+// unwrapIP returns the shortest version of ip.
+func unwrapIP(ip net.IP) net.IP {
+	if ip4 := ip.To4(); ip4 != nil {
+		return ip4
+	}
+	return ip
+}
+
+func v4Mask(m net.IPMask) net.IPMask {
+	if len(m) == 16 {
+		return m[12:]
+	}
+	return m
+}
+
 func netCompare(a, b net.IPNet) int {
-	v := bytes.Compare(a.IP, b.IP)
+	aip, bip := unwrapIP(a.IP), unwrapIP(b.IP)
+	v := bytes.Compare(aip, bip)
 	if v != 0 {
 		return v
 	}
 
+	amask, bmask := a.Mask, b.Mask
+	if len(aip) == 4 {
+		amask = v4Mask(a.Mask)
+		bmask = v4Mask(b.Mask)
+	}
+
 	// narrower first
-	return -bytes.Compare(a.Mask, b.Mask)
+	return -bytes.Compare(amask, bmask)
 }
 
 func sortNets(a []*net.IPNet) {
@@ -363,6 +388,7 @@ func sortNets(a []*net.IPNet) {
 	})
 }
 
+// deltaNets returns the changes to turn a into b.
 func deltaNets(a, b []*net.IPNet) (add, del []*net.IPNet) {
 	add = make([]*net.IPNet, 0, len(b))
 	del = make([]*net.IPNet, 0, len(a))
@@ -392,6 +418,17 @@ func deltaNets(a, b []*net.IPNet) (add, del []*net.IPNet) {
 	del = append(del, a[i:]...)
 	add = append(add, b[j:]...)
 	return
+}
+
+func excludeIPv6LinkLocal(in []*net.IPNet) (out []*net.IPNet) {
+	out = in[:0]
+	for _, n := range in {
+		if len(n.IP) == 16 && n.IP.IsLinkLocalUnicast() {
+			continue
+		}
+		out = append(out, n)
+	}
+	return out
 }
 
 // Returns all the interface's routes. Corresponds to GetIpForwardTable2 function, but filtered by interface.

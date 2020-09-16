@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"fmt"
 	"net"
+	"strings"
 	"testing"
 	"time"
 )
@@ -247,35 +248,79 @@ func ipnet4(ip string, bits int) *net.IPNet {
 	}
 }
 
+// each cidr can end in "[4]" to mean To4 form.
+func nets(cidrs ...string) (ret []*net.IPNet) {
+	for _, s := range cidrs {
+		to4 := strings.HasSuffix(s, "[4]")
+		if to4 {
+			s = strings.TrimSuffix(s, "[4]")
+		}
+		ip, ipNet, err := net.ParseCIDR(s)
+		if err != nil {
+			panic(fmt.Sprintf("Bogus CIDR %q in test", s))
+		}
+		if to4 {
+			ip = ip.To4()
+		}
+		ipNet.IP = ip
+		ret = append(ret, ipNet)
+	}
+	return
+}
+
 func TestInterface_DeltaNets(t *testing.T) {
-	a := []*net.IPNet{
-		ipnet4("1.2.3.4", 24),
-		ipnet4("1.2.3.4", 31),
-		ipnet4("1.2.3.3", 32),
-		ipnet4("10.0.1.1", 32),
-		ipnet4("100.0.1.1", 32),
+	tests := []struct {
+		a, b             []*net.IPNet
+		wantAdd, wantDel []*net.IPNet
+	}{
+		{
+			a:       nets("1.2.3.4/24", "1.2.3.4/31", "1.2.3.3/32", "10.0.1.1/32", "100.0.1.1/32"),
+			b:       nets("10.0.1.1/32", "100.0.2.1/32", "1.2.3.3/32", "1.2.3.4/24"),
+			wantAdd: nets("100.0.2.1/32"),
+			wantDel: nets("1.2.3.4/31", "100.0.1.1/32"),
+		},
+		{
+			a:       nets("fe80::99d0:ec2d:b2e7:536b/64", "100.84.36.11/32"),
+			b:       nets("100.84.36.11/32"),
+			wantDel: nets("fe80::99d0:ec2d:b2e7:536b/64"),
+		},
+		{
+			a:       nets("100.84.36.11/32", "fe80::99d0:ec2d:b2e7:536b/64"),
+			b:       nets("100.84.36.11/32"),
+			wantDel: nets("fe80::99d0:ec2d:b2e7:536b/64"),
+		},
+		{
+			a:       nets("100.84.36.11/32", "fe80::99d0:ec2d:b2e7:536b/64"),
+			b:       nets("100.84.36.11/32[4]"),
+			wantDel: nets("fe80::99d0:ec2d:b2e7:536b/64"),
+		},
+		{
+			a: excludeIPv6LinkLocal(nets("100.84.36.11/32", "fe80::99d0:ec2d:b2e7:536b/64")),
+			b: nets("100.84.36.11/32"),
+		},
+		{
+			a: []*net.IPNet{
+				{
+					IP:   net.ParseIP("1.2.3.4"),
+					Mask: net.IPMask{0xff, 0xff, 0xff, 0xff},
+				},
+			},
+			b: []*net.IPNet{
+				{
+					IP:   net.ParseIP("1.2.3.4"),
+					Mask: net.IPMask{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+				},
+			},
+		},
 	}
-	b := []*net.IPNet{
-		ipnet4("10.0.1.1", 32),
-		ipnet4("100.0.2.1", 32),
-		ipnet4("1.2.3.3", 32),
-		ipnet4("1.2.3.4", 24),
-	}
-	add, del := deltaNets(a, b)
-
-	expect_add := []*net.IPNet{
-		ipnet4("100.0.2.1", 32),
-	}
-	expect_del := []*net.IPNet{
-		ipnet4("1.2.3.4", 31),
-		ipnet4("100.0.1.1", 32),
-	}
-
-	if !equalNetIPs(expect_add, add) {
-		t.Errorf("add:\n  want: %v\n   got: %v\n", expect_add, add)
-	}
-	if !equalNetIPs(expect_del, del) {
-		t.Errorf("del:\n  want: %v\n   got: %v\n", expect_del, del)
+	for i, tt := range tests {
+		add, del := deltaNets(tt.a, tt.b)
+		if !equalNetIPs(add, tt.wantAdd) {
+			t.Errorf("[%d] add:\n  got: %v\n want: %v\n", i, add, tt.wantAdd)
+		}
+		if !equalNetIPs(del, tt.wantDel) {
+			t.Errorf("[%d] del:\n  got: %v\n want: %v\n", i, del, tt.wantDel)
+		}
 	}
 }
 

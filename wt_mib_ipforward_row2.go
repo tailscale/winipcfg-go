@@ -7,13 +7,14 @@ package winipcfg
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
 	"net"
 	"os"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
-// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/ns-netioapi-_mib_ipforward_row2
+// https://docs.microsoft.com/en-us/windows/win32/api/netioapi/ns-netioapi-mib_ipforward_row2
 // MIB_IPFORWARD_ROW2 defined in netioapi.h
 type wtMibIpforwardRow2 struct {
 	//
